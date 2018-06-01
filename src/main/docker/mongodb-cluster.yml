@@ -1,0 +1,16 @@
+version: '2'
+services:
+    chatservice-mongodb:
+        image: mongo:3.4.10
+        ports:
+            - "27017:27017"
+        command: mongos --configdb chatservice-mongodb-config
+    chatservice-mongodb-node:
+        build:
+            context: .
+            dockerfile: mongodb/MongoDB.Dockerfile
+        command: mongod --replSet rs1 --noprealloc --smallfiles
+    chatservice-mongodb-config:
+        image: mongo:3.4.10
+        container_name: chatservice-mongodb-config
+        command: mongod --noprealloc --smallfiles --configsvr --dbpath /data/db
