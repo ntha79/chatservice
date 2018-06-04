@@ -1,0 +1,92 @@
+{
+    "fluentMethods": true,
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "messageId",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "groupChatId",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "groupType",
+            "fieldType": "GroupType",
+            "fieldValues": "PUBLIC,FANPAGE,SECRET,NORMAL"
+        },
+        {
+            "fieldName": "messageValue",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "messageType",
+            "fieldType": "ChatMessageType",
+            "fieldValues": "TEXT,FILE,QRCODE"
+        },
+        {
+            "fieldName": "senderId",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "senderLogin",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "receiverLists",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "receiverType",
+            "fieldType": "ReceiverType",
+            "fieldValues": "PUBLIC,FANPAGE,FRIEND"
+        },
+        {
+            "fieldName": "receiverText",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "createdBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "createdDate",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "createdUnixTime",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "lastModifiedBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "lastModifiedDate",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "lastModifiedUnixTime",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "reportDay",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "maxTimeToAction",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "referMessageId",
+            "fieldType": "Long"
+        }
+    ],
+    "changelogDate": "20180601100057",
+    "entityTableName": "chat_messages",
+    "dto": "no",
+    "pagination": "pagination",
+    "service": "no",
+    "jpaMetamodelFiltering": false,
+    "microserviceName": "chatservice"
+}

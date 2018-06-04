@@ -1,0 +1,61 @@
+{
+    "fluentMethods": true,
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "seqId",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "ownerId",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "ownerLogin",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "friendLists",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "friendCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "createdBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "createdDate",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "createdUnixTime",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "lastModifiedBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "lastModifiedDate",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "lastModifiedUnixTime",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "reportDay",
+            "fieldType": "Integer"
+        }
+    ],
+    "changelogDate": "20180604034444",
+    "entityTableName": "friends",
+    "dto": "no",
+    "pagination": "pagination",
+    "service": "no",
+    "jpaMetamodelFiltering": false,
+    "microserviceName": "chatservice"
+}

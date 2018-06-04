@@ -1,0 +1,207 @@
+
+enum GroupType {
+    PUBLIC, FANPAGE, SECRET, NORMAL
+}
+
+enum CheckStatus{
+	NOTCHECK, CHECKED
+}
+
+enum ChatMessageType {
+	TEXT, FILE, QRCODE
+}
+
+enum ReceiverType {
+	PUBLIC, FANPAGE, FRIEND
+}
+
+enum FanpageStatus
+{
+	ACTIVE, REPORT, DELETED
+}
+
+enum PushNotificationStatus{
+	INIT, SENDING, CANCEL, FINISH
+}
+
+entity Friends {
+	seqId String
+	ownerId Long
+    ownerLogin String,
+    friendLists String
+    friendCount Integer
+	createdBy String
+	createdDate Instant
+    createdUnixTime Long
+	lastModifiedBy String
+	lastModifiedDate Instant
+    lastModifiedUnixTime Long
+    reportDay Integer
+}
+
+entity GroupMembers {
+	groupId String
+	groupType GroupType
+    groupName String
+    groupIcon String
+    groupSlogan String
+    groupStatus Integer
+    ownerId Long
+	ownerLogin String,	
+    memberLists String
+    maxMember Integer
+    memberCount Integer
+	createdBy String
+	createdDate Instant
+    createdUnixTime Long
+	lastModifiedBy String
+    lastModifiedDate Instant
+	lastModifiedUnixTime Long
+    lastChatUnixTime Long
+    reportDay Integer
+}
+
+entity GroupMemberStatistics {
+	seqId String
+	dayCount Integer
+    monthCount Integer
+    yearCount Integer
+    inDay Integer
+    inMonth Integer
+    inYear Integer
+    status CheckStatus
+}
+
+entity ChatMessages {
+	messageId String
+	groupChatId String
+    groupType GroupType
+    messageValue String
+    messageType ChatMessageType
+    senderId Long
+    senderLogin String
+    receiverLists String
+    receiverType ReceiverType
+    receiverText String    
+    createdBy String
+	createdDate Instant
+	createdUnixTime Long
+	lastModifiedBy String
+	lastModifiedDate Instant
+    lastModifiedUnixTime Long
+    reportDay Integer
+    maxTimeToAction Integer
+    referMessageId Long
+}
+
+entity ChatMessageStatistics {
+	seqId String
+	dayCount Integer
+    monthCount Integer
+    yearCount Integer
+    inDay Integer
+    inMonth Integer
+    inYear Integer
+    status CheckStatus
+}
+
+entity Contacts {
+	seqId String
+	ownerId Long
+    ownerLogin String
+    contactLists String
+    contactCount Integer
+	createdBy String
+	createdDate Instant
+	createdUnixTime Long
+	lastModifiedBy String
+    lastModifiedDate Instant
+    lastModifiedUnixTime Long
+    reportDay Integer    
+}
+
+entity Fanpages {
+	fanpageId String
+	fanName String
+    fanUrl String
+    fanAbout String
+    fanIcon String
+    fanThumbnail String
+    fanStatus FanpageStatus
+    memberList String
+    memberCount Integer
+    ownerId Long
+    ownerLogin String
+    createdBy String
+	createdDate Instant
+	createdUnixTime Long
+	lastModifiedBy String
+	lastModifiedDate Instant
+	lastModifiedUnixTime Long
+    reportDay Integer    
+}
+
+entity FanpageStatistics {
+	seqId String
+	dayCount Integer
+    monthCount Integer
+    yearCount Integer
+    inDay Integer
+    inMonth Integer
+    inYear Integer
+    status CheckStatus
+}
+
+entity UserSettings {
+	seqId String
+	ownerId Long
+    ownerLogin String
+    priavateSettings String
+    socialSettings String
+	createdBy String
+	createdDate Instant
+	createdUnixTime Long
+    lastModifiedBy String
+    lastModifiedDate Instant
+	lastModifiedUnixTime Long	
+}
+
+entity ServiceSettings {
+	seqId String
+	code String
+    values String
+    createdBy String
+	createdDate Instant
+	createdUnixTime Long
+    lastModifiedBy String
+    lastModifiedDate Instant
+	lastModifiedUnixTime Long	  
+}
+
+entity PushNotifications {
+	seqId String
+	name String
+    message String
+    linkDetail String
+    status PushNotificationStatus
+    toMemberList String
+    createdBy String
+	createdDate Instant
+	createdUnixTime Long
+    lastModifiedBy String
+    lastModifiedDate Instant
+	lastModifiedUnixTime Long	
+    reportDay Integer
+}
+
+// Set pagination options
+paginate Friends, GroupMembers, GroupMemberStatistics, ChatMessages, ChatMessageStatistics, Contacts, Fanpages, FanpageStatistics, UserSettings, ServiceSettings, PushNotifications with pagination
+
+// Use Data Transfert Objects (DTO)
+// dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl except Friends, GroupMembers, GroupMemberStatistics, ChatMessages, ChatMessageStatistics, Contacts, Fanpages, FanpageStatistics, UserSettings, ServiceSettings, PushNotifications
+
+// Set an angular suffix
+// angularSuffix * with mySuffix

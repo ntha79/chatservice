@@ -1,0 +1,57 @@
+{
+    "fluentMethods": true,
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "seqId",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "ownerId",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "ownerLogin",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "priavateSettings",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "socialSettings",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "createdBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "createdDate",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "createdUnixTime",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "lastModifiedBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "lastModifiedDate",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "lastModifiedUnixTime",
+            "fieldType": "Long"
+        }
+    ],
+    "changelogDate": "20180604034452",
+    "entityTableName": "user_settings",
+    "dto": "no",
+    "pagination": "pagination",
+    "service": "no",
+    "jpaMetamodelFiltering": false,
+    "microserviceName": "chatservice"
+}

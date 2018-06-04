@@ -1,0 +1,43 @@
+
+enum GroupType {
+    PUBLIC, FANPAGE, SECRET, NORMAL
+}
+
+enum ChatMessageType {
+	TEXT, FILE, QRCODE
+}
+
+enum ReceiverType {
+	PUBLIC, FANPAGE, FRIEND
+}
+
+entity ChatMessages {
+	messageId String
+	groupChatId Long
+    groupType GroupType
+    messageValue String
+    messageType ChatMessageType
+    senderId Long
+    senderLogin String
+    receiverLists String
+    receiverType ReceiverType
+    receiverText String    
+    createUnixTime Long
+    updateUnixTime Long
+    reportDay Integer
+    maxTimeToAction Integer
+    referMessageId Long
+}
+
+
+// Set pagination options
+paginate ChatMessages with pagination
+
+// Use Data Transfert Objects (DTO)
+// dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl except ChatMessages
+
+// Set an angular suffix
+// angularSuffix * with mySuffix

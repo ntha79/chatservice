@@ -1,0 +1,46 @@
+{
+    "fluentMethods": true,
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "seqId",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "dayCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "monthCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "yearCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "inDay",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "inMonth",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "inYear",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "status",
+            "fieldType": "CheckStatus",
+            "fieldValues": "NOTCHECK,CHECKED"
+        }
+    ],
+    "changelogDate": "20180604034451",
+    "entityTableName": "fanpage_statistics",
+    "dto": "no",
+    "pagination": "pagination",
+    "service": "no",
+    "jpaMetamodelFiltering": false,
+    "microserviceName": "chatservice"
+}
