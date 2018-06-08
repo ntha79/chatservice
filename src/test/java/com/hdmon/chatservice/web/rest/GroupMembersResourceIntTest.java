@@ -2,10 +2,13 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.GroupMembers;
-import com.hdmon.chatservice.domain.enumeration.GroupType;
-import com.hdmon.chatservice.domain.extents.extGroupMemberLists;
+import com.hdmon.chatservice.domain.GroupMembersEntity;
+import com.hdmon.chatservice.domain.enumeration.GroupMemberStatusEnum;
+import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
+import com.hdmon.chatservice.domain.extents.extGroupMemberEntity;
+import com.hdmon.chatservice.repository.GroupMemberStatisticsRepository;
 import com.hdmon.chatservice.repository.GroupMembersRepository;
+import com.hdmon.chatservice.service.GroupMembersService;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,8 +46,8 @@ public class GroupMembersResourceIntTest {
     private static final String DEFAULT_GROUP_ID = "AAAAAAAAAA";
     private static final String UPDATED_GROUP_ID = "BBBBBBBBBB";
 
-    private static final GroupType DEFAULT_GROUP_TYPE = GroupType.PUBLIC;
-    private static final GroupType UPDATED_GROUP_TYPE = GroupType.FANPAGE;
+    private static final GroupTypeEnum DEFAULT_GROUP_TYPE = GroupTypeEnum.PUBLIC;
+    private static final GroupTypeEnum UPDATED_GROUP_TYPE = GroupTypeEnum.FANPAGE;
 
     private static final String DEFAULT_GROUP_NAME = "AAAAAAAAAA";
     private static final String UPDATED_GROUP_NAME = "BBBBBBBBBB";
@@ -55,8 +58,8 @@ public class GroupMembersResourceIntTest {
     private static final String DEFAULT_GROUP_SLOGAN = "AAAAAAAAAA";
     private static final String UPDATED_GROUP_SLOGAN = "BBBBBBBBBB";
 
-    private static final Integer DEFAULT_GROUP_STATUS = 1;
-    private static final Integer UPDATED_GROUP_STATUS = 2;
+    private static final GroupMemberStatusEnum DEFAULT_GROUP_STATUS = GroupMemberStatusEnum.NORMAL;
+    private static final GroupMemberStatusEnum UPDATED_GROUP_STATUS = GroupMemberStatusEnum.NORMAL;
 
     private static final Long DEFAULT_OWNER_ID = 1L;
     private static final Long UPDATED_OWNER_ID = 2L;
@@ -64,8 +67,8 @@ public class GroupMembersResourceIntTest {
     private static final String DEFAULT_OWNER_LOGIN = "AAAAAAAAAA";
     private static final String UPDATED_OWNER_LOGIN = "BBBBBBBBBB";
 
-    private static final List<extGroupMemberLists> DEFAULT_MEMBER_LISTS = new ArrayList<>();
-    private static final List<extGroupMemberLists> UPDATED_MEMBER_LISTS = new ArrayList<>();
+    private static final List<extGroupMemberEntity> DEFAULT_MEMBER_LISTS = new ArrayList<>();
+    private static final List<extGroupMemberEntity> UPDATED_MEMBER_LISTS = new ArrayList<>();
 
     private static final Integer DEFAULT_MAX_MEMBER = 1;
     private static final Integer UPDATED_MAX_MEMBER = 2;
@@ -101,6 +104,9 @@ public class GroupMembersResourceIntTest {
     private GroupMembersRepository groupMembersRepository;
 
     @Autowired
+    private GroupMembersService groupMembersService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -111,12 +117,12 @@ public class GroupMembersResourceIntTest {
 
     private MockMvc restGroupMembersMockMvc;
 
-    private GroupMembers groupMembers;
+    private GroupMembersEntity groupMembers;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final GroupMembersResource groupMembersResource = new GroupMembersResource(groupMembersRepository);
+        final GroupMembersResource groupMembersResource = new GroupMembersResource(groupMembersService);
         this.restGroupMembersMockMvc = MockMvcBuilders.standaloneSetup(groupMembersResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -130,8 +136,8 @@ public class GroupMembersResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static GroupMembers createEntity() {
-        GroupMembers groupMembers = new GroupMembers()
+    public static GroupMembersEntity createEntity() {
+        GroupMembersEntity groupMembers = new GroupMembersEntity()
             .groupId(DEFAULT_GROUP_ID)
             .groupType(DEFAULT_GROUP_TYPE)
             .groupName(DEFAULT_GROUP_NAME)
@@ -167,9 +173,9 @@ public class GroupMembersResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the GroupMembers in the database
-        List<GroupMembers> groupMembersList = groupMembersRepository.findAll();
+        List<GroupMembersEntity> groupMembersList = groupMembersRepository.findAll();
         assertThat(groupMembersList).hasSize(databaseSizeBeforeCreate + 1);
-        GroupMembers testGroupMembers = groupMembersList.get(groupMembersList.size() - 1);
+        GroupMembersEntity testGroupMembers = groupMembersList.get(groupMembersList.size() - 1);
         assertThat(testGroupMembers.getGroupId()).isEqualTo(DEFAULT_GROUP_ID);
         assertThat(testGroupMembers.getGroupType()).isEqualTo(DEFAULT_GROUP_TYPE);
         assertThat(testGroupMembers.getGroupName()).isEqualTo(DEFAULT_GROUP_NAME);
@@ -205,7 +211,7 @@ public class GroupMembersResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the GroupMembers in the database
-        List<GroupMembers> groupMembersList = groupMembersRepository.findAll();
+        List<GroupMembersEntity> groupMembersList = groupMembersRepository.findAll();
         assertThat(groupMembersList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -285,7 +291,7 @@ public class GroupMembersResourceIntTest {
         int databaseSizeBeforeUpdate = groupMembersRepository.findAll().size();
 
         // Update the groupMembers
-        GroupMembers updatedGroupMembers = groupMembersRepository.findOne(groupMembers.getId());
+        GroupMembersEntity updatedGroupMembers = groupMembersRepository.findOne(groupMembers.getId());
         updatedGroupMembers
             .groupId(UPDATED_GROUP_ID)
             .groupType(UPDATED_GROUP_TYPE)
@@ -309,9 +315,9 @@ public class GroupMembersResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the GroupMembers in the database
-        List<GroupMembers> groupMembersList = groupMembersRepository.findAll();
+        List<GroupMembersEntity> groupMembersList = groupMembersRepository.findAll();
         assertThat(groupMembersList).hasSize(databaseSizeBeforeUpdate);
-        GroupMembers testGroupMembers = groupMembersList.get(groupMembersList.size() - 1);
+        GroupMembersEntity testGroupMembers = groupMembersList.get(groupMembersList.size() - 1);
         assertThat(testGroupMembers.getGroupId()).isEqualTo(UPDATED_GROUP_ID);
         assertThat(testGroupMembers.getGroupType()).isEqualTo(UPDATED_GROUP_TYPE);
         assertThat(testGroupMembers.getGroupName()).isEqualTo(UPDATED_GROUP_NAME);
@@ -346,7 +352,7 @@ public class GroupMembersResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the GroupMembers in the database
-        List<GroupMembers> groupMembersList = groupMembersRepository.findAll();
+        List<GroupMembersEntity> groupMembersList = groupMembersRepository.findAll();
         assertThat(groupMembersList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
@@ -362,16 +368,16 @@ public class GroupMembersResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<GroupMembers> groupMembersList = groupMembersRepository.findAll();
+        List<GroupMembersEntity> groupMembersList = groupMembersRepository.findAll();
         assertThat(groupMembersList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(GroupMembers.class);
-        GroupMembers groupMembers1 = new GroupMembers();
+        TestUtil.equalsVerifier(GroupMembersEntity.class);
+        GroupMembersEntity groupMembers1 = new GroupMembersEntity();
         groupMembers1.setId("id1");
-        GroupMembers groupMembers2 = new GroupMembers();
+        GroupMembersEntity groupMembers2 = new GroupMembersEntity();
         groupMembers2.setId(groupMembers1.getId());
         assertThat(groupMembers1).isEqualTo(groupMembers2);
         groupMembers2.setId("id2");

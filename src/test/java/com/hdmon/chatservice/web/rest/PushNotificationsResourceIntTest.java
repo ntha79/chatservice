@@ -2,9 +2,9 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.PushNotifications;
-import com.hdmon.chatservice.domain.enumeration.PushNotificationStatus;
-import com.hdmon.chatservice.domain.extents.extPushNotificationToMemberLists;
+import com.hdmon.chatservice.domain.PushNotificationsEntity;
+import com.hdmon.chatservice.domain.enumeration.PushNotificationStatusEnum;
+import com.hdmon.chatservice.domain.extents.extPushNotificationToMemberEntity;
 import com.hdmon.chatservice.repository.PushNotificationsRepository;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
@@ -52,11 +52,11 @@ public class PushNotificationsResourceIntTest {
     private static final String DEFAULT_LINK_DETAIL = "AAAAAAAAAA";
     private static final String UPDATED_LINK_DETAIL = "BBBBBBBBBB";
 
-    private static final PushNotificationStatus DEFAULT_STATUS = PushNotificationStatus.INIT;
-    private static final PushNotificationStatus UPDATED_STATUS = PushNotificationStatus.SENDING;
+    private static final PushNotificationStatusEnum DEFAULT_STATUS = PushNotificationStatusEnum.INIT;
+    private static final PushNotificationStatusEnum UPDATED_STATUS = PushNotificationStatusEnum.SENDING;
 
-    private static final List<extPushNotificationToMemberLists> DEFAULT_TO_MEMBER_LIST = new ArrayList<>();
-    private static final List<extPushNotificationToMemberLists> UPDATED_TO_MEMBER_LIST = new ArrayList<>();
+    private static final List<extPushNotificationToMemberEntity> DEFAULT_TO_MEMBER_LIST = new ArrayList<>();
+    private static final List<extPushNotificationToMemberEntity> UPDATED_TO_MEMBER_LIST = new ArrayList<>();
 
     private static final String DEFAULT_CREATED_BY = "AAAAAAAAAA";
     private static final String UPDATED_CREATED_BY = "BBBBBBBBBB";
@@ -93,7 +93,7 @@ public class PushNotificationsResourceIntTest {
 
     private MockMvc restPushNotificationsMockMvc;
 
-    private PushNotifications pushNotifications;
+    private PushNotificationsEntity pushNotifications;
 
     @Before
     public void setup() {
@@ -112,19 +112,15 @@ public class PushNotificationsResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static PushNotifications createEntity() {
-        PushNotifications pushNotifications = new PushNotifications()
+    public static PushNotificationsEntity createEntity() {
+        PushNotificationsEntity pushNotifications = new PushNotificationsEntity()
             .seqId(DEFAULT_SEQ_ID)
             .name(DEFAULT_NAME)
             .message(DEFAULT_MESSAGE)
             .linkDetail(DEFAULT_LINK_DETAIL)
             .status(DEFAULT_STATUS)
             .toMemberList(DEFAULT_TO_MEMBER_LIST)
-            .createdBy(DEFAULT_CREATED_BY)
-            .createdDate(DEFAULT_CREATED_DATE)
             .createdUnixTime(DEFAULT_CREATED_UNIX_TIME)
-            .lastModifiedBy(DEFAULT_LAST_MODIFIED_BY)
-            .lastModifiedDate(DEFAULT_LAST_MODIFIED_DATE)
             .lastModifiedUnixTime(DEFAULT_LAST_MODIFIED_UNIX_TIME)
             .reportDay(DEFAULT_REPORT_DAY);
         return pushNotifications;
@@ -147,9 +143,9 @@ public class PushNotificationsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the PushNotifications in the database
-        List<PushNotifications> pushNotificationsList = pushNotificationsRepository.findAll();
+        List<PushNotificationsEntity> pushNotificationsList = pushNotificationsRepository.findAll();
         assertThat(pushNotificationsList).hasSize(databaseSizeBeforeCreate + 1);
-        PushNotifications testPushNotifications = pushNotificationsList.get(pushNotificationsList.size() - 1);
+        PushNotificationsEntity testPushNotifications = pushNotificationsList.get(pushNotificationsList.size() - 1);
         assertThat(testPushNotifications.getSeqId()).isEqualTo(DEFAULT_SEQ_ID);
         assertThat(testPushNotifications.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testPushNotifications.getMessage()).isEqualTo(DEFAULT_MESSAGE);
@@ -179,7 +175,7 @@ public class PushNotificationsResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the PushNotifications in the database
-        List<PushNotifications> pushNotificationsList = pushNotificationsRepository.findAll();
+        List<PushNotificationsEntity> pushNotificationsList = pushNotificationsRepository.findAll();
         assertThat(pushNotificationsList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -247,7 +243,7 @@ public class PushNotificationsResourceIntTest {
         int databaseSizeBeforeUpdate = pushNotificationsRepository.findAll().size();
 
         // Update the pushNotifications
-        PushNotifications updatedPushNotifications = pushNotificationsRepository.findOne(pushNotifications.getId());
+        PushNotificationsEntity updatedPushNotifications = pushNotificationsRepository.findOne(pushNotifications.getId());
         updatedPushNotifications
             .seqId(UPDATED_SEQ_ID)
             .name(UPDATED_NAME)
@@ -255,11 +251,7 @@ public class PushNotificationsResourceIntTest {
             .linkDetail(UPDATED_LINK_DETAIL)
             .status(UPDATED_STATUS)
             .toMemberList(UPDATED_TO_MEMBER_LIST)
-            .createdBy(UPDATED_CREATED_BY)
-            .createdDate(UPDATED_CREATED_DATE)
             .createdUnixTime(UPDATED_CREATED_UNIX_TIME)
-            .lastModifiedBy(UPDATED_LAST_MODIFIED_BY)
-            .lastModifiedDate(UPDATED_LAST_MODIFIED_DATE)
             .lastModifiedUnixTime(UPDATED_LAST_MODIFIED_UNIX_TIME)
             .reportDay(UPDATED_REPORT_DAY);
 
@@ -269,9 +261,9 @@ public class PushNotificationsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the PushNotifications in the database
-        List<PushNotifications> pushNotificationsList = pushNotificationsRepository.findAll();
+        List<PushNotificationsEntity> pushNotificationsList = pushNotificationsRepository.findAll();
         assertThat(pushNotificationsList).hasSize(databaseSizeBeforeUpdate);
-        PushNotifications testPushNotifications = pushNotificationsList.get(pushNotificationsList.size() - 1);
+        PushNotificationsEntity testPushNotifications = pushNotificationsList.get(pushNotificationsList.size() - 1);
         assertThat(testPushNotifications.getSeqId()).isEqualTo(UPDATED_SEQ_ID);
         assertThat(testPushNotifications.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testPushNotifications.getMessage()).isEqualTo(UPDATED_MESSAGE);
@@ -300,7 +292,7 @@ public class PushNotificationsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the PushNotifications in the database
-        List<PushNotifications> pushNotificationsList = pushNotificationsRepository.findAll();
+        List<PushNotificationsEntity> pushNotificationsList = pushNotificationsRepository.findAll();
         assertThat(pushNotificationsList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
@@ -316,16 +308,16 @@ public class PushNotificationsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<PushNotifications> pushNotificationsList = pushNotificationsRepository.findAll();
+        List<PushNotificationsEntity> pushNotificationsList = pushNotificationsRepository.findAll();
         assertThat(pushNotificationsList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(PushNotifications.class);
-        PushNotifications pushNotifications1 = new PushNotifications();
+        TestUtil.equalsVerifier(PushNotificationsEntity.class);
+        PushNotificationsEntity pushNotifications1 = new PushNotificationsEntity();
         pushNotifications1.setId("id1");
-        PushNotifications pushNotifications2 = new PushNotifications();
+        PushNotificationsEntity pushNotifications2 = new PushNotificationsEntity();
         pushNotifications2.setId(pushNotifications1.getId());
         assertThat(pushNotifications1).isEqualTo(pushNotifications2);
         pushNotifications2.setId("id2");

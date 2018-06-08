@@ -2,9 +2,11 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.Fanpages;
-import com.hdmon.chatservice.domain.enumeration.FanpageStatus;
+import com.hdmon.chatservice.domain.FanpagesEntity;
+import com.hdmon.chatservice.domain.enumeration.FanpageStatusEnum;
+import com.hdmon.chatservice.domain.extents.extGroupMemberEntity;
 import com.hdmon.chatservice.repository.FanpagesRepository;
+import com.hdmon.chatservice.service.FanpagesService;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +23,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.hdmon.chatservice.web.rest.TestUtil.createFormattingConversionService;
@@ -56,11 +59,11 @@ public class FanpagesResourceIntTest {
     private static final String DEFAULT_FAN_THUMBNAIL = "AAAAAAAAAA";
     private static final String UPDATED_FAN_THUMBNAIL = "BBBBBBBBBB";
 
-    private static final FanpageStatus DEFAULT_FAN_STATUS = FanpageStatus.ACTIVE;
-    private static final FanpageStatus UPDATED_FAN_STATUS = FanpageStatus.REPORT;
+    private static final FanpageStatusEnum DEFAULT_FAN_STATUS = FanpageStatusEnum.ACTIVE;
+    private static final FanpageStatusEnum UPDATED_FAN_STATUS = FanpageStatusEnum.REPORT;
 
-    private static final String DEFAULT_MEMBER_LIST = "AAAAAAAAAA";
-    private static final String UPDATED_MEMBER_LIST = "BBBBBBBBBB";
+    private static final List<extGroupMemberEntity> DEFAULT_MEMBER_LIST = new ArrayList<>();
+    private static final List<extGroupMemberEntity> UPDATED_MEMBER_LIST = new ArrayList<>();
 
     private static final Integer DEFAULT_MEMBER_COUNT = 1;
     private static final Integer UPDATED_MEMBER_COUNT = 2;
@@ -96,6 +99,9 @@ public class FanpagesResourceIntTest {
     private FanpagesRepository fanpagesRepository;
 
     @Autowired
+    private FanpagesService fanpagesService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -106,12 +112,12 @@ public class FanpagesResourceIntTest {
 
     private MockMvc restFanpagesMockMvc;
 
-    private Fanpages fanpages;
+    private FanpagesEntity fanpages;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final FanpagesResource fanpagesResource = new FanpagesResource(fanpagesRepository);
+        final FanpagesResource fanpagesResource = new FanpagesResource(fanpagesService);
         this.restFanpagesMockMvc = MockMvcBuilders.standaloneSetup(fanpagesResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -125,8 +131,8 @@ public class FanpagesResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Fanpages createEntity() {
-        Fanpages fanpages = new Fanpages()
+    public static FanpagesEntity createEntity() {
+        FanpagesEntity fanpages = new FanpagesEntity()
             .fanpageId(DEFAULT_FANPAGE_ID)
             .fanName(DEFAULT_FAN_NAME)
             .fanUrl(DEFAULT_FAN_URL)
@@ -138,11 +144,7 @@ public class FanpagesResourceIntTest {
             .memberCount(DEFAULT_MEMBER_COUNT)
             .ownerId(DEFAULT_OWNER_ID)
             .ownerLogin(DEFAULT_OWNER_LOGIN)
-            .createdBy(DEFAULT_CREATED_BY)
-            .createdDate(DEFAULT_CREATED_DATE)
             .createdUnixTime(DEFAULT_CREATED_UNIX_TIME)
-            .lastModifiedBy(DEFAULT_LAST_MODIFIED_BY)
-            .lastModifiedDate(DEFAULT_LAST_MODIFIED_DATE)
             .lastModifiedUnixTime(DEFAULT_LAST_MODIFIED_UNIX_TIME)
             .reportDay(DEFAULT_REPORT_DAY);
         return fanpages;
@@ -165,9 +167,9 @@ public class FanpagesResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the Fanpages in the database
-        List<Fanpages> fanpagesList = fanpagesRepository.findAll();
+        List<FanpagesEntity> fanpagesList = fanpagesRepository.findAll();
         assertThat(fanpagesList).hasSize(databaseSizeBeforeCreate + 1);
-        Fanpages testFanpages = fanpagesList.get(fanpagesList.size() - 1);
+        FanpagesEntity testFanpages = fanpagesList.get(fanpagesList.size() - 1);
         assertThat(testFanpages.getFanpageId()).isEqualTo(DEFAULT_FANPAGE_ID);
         assertThat(testFanpages.getFanName()).isEqualTo(DEFAULT_FAN_NAME);
         assertThat(testFanpages.getFanUrl()).isEqualTo(DEFAULT_FAN_URL);
@@ -202,7 +204,7 @@ public class FanpagesResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the Fanpages in the database
-        List<Fanpages> fanpagesList = fanpagesRepository.findAll();
+        List<FanpagesEntity> fanpagesList = fanpagesRepository.findAll();
         assertThat(fanpagesList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -280,7 +282,7 @@ public class FanpagesResourceIntTest {
         int databaseSizeBeforeUpdate = fanpagesRepository.findAll().size();
 
         // Update the fanpages
-        Fanpages updatedFanpages = fanpagesRepository.findOne(fanpages.getId());
+        FanpagesEntity updatedFanpages = fanpagesRepository.findOne(fanpages.getId());
         updatedFanpages
             .fanpageId(UPDATED_FANPAGE_ID)
             .fanName(UPDATED_FAN_NAME)
@@ -293,11 +295,7 @@ public class FanpagesResourceIntTest {
             .memberCount(UPDATED_MEMBER_COUNT)
             .ownerId(UPDATED_OWNER_ID)
             .ownerLogin(UPDATED_OWNER_LOGIN)
-            .createdBy(UPDATED_CREATED_BY)
-            .createdDate(UPDATED_CREATED_DATE)
             .createdUnixTime(UPDATED_CREATED_UNIX_TIME)
-            .lastModifiedBy(UPDATED_LAST_MODIFIED_BY)
-            .lastModifiedDate(UPDATED_LAST_MODIFIED_DATE)
             .lastModifiedUnixTime(UPDATED_LAST_MODIFIED_UNIX_TIME)
             .reportDay(UPDATED_REPORT_DAY);
 
@@ -307,9 +305,9 @@ public class FanpagesResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the Fanpages in the database
-        List<Fanpages> fanpagesList = fanpagesRepository.findAll();
+        List<FanpagesEntity> fanpagesList = fanpagesRepository.findAll();
         assertThat(fanpagesList).hasSize(databaseSizeBeforeUpdate);
-        Fanpages testFanpages = fanpagesList.get(fanpagesList.size() - 1);
+        FanpagesEntity testFanpages = fanpagesList.get(fanpagesList.size() - 1);
         assertThat(testFanpages.getFanpageId()).isEqualTo(UPDATED_FANPAGE_ID);
         assertThat(testFanpages.getFanName()).isEqualTo(UPDATED_FAN_NAME);
         assertThat(testFanpages.getFanUrl()).isEqualTo(UPDATED_FAN_URL);
@@ -343,7 +341,7 @@ public class FanpagesResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the Fanpages in the database
-        List<Fanpages> fanpagesList = fanpagesRepository.findAll();
+        List<FanpagesEntity> fanpagesList = fanpagesRepository.findAll();
         assertThat(fanpagesList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
@@ -359,16 +357,16 @@ public class FanpagesResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<Fanpages> fanpagesList = fanpagesRepository.findAll();
+        List<FanpagesEntity> fanpagesList = fanpagesRepository.findAll();
         assertThat(fanpagesList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Fanpages.class);
-        Fanpages fanpages1 = new Fanpages();
+        TestUtil.equalsVerifier(FanpagesEntity.class);
+        FanpagesEntity fanpages1 = new FanpagesEntity();
         fanpages1.setId("id1");
-        Fanpages fanpages2 = new Fanpages();
+        FanpagesEntity fanpages2 = new FanpagesEntity();
         fanpages2.setId(fanpages1.getId());
         assertThat(fanpages1).isEqualTo(fanpages2);
         fanpages2.setId("id2");

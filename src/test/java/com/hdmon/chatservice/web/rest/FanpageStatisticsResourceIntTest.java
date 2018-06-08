@@ -2,8 +2,8 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.FanpageStatistics;
-import com.hdmon.chatservice.domain.enumeration.CheckStatus;
+import com.hdmon.chatservice.domain.FanpageStatisticsEntity;
+import com.hdmon.chatservice.domain.enumeration.CheckStatusEnum;
 import com.hdmon.chatservice.repository.FanpageStatisticsRepository;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
@@ -57,8 +57,8 @@ public class FanpageStatisticsResourceIntTest {
     private static final Integer DEFAULT_IN_YEAR = 1;
     private static final Integer UPDATED_IN_YEAR = 2;
 
-    private static final CheckStatus DEFAULT_STATUS = CheckStatus.NOTCHECK;
-    private static final CheckStatus UPDATED_STATUS = CheckStatus.CHECKED;
+    private static final CheckStatusEnum DEFAULT_STATUS = CheckStatusEnum.NOTCHECK;
+    private static final CheckStatusEnum UPDATED_STATUS = CheckStatusEnum.CHECKED;
 
     @Autowired
     private FanpageStatisticsRepository fanpageStatisticsRepository;
@@ -74,7 +74,7 @@ public class FanpageStatisticsResourceIntTest {
 
     private MockMvc restFanpageStatisticsMockMvc;
 
-    private FanpageStatistics fanpageStatistics;
+    private FanpageStatisticsEntity fanpageStatistics;
 
     @Before
     public void setup() {
@@ -93,8 +93,8 @@ public class FanpageStatisticsResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static FanpageStatistics createEntity() {
-        FanpageStatistics fanpageStatistics = new FanpageStatistics()
+    public static FanpageStatisticsEntity createEntity() {
+        FanpageStatisticsEntity fanpageStatistics = new FanpageStatisticsEntity()
             .dayCount(DEFAULT_DAY_COUNT)
             .monthCount(DEFAULT_MONTH_COUNT)
             .yearCount(DEFAULT_YEAR_COUNT)
@@ -122,9 +122,9 @@ public class FanpageStatisticsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the FanpageStatistics in the database
-        List<FanpageStatistics> fanpageStatisticsList = fanpageStatisticsRepository.findAll();
+        List<FanpageStatisticsEntity> fanpageStatisticsList = fanpageStatisticsRepository.findAll();
         assertThat(fanpageStatisticsList).hasSize(databaseSizeBeforeCreate + 1);
-        FanpageStatistics testFanpageStatistics = fanpageStatisticsList.get(fanpageStatisticsList.size() - 1);
+        FanpageStatisticsEntity testFanpageStatistics = fanpageStatisticsList.get(fanpageStatisticsList.size() - 1);
         assertThat(testFanpageStatistics.getDayCount()).isEqualTo(DEFAULT_DAY_COUNT);
         assertThat(testFanpageStatistics.getMonthCount()).isEqualTo(DEFAULT_MONTH_COUNT);
         assertThat(testFanpageStatistics.getYearCount()).isEqualTo(DEFAULT_YEAR_COUNT);
@@ -148,7 +148,7 @@ public class FanpageStatisticsResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the FanpageStatistics in the database
-        List<FanpageStatistics> fanpageStatisticsList = fanpageStatisticsRepository.findAll();
+        List<FanpageStatisticsEntity> fanpageStatisticsList = fanpageStatisticsRepository.findAll();
         assertThat(fanpageStatisticsList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -206,7 +206,7 @@ public class FanpageStatisticsResourceIntTest {
         int databaseSizeBeforeUpdate = fanpageStatisticsRepository.findAll().size();
 
         // Update the fanpageStatistics
-        FanpageStatistics updatedFanpageStatistics = fanpageStatisticsRepository.findOne(fanpageStatistics.getId());
+        FanpageStatisticsEntity updatedFanpageStatistics = fanpageStatisticsRepository.findOne(fanpageStatistics.getId());
         updatedFanpageStatistics
             .dayCount(UPDATED_DAY_COUNT)
             .monthCount(UPDATED_MONTH_COUNT)
@@ -222,9 +222,9 @@ public class FanpageStatisticsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the FanpageStatistics in the database
-        List<FanpageStatistics> fanpageStatisticsList = fanpageStatisticsRepository.findAll();
+        List<FanpageStatisticsEntity> fanpageStatisticsList = fanpageStatisticsRepository.findAll();
         assertThat(fanpageStatisticsList).hasSize(databaseSizeBeforeUpdate);
-        FanpageStatistics testFanpageStatistics = fanpageStatisticsList.get(fanpageStatisticsList.size() - 1);
+        FanpageStatisticsEntity testFanpageStatistics = fanpageStatisticsList.get(fanpageStatisticsList.size() - 1);
         assertThat(testFanpageStatistics.getDayCount()).isEqualTo(UPDATED_DAY_COUNT);
         assertThat(testFanpageStatistics.getMonthCount()).isEqualTo(UPDATED_MONTH_COUNT);
         assertThat(testFanpageStatistics.getYearCount()).isEqualTo(UPDATED_YEAR_COUNT);
@@ -247,7 +247,7 @@ public class FanpageStatisticsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the FanpageStatistics in the database
-        List<FanpageStatistics> fanpageStatisticsList = fanpageStatisticsRepository.findAll();
+        List<FanpageStatisticsEntity> fanpageStatisticsList = fanpageStatisticsRepository.findAll();
         assertThat(fanpageStatisticsList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
@@ -263,16 +263,16 @@ public class FanpageStatisticsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<FanpageStatistics> fanpageStatisticsList = fanpageStatisticsRepository.findAll();
+        List<FanpageStatisticsEntity> fanpageStatisticsList = fanpageStatisticsRepository.findAll();
         assertThat(fanpageStatisticsList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FanpageStatistics.class);
-        FanpageStatistics fanpageStatistics1 = new FanpageStatistics();
+        TestUtil.equalsVerifier(FanpageStatisticsEntity.class);
+        FanpageStatisticsEntity fanpageStatistics1 = new FanpageStatisticsEntity();
         fanpageStatistics1.setId("id1");
-        FanpageStatistics fanpageStatistics2 = new FanpageStatistics();
+        FanpageStatisticsEntity fanpageStatistics2 = new FanpageStatisticsEntity();
         fanpageStatistics2.setId(fanpageStatistics1.getId());
         assertThat(fanpageStatistics1).isEqualTo(fanpageStatistics2);
         fanpageStatistics2.setId("id2");

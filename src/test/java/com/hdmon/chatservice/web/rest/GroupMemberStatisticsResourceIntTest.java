@@ -2,8 +2,8 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.GroupMemberStatistics;
-import com.hdmon.chatservice.domain.enumeration.CheckStatus;
+import com.hdmon.chatservice.domain.GroupMemberStatisticsEntity;
+import com.hdmon.chatservice.domain.enumeration.CheckStatusEnum;
 import com.hdmon.chatservice.repository.GroupMemberStatisticsRepository;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
@@ -57,8 +57,8 @@ public class GroupMemberStatisticsResourceIntTest {
     private static final Integer DEFAULT_IN_YEAR = 1;
     private static final Integer UPDATED_IN_YEAR = 2;
 
-    private static final CheckStatus DEFAULT_STATUS = CheckStatus.NOTCHECK;
-    private static final CheckStatus UPDATED_STATUS = CheckStatus.CHECKED;
+    private static final CheckStatusEnum DEFAULT_STATUS = CheckStatusEnum.NOTCHECK;
+    private static final CheckStatusEnum UPDATED_STATUS = CheckStatusEnum.CHECKED;
 
     @Autowired
     private GroupMemberStatisticsRepository groupMemberStatisticsRepository;
@@ -74,7 +74,7 @@ public class GroupMemberStatisticsResourceIntTest {
 
     private MockMvc restGroupMemberStatisticsMockMvc;
 
-    private GroupMemberStatistics groupMemberStatistics;
+    private GroupMemberStatisticsEntity groupMemberStatistics;
 
     @Before
     public void setup() {
@@ -93,8 +93,8 @@ public class GroupMemberStatisticsResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static GroupMemberStatistics createEntity() {
-        GroupMemberStatistics groupMemberStatistics = new GroupMemberStatistics()
+    public static GroupMemberStatisticsEntity createEntity() {
+        GroupMemberStatisticsEntity groupMemberStatistics = new GroupMemberStatisticsEntity()
             .seqId(DEFAULT_SEQ_ID)
             .dayCount(DEFAULT_DAY_COUNT)
             .monthCount(DEFAULT_MONTH_COUNT)
@@ -123,9 +123,9 @@ public class GroupMemberStatisticsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the GroupMemberStatistics in the database
-        List<GroupMemberStatistics> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
+        List<GroupMemberStatisticsEntity> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
         assertThat(groupMemberStatisticsList).hasSize(databaseSizeBeforeCreate + 1);
-        GroupMemberStatistics testGroupMemberStatistics = groupMemberStatisticsList.get(groupMemberStatisticsList.size() - 1);
+        GroupMemberStatisticsEntity testGroupMemberStatistics = groupMemberStatisticsList.get(groupMemberStatisticsList.size() - 1);
         assertThat(testGroupMemberStatistics.getSeqId()).isEqualTo(DEFAULT_SEQ_ID);
         assertThat(testGroupMemberStatistics.getDayCount()).isEqualTo(DEFAULT_DAY_COUNT);
         assertThat(testGroupMemberStatistics.getMonthCount()).isEqualTo(DEFAULT_MONTH_COUNT);
@@ -150,7 +150,7 @@ public class GroupMemberStatisticsResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the GroupMemberStatistics in the database
-        List<GroupMemberStatistics> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
+        List<GroupMemberStatisticsEntity> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
         assertThat(groupMemberStatisticsList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -208,7 +208,7 @@ public class GroupMemberStatisticsResourceIntTest {
         int databaseSizeBeforeUpdate = groupMemberStatisticsRepository.findAll().size();
 
         // Update the groupMemberStatistics
-        GroupMemberStatistics updatedGroupMemberStatistics = groupMemberStatisticsRepository.findOne(groupMemberStatistics.getId());
+        GroupMemberStatisticsEntity updatedGroupMemberStatistics = groupMemberStatisticsRepository.findOne(groupMemberStatistics.getId());
         updatedGroupMemberStatistics
             .seqId(UPDATED_SEQ_ID)
             .dayCount(UPDATED_DAY_COUNT)
@@ -225,9 +225,9 @@ public class GroupMemberStatisticsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the GroupMemberStatistics in the database
-        List<GroupMemberStatistics> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
+        List<GroupMemberStatisticsEntity> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
         assertThat(groupMemberStatisticsList).hasSize(databaseSizeBeforeUpdate);
-        GroupMemberStatistics testGroupMemberStatistics = groupMemberStatisticsList.get(groupMemberStatisticsList.size() - 1);
+        GroupMemberStatisticsEntity testGroupMemberStatistics = groupMemberStatisticsList.get(groupMemberStatisticsList.size() - 1);
         assertThat(testGroupMemberStatistics.getSeqId()).isEqualTo(UPDATED_SEQ_ID);
         assertThat(testGroupMemberStatistics.getDayCount()).isEqualTo(UPDATED_DAY_COUNT);
         assertThat(testGroupMemberStatistics.getMonthCount()).isEqualTo(UPDATED_MONTH_COUNT);
@@ -251,7 +251,7 @@ public class GroupMemberStatisticsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the GroupMemberStatistics in the database
-        List<GroupMemberStatistics> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
+        List<GroupMemberStatisticsEntity> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
         assertThat(groupMemberStatisticsList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
@@ -267,16 +267,16 @@ public class GroupMemberStatisticsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<GroupMemberStatistics> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
+        List<GroupMemberStatisticsEntity> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
         assertThat(groupMemberStatisticsList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(GroupMemberStatistics.class);
-        GroupMemberStatistics groupMemberStatistics1 = new GroupMemberStatistics();
+        TestUtil.equalsVerifier(GroupMemberStatisticsEntity.class);
+        GroupMemberStatisticsEntity groupMemberStatistics1 = new GroupMemberStatisticsEntity();
         groupMemberStatistics1.setId("id1");
-        GroupMemberStatistics groupMemberStatistics2 = new GroupMemberStatistics();
+        GroupMemberStatisticsEntity groupMemberStatistics2 = new GroupMemberStatisticsEntity();
         groupMemberStatistics2.setId(groupMemberStatistics1.getId());
         assertThat(groupMemberStatistics1).isEqualTo(groupMemberStatistics2);
         groupMemberStatistics2.setId("id2");

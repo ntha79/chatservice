@@ -1,6 +1,6 @@
 package com.hdmon.chatservice.repository;
 
-import com.hdmon.chatservice.domain.PushNotifications;
+import com.hdmon.chatservice.domain.PushNotificationsEntity;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -10,6 +10,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface PushNotificationsRepository extends MongoRepository<PushNotifications, String> {
+public interface PushNotificationsRepository extends MongoRepository<PushNotificationsEntity, String> {
 
 }

@@ -2,9 +2,10 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.UserSettings;
-import com.hdmon.chatservice.domain.extents.extUserPrivateSettings;
-import com.hdmon.chatservice.domain.extents.extUserSocialSettings;
+import com.hdmon.chatservice.domain.UserSettingsEntity;
+import com.hdmon.chatservice.domain.extents.extUserPrivateSettingEntity;
+import com.hdmon.chatservice.domain.extents.extUserPrivateSettingEntity;
+import com.hdmon.chatservice.domain.extents.extUserSocialSettingEntity;
 import com.hdmon.chatservice.repository.UserSettingsRepository;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
@@ -48,11 +49,11 @@ public class UserSettingsResourceIntTest {
     private static final String DEFAULT_OWNER_LOGIN = "AAAAAAAAAA";
     private static final String UPDATED_OWNER_LOGIN = "BBBBBBBBBB";
 
-    private static final extUserPrivateSettings DEFAULT_PRIAVATE_SETTINGS = new extUserPrivateSettings();
-    private static final extUserPrivateSettings UPDATED_PRIAVATE_SETTINGS = new extUserPrivateSettings();
+    private static final extUserPrivateSettingEntity DEFAULT_PRIAVATE_SETTINGS = new extUserPrivateSettingEntity();
+    private static final extUserPrivateSettingEntity UPDATED_PRIAVATE_SETTINGS = new extUserPrivateSettingEntity();
 
-    private static final extUserSocialSettings DEFAULT_SOCIAL_SETTINGS = new extUserSocialSettings();
-    private static final extUserSocialSettings UPDATED_SOCIAL_SETTINGS = new extUserSocialSettings();
+    private static final extUserSocialSettingEntity DEFAULT_SOCIAL_SETTINGS = new extUserSocialSettingEntity();
+    private static final extUserSocialSettingEntity UPDATED_SOCIAL_SETTINGS = new extUserSocialSettingEntity();
 
     private static final String DEFAULT_CREATED_BY = "AAAAAAAAAA";
     private static final String UPDATED_CREATED_BY = "BBBBBBBBBB";
@@ -86,7 +87,7 @@ public class UserSettingsResourceIntTest {
 
     private MockMvc restUserSettingsMockMvc;
 
-    private UserSettings userSettings;
+    private UserSettingsEntity userSettings;
 
     @Before
     public void setup() {
@@ -105,8 +106,8 @@ public class UserSettingsResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static UserSettings createEntity() {
-        UserSettings userSettings = new UserSettings()
+    public static UserSettingsEntity createEntity() {
+        UserSettingsEntity userSettings = new UserSettingsEntity()
             .seqId(DEFAULT_SEQ_ID)
             .ownerId(DEFAULT_OWNER_ID)
             .ownerLogin(DEFAULT_OWNER_LOGIN)
@@ -134,9 +135,9 @@ public class UserSettingsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the UserSettings in the database
-        List<UserSettings> userSettingsList = userSettingsRepository.findAll();
+        List<UserSettingsEntity> userSettingsList = userSettingsRepository.findAll();
         assertThat(userSettingsList).hasSize(databaseSizeBeforeCreate + 1);
-        UserSettings testUserSettings = userSettingsList.get(userSettingsList.size() - 1);
+        UserSettingsEntity testUserSettings = userSettingsList.get(userSettingsList.size() - 1);
         assertThat(testUserSettings.getSeqId()).isEqualTo(DEFAULT_SEQ_ID);
         assertThat(testUserSettings.getOwnerId()).isEqualTo(DEFAULT_OWNER_ID);
         assertThat(testUserSettings.getOwnerLogin()).isEqualTo(DEFAULT_OWNER_LOGIN);
@@ -164,7 +165,7 @@ public class UserSettingsResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the UserSettings in the database
-        List<UserSettings> userSettingsList = userSettingsRepository.findAll();
+        List<UserSettingsEntity> userSettingsList = userSettingsRepository.findAll();
         assertThat(userSettingsList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -228,7 +229,7 @@ public class UserSettingsResourceIntTest {
         int databaseSizeBeforeUpdate = userSettingsRepository.findAll().size();
 
         // Update the userSettings
-        UserSettings updatedUserSettings = userSettingsRepository.findOne(userSettings.getId());
+        UserSettingsEntity updatedUserSettings = userSettingsRepository.findOne(userSettings.getId());
         updatedUserSettings
             .seqId(UPDATED_SEQ_ID)
             .ownerId(UPDATED_OWNER_ID)
@@ -244,9 +245,9 @@ public class UserSettingsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the UserSettings in the database
-        List<UserSettings> userSettingsList = userSettingsRepository.findAll();
+        List<UserSettingsEntity> userSettingsList = userSettingsRepository.findAll();
         assertThat(userSettingsList).hasSize(databaseSizeBeforeUpdate);
-        UserSettings testUserSettings = userSettingsList.get(userSettingsList.size() - 1);
+        UserSettingsEntity testUserSettings = userSettingsList.get(userSettingsList.size() - 1);
         assertThat(testUserSettings.getSeqId()).isEqualTo(UPDATED_SEQ_ID);
         assertThat(testUserSettings.getOwnerId()).isEqualTo(UPDATED_OWNER_ID);
         assertThat(testUserSettings.getOwnerLogin()).isEqualTo(UPDATED_OWNER_LOGIN);
@@ -273,7 +274,7 @@ public class UserSettingsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the UserSettings in the database
-        List<UserSettings> userSettingsList = userSettingsRepository.findAll();
+        List<UserSettingsEntity> userSettingsList = userSettingsRepository.findAll();
         assertThat(userSettingsList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
@@ -289,16 +290,16 @@ public class UserSettingsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<UserSettings> userSettingsList = userSettingsRepository.findAll();
+        List<UserSettingsEntity> userSettingsList = userSettingsRepository.findAll();
         assertThat(userSettingsList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(UserSettings.class);
-        UserSettings userSettings1 = new UserSettings();
+        TestUtil.equalsVerifier(UserSettingsEntity.class);
+        UserSettingsEntity userSettings1 = new UserSettingsEntity();
         userSettings1.setId("id1");
-        UserSettings userSettings2 = new UserSettings();
+        UserSettingsEntity userSettings2 = new UserSettingsEntity();
         userSettings2.setId(userSettings1.getId());
         assertThat(userSettings1).isEqualTo(userSettings2);
         userSettings2.setId("id2");

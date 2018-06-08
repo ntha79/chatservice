@@ -1,6 +1,6 @@
 package com.hdmon.chatservice.repository;
 
-import com.hdmon.chatservice.domain.ChatMessageStatistics;
+import com.hdmon.chatservice.domain.ChatMessageStatisticsEntity;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface ChatMessageStatisticsRepository extends MongoRepository<ChatMessageStatistics, String> {
+public interface ChatMessageStatisticsRepository extends MongoRepository<ChatMessageStatisticsEntity, String> {
+    ChatMessageStatisticsEntity findByInDayEqualsAndInMonthEqualsAndInYearEquals(int inDay, int inMonth, int inYear);
 
 }

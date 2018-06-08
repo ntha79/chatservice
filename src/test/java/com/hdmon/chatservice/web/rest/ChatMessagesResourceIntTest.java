@@ -2,12 +2,13 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.ChatMessages;
-import com.hdmon.chatservice.domain.enumeration.ChatMessageType;
-import com.hdmon.chatservice.domain.enumeration.GroupType;
-import com.hdmon.chatservice.domain.enumeration.ReceiverType;
-import com.hdmon.chatservice.domain.extents.extMessageReceiverLists;
+import com.hdmon.chatservice.domain.ChatMessagesEntity;
+import com.hdmon.chatservice.domain.enumeration.ChatMessageTypeEnum;
+import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
+import com.hdmon.chatservice.domain.enumeration.ReceiverTypeEnum;
+import com.hdmon.chatservice.domain.extents.extMessageReceiverEntity;
 import com.hdmon.chatservice.repository.ChatMessagesRepository;
+import com.hdmon.chatservice.service.ChatMessagesService;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,14 +49,14 @@ public class ChatMessagesResourceIntTest {
     private static final String DEFAULT_GROUP_CHAT_ID = "AAAAAAAAAA";
     private static final String UPDATED_GROUP_CHAT_ID = "BBBBBBBBBB";
 
-    private static final GroupType DEFAULT_GROUP_TYPE = GroupType.PUBLIC;
-    private static final GroupType UPDATED_GROUP_TYPE = GroupType.FANPAGE;
+    private static final GroupTypeEnum DEFAULT_GROUP_TYPE = GroupTypeEnum.PUBLIC;
+    private static final GroupTypeEnum UPDATED_GROUP_TYPE = GroupTypeEnum.FANPAGE;
 
     private static final String DEFAULT_MESSAGE_VALUE = "AAAAAAAAAA";
     private static final String UPDATED_MESSAGE_VALUE = "BBBBBBBBBB";
 
-    private static final ChatMessageType DEFAULT_MESSAGE_TYPE = ChatMessageType.TEXT;
-    private static final ChatMessageType UPDATED_MESSAGE_TYPE = ChatMessageType.FILE;
+    private static final ChatMessageTypeEnum DEFAULT_MESSAGE_TYPE = ChatMessageTypeEnum.TEXT;
+    private static final ChatMessageTypeEnum UPDATED_MESSAGE_TYPE = ChatMessageTypeEnum.FILE;
 
     private static final Long DEFAULT_SENDER_ID = 1L;
     private static final Long UPDATED_SENDER_ID = 2L;
@@ -63,11 +64,11 @@ public class ChatMessagesResourceIntTest {
     private static final String DEFAULT_SENDER_LOGIN = "AAAAAAAAAA";
     private static final String UPDATED_SENDER_LOGIN = "BBBBBBBBBB";
 
-    private static final List<extMessageReceiverLists> DEFAULT_RECEIVER_LISTS = new ArrayList<>();
-    private static final List<extMessageReceiverLists> UPDATED_RECEIVER_LISTS = new ArrayList<>();
+    private static final List<extMessageReceiverEntity> DEFAULT_RECEIVER_LISTS = new ArrayList<>();
+    private static final List<extMessageReceiverEntity> UPDATED_RECEIVER_LISTS = new ArrayList<>();
 
-    private static final ReceiverType DEFAULT_RECEIVER_TYPE = ReceiverType.PUBLIC;
-    private static final ReceiverType UPDATED_RECEIVER_TYPE = ReceiverType.FANPAGE;
+    private static final ReceiverTypeEnum DEFAULT_RECEIVER_TYPE = ReceiverTypeEnum.FRIEND;
+    private static final ReceiverTypeEnum UPDATED_RECEIVER_TYPE = ReceiverTypeEnum.FRIEND;
 
     private static final String DEFAULT_RECEIVER_TEXT = "AAAAAAAAAA";
     private static final String UPDATED_RECEIVER_TEXT = "BBBBBBBBBB";
@@ -96,11 +97,14 @@ public class ChatMessagesResourceIntTest {
     private static final Integer DEFAULT_MAX_TIME_TO_ACTION = 1;
     private static final Integer UPDATED_MAX_TIME_TO_ACTION = 2;
 
-    private static final Long DEFAULT_REFER_MESSAGE_ID = 1L;
-    private static final Long UPDATED_REFER_MESSAGE_ID = 2L;
+    private static final String DEFAULT_REFER_MESSAGE_ID = "AAAAAAAAAA";
+    private static final String UPDATED_REFER_MESSAGE_ID = "BBBBBBBBBB";
 
     @Autowired
     private ChatMessagesRepository chatMessagesRepository;
+
+    @Autowired
+    private ChatMessagesService chatMessagesService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -113,12 +117,12 @@ public class ChatMessagesResourceIntTest {
 
     private MockMvc restChatMessagesMockMvc;
 
-    private ChatMessages chatMessages;
+    private ChatMessagesEntity chatMessages;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final ChatMessagesResource chatMessagesResource = new ChatMessagesResource(chatMessagesRepository);
+        final ChatMessagesResource chatMessagesResource = new ChatMessagesResource(chatMessagesService);
         this.restChatMessagesMockMvc = MockMvcBuilders.standaloneSetup(chatMessagesResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -132,8 +136,8 @@ public class ChatMessagesResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static ChatMessages createEntity() {
-        ChatMessages chatMessages = new ChatMessages()
+    public static ChatMessagesEntity createEntity() {
+        ChatMessagesEntity chatMessages = new ChatMessagesEntity()
             .messageId(DEFAULT_MESSAGE_ID)
             .groupChatId(DEFAULT_GROUP_CHAT_ID)
             .groupType(DEFAULT_GROUP_TYPE)
@@ -169,9 +173,9 @@ public class ChatMessagesResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the ChatMessages in the database
-        List<ChatMessages> chatMessagesList = chatMessagesRepository.findAll();
+        List<ChatMessagesEntity> chatMessagesList = chatMessagesRepository.findAll();
         assertThat(chatMessagesList).hasSize(databaseSizeBeforeCreate + 1);
-        ChatMessages testChatMessages = chatMessagesList.get(chatMessagesList.size() - 1);
+        ChatMessagesEntity testChatMessages = chatMessagesList.get(chatMessagesList.size() - 1);
         assertThat(testChatMessages.getMessageId()).isEqualTo(DEFAULT_MESSAGE_ID);
         assertThat(testChatMessages.getGroupChatId()).isEqualTo(DEFAULT_GROUP_CHAT_ID);
         assertThat(testChatMessages.getGroupType()).isEqualTo(DEFAULT_GROUP_TYPE);
@@ -207,7 +211,7 @@ public class ChatMessagesResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the ChatMessages in the database
-        List<ChatMessages> chatMessagesList = chatMessagesRepository.findAll();
+        List<ChatMessagesEntity> chatMessagesList = chatMessagesRepository.findAll();
         assertThat(chatMessagesList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -239,7 +243,7 @@ public class ChatMessagesResourceIntTest {
             .andExpect(jsonPath("$.[*].lastModifiedUnixTime").value(hasItem(DEFAULT_LAST_MODIFIED_UNIX_TIME.intValue())))
             .andExpect(jsonPath("$.[*].reportDay").value(hasItem(DEFAULT_REPORT_DAY)))
             .andExpect(jsonPath("$.[*].maxTimeToAction").value(hasItem(DEFAULT_MAX_TIME_TO_ACTION)))
-            .andExpect(jsonPath("$.[*].referMessageId").value(hasItem(DEFAULT_REFER_MESSAGE_ID.intValue())));
+            .andExpect(jsonPath("$.[*].referMessageId").value(hasItem(DEFAULT_REFER_MESSAGE_ID)));
     }
 
     @Test
@@ -270,7 +274,7 @@ public class ChatMessagesResourceIntTest {
             .andExpect(jsonPath("$.lastModifiedUnixTime").value(DEFAULT_LAST_MODIFIED_UNIX_TIME.intValue()))
             .andExpect(jsonPath("$.reportDay").value(DEFAULT_REPORT_DAY))
             .andExpect(jsonPath("$.maxTimeToAction").value(DEFAULT_MAX_TIME_TO_ACTION))
-            .andExpect(jsonPath("$.referMessageId").value(DEFAULT_REFER_MESSAGE_ID.intValue()));
+            .andExpect(jsonPath("$.referMessageId").value(DEFAULT_REFER_MESSAGE_ID));
     }
 
     @Test
@@ -287,7 +291,7 @@ public class ChatMessagesResourceIntTest {
         int databaseSizeBeforeUpdate = chatMessagesRepository.findAll().size();
 
         // Update the chatMessages
-        ChatMessages updatedChatMessages = chatMessagesRepository.findOne(chatMessages.getId());
+        ChatMessagesEntity updatedChatMessages = chatMessagesRepository.findOne(chatMessages.getId());
         updatedChatMessages
             .messageId(UPDATED_MESSAGE_ID)
             .groupChatId(UPDATED_GROUP_CHAT_ID)
@@ -311,9 +315,9 @@ public class ChatMessagesResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the ChatMessages in the database
-        List<ChatMessages> chatMessagesList = chatMessagesRepository.findAll();
+        List<ChatMessagesEntity> chatMessagesList = chatMessagesRepository.findAll();
         assertThat(chatMessagesList).hasSize(databaseSizeBeforeUpdate);
-        ChatMessages testChatMessages = chatMessagesList.get(chatMessagesList.size() - 1);
+        ChatMessagesEntity testChatMessages = chatMessagesList.get(chatMessagesList.size() - 1);
         assertThat(testChatMessages.getMessageId()).isEqualTo(UPDATED_MESSAGE_ID);
         assertThat(testChatMessages.getGroupChatId()).isEqualTo(UPDATED_GROUP_CHAT_ID);
         assertThat(testChatMessages.getGroupType()).isEqualTo(UPDATED_GROUP_TYPE);
@@ -348,7 +352,7 @@ public class ChatMessagesResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the ChatMessages in the database
-        List<ChatMessages> chatMessagesList = chatMessagesRepository.findAll();
+        List<ChatMessagesEntity> chatMessagesList = chatMessagesRepository.findAll();
         assertThat(chatMessagesList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
@@ -364,16 +368,16 @@ public class ChatMessagesResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<ChatMessages> chatMessagesList = chatMessagesRepository.findAll();
+        List<ChatMessagesEntity> chatMessagesList = chatMessagesRepository.findAll();
         assertThat(chatMessagesList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(ChatMessages.class);
-        ChatMessages chatMessages1 = new ChatMessages();
+        TestUtil.equalsVerifier(ChatMessagesEntity.class);
+        ChatMessagesEntity chatMessages1 = new ChatMessagesEntity();
         chatMessages1.setId("id1");
-        ChatMessages chatMessages2 = new ChatMessages();
+        ChatMessagesEntity chatMessages2 = new ChatMessagesEntity();
         chatMessages2.setId(chatMessages1.getId());
         assertThat(chatMessages1).isEqualTo(chatMessages2);
         chatMessages2.setId("id2");

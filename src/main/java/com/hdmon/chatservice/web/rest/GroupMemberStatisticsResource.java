@@ -1,7 +1,7 @@
 package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.hdmon.chatservice.domain.GroupMemberStatistics;
+import com.hdmon.chatservice.domain.GroupMemberStatisticsEntity;
 
 import com.hdmon.chatservice.repository.GroupMemberStatisticsRepository;
 import com.hdmon.chatservice.web.rest.errors.BadRequestAlertException;
@@ -49,12 +49,12 @@ public class GroupMemberStatisticsResource {
      */
     @PostMapping("/group-member-statistics")
     @Timed
-    public ResponseEntity<GroupMemberStatistics> createGroupMemberStatistics(@RequestBody GroupMemberStatistics groupMemberStatistics) throws URISyntaxException {
+    public ResponseEntity<GroupMemberStatisticsEntity> createGroupMemberStatistics(@RequestBody GroupMemberStatisticsEntity groupMemberStatistics) throws URISyntaxException {
         log.debug("REST request to save GroupMemberStatistics : {}", groupMemberStatistics);
         if (groupMemberStatistics.getId() != null) {
             throw new BadRequestAlertException("A new groupMemberStatistics cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        GroupMemberStatistics result = groupMemberStatisticsRepository.save(groupMemberStatistics);
+        GroupMemberStatisticsEntity result = groupMemberStatisticsRepository.save(groupMemberStatistics);
         return ResponseEntity.created(new URI("/api/group-member-statistics/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -71,12 +71,12 @@ public class GroupMemberStatisticsResource {
      */
     @PutMapping("/group-member-statistics")
     @Timed
-    public ResponseEntity<GroupMemberStatistics> updateGroupMemberStatistics(@RequestBody GroupMemberStatistics groupMemberStatistics) throws URISyntaxException {
+    public ResponseEntity<GroupMemberStatisticsEntity> updateGroupMemberStatistics(@RequestBody GroupMemberStatisticsEntity groupMemberStatistics) throws URISyntaxException {
         log.debug("REST request to update GroupMemberStatistics : {}", groupMemberStatistics);
         if (groupMemberStatistics.getId() == null) {
             return createGroupMemberStatistics(groupMemberStatistics);
         }
-        GroupMemberStatistics result = groupMemberStatisticsRepository.save(groupMemberStatistics);
+        GroupMemberStatisticsEntity result = groupMemberStatisticsRepository.save(groupMemberStatistics);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, groupMemberStatistics.getId().toString()))
             .body(result);
@@ -90,9 +90,9 @@ public class GroupMemberStatisticsResource {
      */
     @GetMapping("/group-member-statistics")
     @Timed
-    public ResponseEntity<List<GroupMemberStatistics>> getAllGroupMemberStatistics(Pageable pageable) {
+    public ResponseEntity<List<GroupMemberStatisticsEntity>> getAllGroupMemberStatistics(Pageable pageable) {
         log.debug("REST request to get a page of GroupMemberStatistics");
-        Page<GroupMemberStatistics> page = groupMemberStatisticsRepository.findAll(pageable);
+        Page<GroupMemberStatisticsEntity> page = groupMemberStatisticsRepository.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/group-member-statistics");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -105,9 +105,9 @@ public class GroupMemberStatisticsResource {
      */
     @GetMapping("/group-member-statistics/{id}")
     @Timed
-    public ResponseEntity<GroupMemberStatistics> getGroupMemberStatistics(@PathVariable String id) {
+    public ResponseEntity<GroupMemberStatisticsEntity> getGroupMemberStatistics(@PathVariable String id) {
         log.debug("REST request to get GroupMemberStatistics : {}", id);
-        GroupMemberStatistics groupMemberStatistics = groupMemberStatisticsRepository.findOne(id);
+        GroupMemberStatisticsEntity groupMemberStatistics = groupMemberStatisticsRepository.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(groupMemberStatistics));
     }
 

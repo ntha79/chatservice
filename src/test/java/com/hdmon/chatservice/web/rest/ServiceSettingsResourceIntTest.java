@@ -2,8 +2,8 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.ServiceSettings;
-import com.hdmon.chatservice.domain.extents.extServiceSettingValues;
+import com.hdmon.chatservice.domain.ServiceSettingsEntity;
+import com.hdmon.chatservice.domain.extents.extServiceSettingValueEntity;
 import com.hdmon.chatservice.repository.ServiceSettingsRepository;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
@@ -44,8 +44,8 @@ public class ServiceSettingsResourceIntTest {
     private static final String DEFAULT_CODE = "AAAAAAAAAA";
     private static final String UPDATED_CODE = "BBBBBBBBBB";
 
-    private static final extServiceSettingValues DEFAULT_VALUES = new extServiceSettingValues();
-    private static final extServiceSettingValues UPDATED_VALUES = new extServiceSettingValues();
+    private static final extServiceSettingValueEntity DEFAULT_VALUES = new extServiceSettingValueEntity();
+    private static final extServiceSettingValueEntity UPDATED_VALUES = new extServiceSettingValueEntity();
 
     private static final String DEFAULT_CREATED_BY = "AAAAAAAAAA";
     private static final String UPDATED_CREATED_BY = "BBBBBBBBBB";
@@ -79,7 +79,7 @@ public class ServiceSettingsResourceIntTest {
 
     private MockMvc restServiceSettingsMockMvc;
 
-    private ServiceSettings serviceSettings;
+    private ServiceSettingsEntity serviceSettings;
 
     @Before
     public void setup() {
@@ -98,8 +98,8 @@ public class ServiceSettingsResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static ServiceSettings createEntity() {
-        ServiceSettings serviceSettings = new ServiceSettings()
+    public static ServiceSettingsEntity createEntity() {
+        ServiceSettingsEntity serviceSettings = new ServiceSettingsEntity()
             .seqId(DEFAULT_SEQ_ID)
             .code(DEFAULT_CODE)
             .values(DEFAULT_VALUES)
@@ -125,9 +125,9 @@ public class ServiceSettingsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the ServiceSettings in the database
-        List<ServiceSettings> serviceSettingsList = serviceSettingsRepository.findAll();
+        List<ServiceSettingsEntity> serviceSettingsList = serviceSettingsRepository.findAll();
         assertThat(serviceSettingsList).hasSize(databaseSizeBeforeCreate + 1);
-        ServiceSettings testServiceSettings = serviceSettingsList.get(serviceSettingsList.size() - 1);
+        ServiceSettingsEntity testServiceSettings = serviceSettingsList.get(serviceSettingsList.size() - 1);
         assertThat(testServiceSettings.getSeqId()).isEqualTo(DEFAULT_SEQ_ID);
         assertThat(testServiceSettings.getCode()).isEqualTo(DEFAULT_CODE);
         assertThat(testServiceSettings.getValues()).isEqualTo(DEFAULT_VALUES);
@@ -153,7 +153,7 @@ public class ServiceSettingsResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the ServiceSettings in the database
-        List<ServiceSettings> serviceSettingsList = serviceSettingsRepository.findAll();
+        List<ServiceSettingsEntity> serviceSettingsList = serviceSettingsRepository.findAll();
         assertThat(serviceSettingsList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -213,7 +213,7 @@ public class ServiceSettingsResourceIntTest {
         int databaseSizeBeforeUpdate = serviceSettingsRepository.findAll().size();
 
         // Update the serviceSettings
-        ServiceSettings updatedServiceSettings = serviceSettingsRepository.findOne(serviceSettings.getId());
+        ServiceSettingsEntity updatedServiceSettings = serviceSettingsRepository.findOne(serviceSettings.getId());
         updatedServiceSettings
             .seqId(UPDATED_SEQ_ID)
             .code(UPDATED_CODE)
@@ -227,9 +227,9 @@ public class ServiceSettingsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the ServiceSettings in the database
-        List<ServiceSettings> serviceSettingsList = serviceSettingsRepository.findAll();
+        List<ServiceSettingsEntity> serviceSettingsList = serviceSettingsRepository.findAll();
         assertThat(serviceSettingsList).hasSize(databaseSizeBeforeUpdate);
-        ServiceSettings testServiceSettings = serviceSettingsList.get(serviceSettingsList.size() - 1);
+        ServiceSettingsEntity testServiceSettings = serviceSettingsList.get(serviceSettingsList.size() - 1);
         assertThat(testServiceSettings.getSeqId()).isEqualTo(UPDATED_SEQ_ID);
         assertThat(testServiceSettings.getCode()).isEqualTo(UPDATED_CODE);
         assertThat(testServiceSettings.getValues()).isEqualTo(UPDATED_VALUES);
@@ -254,7 +254,7 @@ public class ServiceSettingsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the ServiceSettings in the database
-        List<ServiceSettings> serviceSettingsList = serviceSettingsRepository.findAll();
+        List<ServiceSettingsEntity> serviceSettingsList = serviceSettingsRepository.findAll();
         assertThat(serviceSettingsList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
@@ -270,16 +270,16 @@ public class ServiceSettingsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<ServiceSettings> serviceSettingsList = serviceSettingsRepository.findAll();
+        List<ServiceSettingsEntity> serviceSettingsList = serviceSettingsRepository.findAll();
         assertThat(serviceSettingsList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(ServiceSettings.class);
-        ServiceSettings serviceSettings1 = new ServiceSettings();
+        TestUtil.equalsVerifier(ServiceSettingsEntity.class);
+        ServiceSettingsEntity serviceSettings1 = new ServiceSettingsEntity();
         serviceSettings1.setId("id1");
-        ServiceSettings serviceSettings2 = new ServiceSettings();
+        ServiceSettingsEntity serviceSettings2 = new ServiceSettingsEntity();
         serviceSettings2.setId(serviceSettings1.getId());
         assertThat(serviceSettings1).isEqualTo(serviceSettings2);
         serviceSettings2.setId("id2");

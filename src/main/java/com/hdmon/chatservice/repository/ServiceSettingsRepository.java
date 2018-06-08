@@ -1,6 +1,6 @@
 package com.hdmon.chatservice.repository;
 
-import com.hdmon.chatservice.domain.ServiceSettings;
+import com.hdmon.chatservice.domain.ServiceSettingsEntity;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -10,6 +10,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface ServiceSettingsRepository extends MongoRepository<ServiceSettings, String> {
+public interface ServiceSettingsRepository extends MongoRepository<ServiceSettingsEntity, String> {
 
 }

@@ -1,6 +1,6 @@
 package com.hdmon.chatservice.repository;
 
-import com.hdmon.chatservice.domain.GroupMembers;
+import com.hdmon.chatservice.domain.GroupMembersEntity;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -10,6 +10,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface GroupMembersRepository extends MongoRepository<GroupMembers, String> {
+public interface GroupMembersRepository extends MongoRepository<GroupMembersEntity, String> {
 
 }

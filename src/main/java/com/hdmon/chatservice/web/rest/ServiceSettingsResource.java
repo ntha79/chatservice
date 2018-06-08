@@ -1,7 +1,7 @@
 package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.hdmon.chatservice.domain.ServiceSettings;
+import com.hdmon.chatservice.domain.ServiceSettingsEntity;
 
 import com.hdmon.chatservice.repository.ServiceSettingsRepository;
 import com.hdmon.chatservice.web.rest.errors.BadRequestAlertException;
@@ -49,12 +49,12 @@ public class ServiceSettingsResource {
      */
     @PostMapping("/service-settings")
     @Timed
-    public ResponseEntity<ServiceSettings> createServiceSettings(@RequestBody ServiceSettings serviceSettings) throws URISyntaxException {
+    public ResponseEntity<ServiceSettingsEntity> createServiceSettings(@RequestBody ServiceSettingsEntity serviceSettings) throws URISyntaxException {
         log.debug("REST request to save ServiceSettings : {}", serviceSettings);
         if (serviceSettings.getId() != null) {
             throw new BadRequestAlertException("A new serviceSettings cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        ServiceSettings result = serviceSettingsRepository.save(serviceSettings);
+        ServiceSettingsEntity result = serviceSettingsRepository.save(serviceSettings);
         return ResponseEntity.created(new URI("/api/service-settings/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -71,12 +71,12 @@ public class ServiceSettingsResource {
      */
     @PutMapping("/service-settings")
     @Timed
-    public ResponseEntity<ServiceSettings> updateServiceSettings(@RequestBody ServiceSettings serviceSettings) throws URISyntaxException {
+    public ResponseEntity<ServiceSettingsEntity> updateServiceSettings(@RequestBody ServiceSettingsEntity serviceSettings) throws URISyntaxException {
         log.debug("REST request to update ServiceSettings : {}", serviceSettings);
         if (serviceSettings.getId() == null) {
             return createServiceSettings(serviceSettings);
         }
-        ServiceSettings result = serviceSettingsRepository.save(serviceSettings);
+        ServiceSettingsEntity result = serviceSettingsRepository.save(serviceSettings);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, serviceSettings.getId().toString()))
             .body(result);
@@ -90,9 +90,9 @@ public class ServiceSettingsResource {
      */
     @GetMapping("/service-settings")
     @Timed
-    public ResponseEntity<List<ServiceSettings>> getAllServiceSettings(Pageable pageable) {
+    public ResponseEntity<List<ServiceSettingsEntity>> getAllServiceSettings(Pageable pageable) {
         log.debug("REST request to get a page of ServiceSettings");
-        Page<ServiceSettings> page = serviceSettingsRepository.findAll(pageable);
+        Page<ServiceSettingsEntity> page = serviceSettingsRepository.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/service-settings");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -105,9 +105,9 @@ public class ServiceSettingsResource {
      */
     @GetMapping("/service-settings/{id}")
     @Timed
-    public ResponseEntity<ServiceSettings> getServiceSettings(@PathVariable String id) {
+    public ResponseEntity<ServiceSettingsEntity> getServiceSettings(@PathVariable String id) {
         log.debug("REST request to get ServiceSettings : {}", id);
-        ServiceSettings serviceSettings = serviceSettingsRepository.findOne(id);
+        ServiceSettingsEntity serviceSettings = serviceSettingsRepository.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(serviceSettings));
     }
 

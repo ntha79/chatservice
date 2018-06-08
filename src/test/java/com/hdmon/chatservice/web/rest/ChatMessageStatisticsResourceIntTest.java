@@ -2,8 +2,8 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.ChatMessageStatistics;
-import com.hdmon.chatservice.domain.enumeration.CheckStatus;
+import com.hdmon.chatservice.domain.ChatMessageStatisticsEntity;
+import com.hdmon.chatservice.domain.enumeration.CheckStatusEnum;
 import com.hdmon.chatservice.repository.ChatMessageStatisticsRepository;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
@@ -57,8 +57,8 @@ public class ChatMessageStatisticsResourceIntTest {
     private static final Integer DEFAULT_IN_YEAR = 1;
     private static final Integer UPDATED_IN_YEAR = 2;
 
-    private static final CheckStatus DEFAULT_STATUS = CheckStatus.NOTCHECK;
-    private static final CheckStatus UPDATED_STATUS = CheckStatus.CHECKED;
+    private static final CheckStatusEnum DEFAULT_STATUS = CheckStatusEnum.NOTCHECK;
+    private static final CheckStatusEnum UPDATED_STATUS = CheckStatusEnum.CHECKED;
 
     @Autowired
     private ChatMessageStatisticsRepository chatMessageStatisticsRepository;
@@ -74,7 +74,7 @@ public class ChatMessageStatisticsResourceIntTest {
 
     private MockMvc restChatMessageStatisticsMockMvc;
 
-    private ChatMessageStatistics chatMessageStatistics;
+    private ChatMessageStatisticsEntity chatMessageStatistics;
 
     @Before
     public void setup() {
@@ -93,8 +93,8 @@ public class ChatMessageStatisticsResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static ChatMessageStatistics createEntity() {
-        ChatMessageStatistics chatMessageStatistics = new ChatMessageStatistics()
+    public static ChatMessageStatisticsEntity createEntity() {
+        ChatMessageStatisticsEntity chatMessageStatistics = new ChatMessageStatisticsEntity()
             .dayCount(DEFAULT_DAY_COUNT)
             .monthCount(DEFAULT_MONTH_COUNT)
             .yearCount(DEFAULT_YEAR_COUNT)
@@ -122,9 +122,9 @@ public class ChatMessageStatisticsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the ChatMessageStatistics in the database
-        List<ChatMessageStatistics> chatMessageStatisticsList = chatMessageStatisticsRepository.findAll();
+        List<ChatMessageStatisticsEntity> chatMessageStatisticsList = chatMessageStatisticsRepository.findAll();
         assertThat(chatMessageStatisticsList).hasSize(databaseSizeBeforeCreate + 1);
-        ChatMessageStatistics testChatMessageStatistics = chatMessageStatisticsList.get(chatMessageStatisticsList.size() - 1);
+        ChatMessageStatisticsEntity testChatMessageStatistics = chatMessageStatisticsList.get(chatMessageStatisticsList.size() - 1);
         assertThat(testChatMessageStatistics.getDayCount()).isEqualTo(DEFAULT_DAY_COUNT);
         assertThat(testChatMessageStatistics.getMonthCount()).isEqualTo(DEFAULT_MONTH_COUNT);
         assertThat(testChatMessageStatistics.getYearCount()).isEqualTo(DEFAULT_YEAR_COUNT);
@@ -148,7 +148,7 @@ public class ChatMessageStatisticsResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the ChatMessageStatistics in the database
-        List<ChatMessageStatistics> chatMessageStatisticsList = chatMessageStatisticsRepository.findAll();
+        List<ChatMessageStatisticsEntity> chatMessageStatisticsList = chatMessageStatisticsRepository.findAll();
         assertThat(chatMessageStatisticsList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -206,7 +206,7 @@ public class ChatMessageStatisticsResourceIntTest {
         int databaseSizeBeforeUpdate = chatMessageStatisticsRepository.findAll().size();
 
         // Update the chatMessageStatistics
-        ChatMessageStatistics updatedChatMessageStatistics = chatMessageStatisticsRepository.findOne(chatMessageStatistics.getId());
+        ChatMessageStatisticsEntity updatedChatMessageStatistics = chatMessageStatisticsRepository.findOne(chatMessageStatistics.getId());
         updatedChatMessageStatistics
             .dayCount(UPDATED_DAY_COUNT)
             .monthCount(UPDATED_MONTH_COUNT)
@@ -222,9 +222,9 @@ public class ChatMessageStatisticsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the ChatMessageStatistics in the database
-        List<ChatMessageStatistics> chatMessageStatisticsList = chatMessageStatisticsRepository.findAll();
+        List<ChatMessageStatisticsEntity> chatMessageStatisticsList = chatMessageStatisticsRepository.findAll();
         assertThat(chatMessageStatisticsList).hasSize(databaseSizeBeforeUpdate);
-        ChatMessageStatistics testChatMessageStatistics = chatMessageStatisticsList.get(chatMessageStatisticsList.size() - 1);
+        ChatMessageStatisticsEntity testChatMessageStatistics = chatMessageStatisticsList.get(chatMessageStatisticsList.size() - 1);
         assertThat(testChatMessageStatistics.getDayCount()).isEqualTo(UPDATED_DAY_COUNT);
         assertThat(testChatMessageStatistics.getMonthCount()).isEqualTo(UPDATED_MONTH_COUNT);
         assertThat(testChatMessageStatistics.getYearCount()).isEqualTo(UPDATED_YEAR_COUNT);
@@ -247,7 +247,7 @@ public class ChatMessageStatisticsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the ChatMessageStatistics in the database
-        List<ChatMessageStatistics> chatMessageStatisticsList = chatMessageStatisticsRepository.findAll();
+        List<ChatMessageStatisticsEntity> chatMessageStatisticsList = chatMessageStatisticsRepository.findAll();
         assertThat(chatMessageStatisticsList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
@@ -263,16 +263,16 @@ public class ChatMessageStatisticsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<ChatMessageStatistics> chatMessageStatisticsList = chatMessageStatisticsRepository.findAll();
+        List<ChatMessageStatisticsEntity> chatMessageStatisticsList = chatMessageStatisticsRepository.findAll();
         assertThat(chatMessageStatisticsList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(ChatMessageStatistics.class);
-        ChatMessageStatistics chatMessageStatistics1 = new ChatMessageStatistics();
+        TestUtil.equalsVerifier(ChatMessageStatisticsEntity.class);
+        ChatMessageStatisticsEntity chatMessageStatistics1 = new ChatMessageStatisticsEntity();
         chatMessageStatistics1.setId("id1");
-        ChatMessageStatistics chatMessageStatistics2 = new ChatMessageStatistics();
+        ChatMessageStatisticsEntity chatMessageStatistics2 = new ChatMessageStatisticsEntity();
         chatMessageStatistics2.setId(chatMessageStatistics1.getId());
         assertThat(chatMessageStatistics1).isEqualTo(chatMessageStatistics2);
         chatMessageStatistics2.setId("id2");

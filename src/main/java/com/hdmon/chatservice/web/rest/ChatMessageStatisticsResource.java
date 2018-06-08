@@ -1,7 +1,7 @@
 package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.hdmon.chatservice.domain.ChatMessageStatistics;
+import com.hdmon.chatservice.domain.ChatMessageStatisticsEntity;
 
 import com.hdmon.chatservice.repository.ChatMessageStatisticsRepository;
 import com.hdmon.chatservice.web.rest.errors.BadRequestAlertException;
@@ -49,12 +49,12 @@ public class ChatMessageStatisticsResource {
      */
     @PostMapping("/chat-message-statistics")
     @Timed
-    public ResponseEntity<ChatMessageStatistics> createChatMessageStatistics(@RequestBody ChatMessageStatistics chatMessageStatistics) throws URISyntaxException {
+    public ResponseEntity<ChatMessageStatisticsEntity> createChatMessageStatistics(@RequestBody ChatMessageStatisticsEntity chatMessageStatistics) throws URISyntaxException {
         log.debug("REST request to save ChatMessageStatistics : {}", chatMessageStatistics);
         if (chatMessageStatistics.getId() != null) {
             throw new BadRequestAlertException("A new chatMessageStatistics cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        ChatMessageStatistics result = chatMessageStatisticsRepository.save(chatMessageStatistics);
+        ChatMessageStatisticsEntity result = chatMessageStatisticsRepository.save(chatMessageStatistics);
         return ResponseEntity.created(new URI("/api/chat-message-statistics/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -71,12 +71,12 @@ public class ChatMessageStatisticsResource {
      */
     @PutMapping("/chat-message-statistics")
     @Timed
-    public ResponseEntity<ChatMessageStatistics> updateChatMessageStatistics(@RequestBody ChatMessageStatistics chatMessageStatistics) throws URISyntaxException {
+    public ResponseEntity<ChatMessageStatisticsEntity> updateChatMessageStatistics(@RequestBody ChatMessageStatisticsEntity chatMessageStatistics) throws URISyntaxException {
         log.debug("REST request to update ChatMessageStatistics : {}", chatMessageStatistics);
         if (chatMessageStatistics.getId() == null) {
             return createChatMessageStatistics(chatMessageStatistics);
         }
-        ChatMessageStatistics result = chatMessageStatisticsRepository.save(chatMessageStatistics);
+        ChatMessageStatisticsEntity result = chatMessageStatisticsRepository.save(chatMessageStatistics);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, chatMessageStatistics.getId().toString()))
             .body(result);
@@ -90,9 +90,9 @@ public class ChatMessageStatisticsResource {
      */
     @GetMapping("/chat-message-statistics")
     @Timed
-    public ResponseEntity<List<ChatMessageStatistics>> getAllChatMessageStatistics(Pageable pageable) {
+    public ResponseEntity<List<ChatMessageStatisticsEntity>> getAllChatMessageStatistics(Pageable pageable) {
         log.debug("REST request to get a page of ChatMessageStatistics");
-        Page<ChatMessageStatistics> page = chatMessageStatisticsRepository.findAll(pageable);
+        Page<ChatMessageStatisticsEntity> page = chatMessageStatisticsRepository.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/chat-message-statistics");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -105,9 +105,9 @@ public class ChatMessageStatisticsResource {
      */
     @GetMapping("/chat-message-statistics/{id}")
     @Timed
-    public ResponseEntity<ChatMessageStatistics> getChatMessageStatistics(@PathVariable String id) {
+    public ResponseEntity<ChatMessageStatisticsEntity> getChatMessageStatistics(@PathVariable String id) {
         log.debug("REST request to get ChatMessageStatistics : {}", id);
-        ChatMessageStatistics chatMessageStatistics = chatMessageStatisticsRepository.findOne(id);
+        ChatMessageStatisticsEntity chatMessageStatistics = chatMessageStatisticsRepository.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(chatMessageStatistics));
     }
 

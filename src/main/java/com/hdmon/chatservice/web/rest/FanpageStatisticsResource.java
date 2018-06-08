@@ -1,7 +1,7 @@
 package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.hdmon.chatservice.domain.FanpageStatistics;
+import com.hdmon.chatservice.domain.FanpageStatisticsEntity;
 
 import com.hdmon.chatservice.repository.FanpageStatisticsRepository;
 import com.hdmon.chatservice.web.rest.errors.BadRequestAlertException;
@@ -49,12 +49,12 @@ public class FanpageStatisticsResource {
      */
     @PostMapping("/fanpage-statistics")
     @Timed
-    public ResponseEntity<FanpageStatistics> createFanpageStatistics(@RequestBody FanpageStatistics fanpageStatistics) throws URISyntaxException {
+    public ResponseEntity<FanpageStatisticsEntity> createFanpageStatistics(@RequestBody FanpageStatisticsEntity fanpageStatistics) throws URISyntaxException {
         log.debug("REST request to save FanpageStatistics : {}", fanpageStatistics);
         if (fanpageStatistics.getId() != null) {
             throw new BadRequestAlertException("A new fanpageStatistics cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        FanpageStatistics result = fanpageStatisticsRepository.save(fanpageStatistics);
+        FanpageStatisticsEntity result = fanpageStatisticsRepository.save(fanpageStatistics);
         return ResponseEntity.created(new URI("/api/fanpage-statistics/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -71,12 +71,12 @@ public class FanpageStatisticsResource {
      */
     @PutMapping("/fanpage-statistics")
     @Timed
-    public ResponseEntity<FanpageStatistics> updateFanpageStatistics(@RequestBody FanpageStatistics fanpageStatistics) throws URISyntaxException {
+    public ResponseEntity<FanpageStatisticsEntity> updateFanpageStatistics(@RequestBody FanpageStatisticsEntity fanpageStatistics) throws URISyntaxException {
         log.debug("REST request to update FanpageStatistics : {}", fanpageStatistics);
         if (fanpageStatistics.getId() == null) {
             return createFanpageStatistics(fanpageStatistics);
         }
-        FanpageStatistics result = fanpageStatisticsRepository.save(fanpageStatistics);
+        FanpageStatisticsEntity result = fanpageStatisticsRepository.save(fanpageStatistics);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, fanpageStatistics.getId().toString()))
             .body(result);
@@ -90,9 +90,9 @@ public class FanpageStatisticsResource {
      */
     @GetMapping("/fanpage-statistics")
     @Timed
-    public ResponseEntity<List<FanpageStatistics>> getAllFanpageStatistics(Pageable pageable) {
+    public ResponseEntity<List<FanpageStatisticsEntity>> getAllFanpageStatistics(Pageable pageable) {
         log.debug("REST request to get a page of FanpageStatistics");
-        Page<FanpageStatistics> page = fanpageStatisticsRepository.findAll(pageable);
+        Page<FanpageStatisticsEntity> page = fanpageStatisticsRepository.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/fanpage-statistics");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -105,9 +105,9 @@ public class FanpageStatisticsResource {
      */
     @GetMapping("/fanpage-statistics/{id}")
     @Timed
-    public ResponseEntity<FanpageStatistics> getFanpageStatistics(@PathVariable String id) {
+    public ResponseEntity<FanpageStatisticsEntity> getFanpageStatistics(@PathVariable String id) {
         log.debug("REST request to get FanpageStatistics : {}", id);
-        FanpageStatistics fanpageStatistics = fanpageStatisticsRepository.findOne(id);
+        FanpageStatisticsEntity fanpageStatistics = fanpageStatisticsRepository.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(fanpageStatistics));
     }
 

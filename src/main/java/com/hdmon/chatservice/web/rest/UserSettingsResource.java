@@ -1,7 +1,7 @@
 package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.hdmon.chatservice.domain.UserSettings;
+import com.hdmon.chatservice.domain.UserSettingsEntity;
 
 import com.hdmon.chatservice.repository.UserSettingsRepository;
 import com.hdmon.chatservice.web.rest.errors.BadRequestAlertException;
@@ -49,12 +49,12 @@ public class UserSettingsResource {
      */
     @PostMapping("/user-settings")
     @Timed
-    public ResponseEntity<UserSettings> createUserSettings(@RequestBody UserSettings userSettings) throws URISyntaxException {
+    public ResponseEntity<UserSettingsEntity> createUserSettings(@RequestBody UserSettingsEntity userSettings) throws URISyntaxException {
         log.debug("REST request to save UserSettings : {}", userSettings);
         if (userSettings.getId() != null) {
             throw new BadRequestAlertException("A new userSettings cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        UserSettings result = userSettingsRepository.save(userSettings);
+        UserSettingsEntity result = userSettingsRepository.save(userSettings);
         return ResponseEntity.created(new URI("/api/user-settings/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -71,12 +71,12 @@ public class UserSettingsResource {
      */
     @PutMapping("/user-settings")
     @Timed
-    public ResponseEntity<UserSettings> updateUserSettings(@RequestBody UserSettings userSettings) throws URISyntaxException {
+    public ResponseEntity<UserSettingsEntity> updateUserSettings(@RequestBody UserSettingsEntity userSettings) throws URISyntaxException {
         log.debug("REST request to update UserSettings : {}", userSettings);
         if (userSettings.getId() == null) {
             return createUserSettings(userSettings);
         }
-        UserSettings result = userSettingsRepository.save(userSettings);
+        UserSettingsEntity result = userSettingsRepository.save(userSettings);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, userSettings.getId().toString()))
             .body(result);
@@ -90,9 +90,9 @@ public class UserSettingsResource {
      */
     @GetMapping("/user-settings")
     @Timed
-    public ResponseEntity<List<UserSettings>> getAllUserSettings(Pageable pageable) {
+    public ResponseEntity<List<UserSettingsEntity>> getAllUserSettings(Pageable pageable) {
         log.debug("REST request to get a page of UserSettings");
-        Page<UserSettings> page = userSettingsRepository.findAll(pageable);
+        Page<UserSettingsEntity> page = userSettingsRepository.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/user-settings");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -105,9 +105,9 @@ public class UserSettingsResource {
      */
     @GetMapping("/user-settings/{id}")
     @Timed
-    public ResponseEntity<UserSettings> getUserSettings(@PathVariable String id) {
+    public ResponseEntity<UserSettingsEntity> getUserSettings(@PathVariable String id) {
         log.debug("REST request to get UserSettings : {}", id);
-        UserSettings userSettings = userSettingsRepository.findOne(id);
+        UserSettingsEntity userSettings = userSettingsRepository.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(userSettings));
     }
 

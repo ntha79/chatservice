@@ -1,7 +1,7 @@
 package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.hdmon.chatservice.domain.PushNotifications;
+import com.hdmon.chatservice.domain.PushNotificationsEntity;
 
 import com.hdmon.chatservice.repository.PushNotificationsRepository;
 import com.hdmon.chatservice.web.rest.errors.BadRequestAlertException;
@@ -49,12 +49,12 @@ public class PushNotificationsResource {
      */
     @PostMapping("/push-notifications")
     @Timed
-    public ResponseEntity<PushNotifications> createPushNotifications(@RequestBody PushNotifications pushNotifications) throws URISyntaxException {
+    public ResponseEntity<PushNotificationsEntity> createPushNotifications(@RequestBody PushNotificationsEntity pushNotifications) throws URISyntaxException {
         log.debug("REST request to save PushNotifications : {}", pushNotifications);
         if (pushNotifications.getId() != null) {
             throw new BadRequestAlertException("A new pushNotifications cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        PushNotifications result = pushNotificationsRepository.save(pushNotifications);
+        PushNotificationsEntity result = pushNotificationsRepository.save(pushNotifications);
         return ResponseEntity.created(new URI("/api/push-notifications/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -71,12 +71,12 @@ public class PushNotificationsResource {
      */
     @PutMapping("/push-notifications")
     @Timed
-    public ResponseEntity<PushNotifications> updatePushNotifications(@RequestBody PushNotifications pushNotifications) throws URISyntaxException {
+    public ResponseEntity<PushNotificationsEntity> updatePushNotifications(@RequestBody PushNotificationsEntity pushNotifications) throws URISyntaxException {
         log.debug("REST request to update PushNotifications : {}", pushNotifications);
         if (pushNotifications.getId() == null) {
             return createPushNotifications(pushNotifications);
         }
-        PushNotifications result = pushNotificationsRepository.save(pushNotifications);
+        PushNotificationsEntity result = pushNotificationsRepository.save(pushNotifications);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pushNotifications.getId().toString()))
             .body(result);
@@ -90,9 +90,9 @@ public class PushNotificationsResource {
      */
     @GetMapping("/push-notifications")
     @Timed
-    public ResponseEntity<List<PushNotifications>> getAllPushNotifications(Pageable pageable) {
+    public ResponseEntity<List<PushNotificationsEntity>> getAllPushNotifications(Pageable pageable) {
         log.debug("REST request to get a page of PushNotifications");
-        Page<PushNotifications> page = pushNotificationsRepository.findAll(pageable);
+        Page<PushNotificationsEntity> page = pushNotificationsRepository.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/push-notifications");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -105,9 +105,9 @@ public class PushNotificationsResource {
      */
     @GetMapping("/push-notifications/{id}")
     @Timed
-    public ResponseEntity<PushNotifications> getPushNotifications(@PathVariable String id) {
+    public ResponseEntity<PushNotificationsEntity> getPushNotifications(@PathVariable String id) {
         log.debug("REST request to get PushNotifications : {}", id);
-        PushNotifications pushNotifications = pushNotificationsRepository.findOne(id);
+        PushNotificationsEntity pushNotifications = pushNotificationsRepository.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(pushNotifications));
     }
 
