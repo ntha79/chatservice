@@ -8,7 +8,6 @@ import java.time.Instant;
 
 public class extGroupMemberEntity implements Serializable {
     private Long memberId;
-    private String memberLogin;
     private GroupMemberRoleEnum memberRole;
     private GroupMemberStatusEnum memberStatus;
     private Instant joinTime;
@@ -18,10 +17,9 @@ public class extGroupMemberEntity implements Serializable {
         super();
     }
 
-    public extGroupMemberEntity(long memberId, String memberLogin, GroupMemberRoleEnum memberRole, GroupMemberStatusEnum memberStatus, Instant joinTime, Instant leaveTime)
+    public extGroupMemberEntity(long memberId, GroupMemberRoleEnum memberRole, GroupMemberStatusEnum memberStatus, Instant joinTime, Instant leaveTime)
     {
         this.memberId = memberId;
-        this.memberLogin = memberLogin;
         this.memberRole = memberRole;
         this.memberStatus = memberStatus;
         this.joinTime = joinTime;
@@ -34,14 +32,6 @@ public class extGroupMemberEntity implements Serializable {
 
     public void setMemberId(Long memberId) {
         this.memberId = memberId;
-    }
-
-    public String getMemberLogin() {
-        return memberLogin;
-    }
-
-    public void setMemberLogin(String memberLogin) {
-        this.memberLogin = memberLogin;
     }
 
     public GroupMemberRoleEnum getMemberRole() {
@@ -80,7 +70,6 @@ public class extGroupMemberEntity implements Serializable {
     public String toString() {
         return "extGroupMemberEntity{"
             + "MemberId=" + getMemberId() + ","
-            + "MemberLogin=" + getMemberLogin() + ","
             + "MemberRole=" + getMemberRole() + ","
             + "MemberStatus=" + getMemberStatus() + ","
             + "JoinTime=" + getJoinTime() + ","

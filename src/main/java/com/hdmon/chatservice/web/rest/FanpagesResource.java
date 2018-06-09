@@ -1,17 +1,14 @@
 package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.hdmon.chatservice.domain.*;
-
-import com.hdmon.chatservice.repository.FanpagesRepository;
+import com.hdmon.chatservice.domain.FanpagesEntity;
+import com.hdmon.chatservice.domain.IsoResponseEntity;
 import com.hdmon.chatservice.service.FanpagesService;
 import com.hdmon.chatservice.web.rest.errors.BadRequestAlertException;
 import com.hdmon.chatservice.web.rest.errors.ResponseErrorCode;
 import com.hdmon.chatservice.web.rest.util.HeaderUtil;
 import com.hdmon.chatservice.web.rest.util.PaginationUtil;
-import com.hdmon.chatservice.web.rest.vm.ChatMessagesVM;
 import com.hdmon.chatservice.web.rest.vm.FanpagesVM;
-import com.hdmon.chatservice.web.rest.vm.FriendsVM;
 import com.hdmon.chatservice.web.rest.vm.MembersVM;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -25,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.util.List;
 import java.util.Optional;
 

@@ -24,8 +24,8 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
     @Id
     private String id;
 
-    @Field("group_id")
-    private String groupId = UUID.randomUUID().toString();
+    @Field("seq_id")
+    private String seqId = UUID.randomUUID().toString();
 
     @Field("group_type")
     private GroupTypeEnum groupType;
@@ -48,17 +48,11 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
     @Field("owner_id")
     private Long ownerId;
 
-    @Field("owner_login")
-    private String ownerLogin;
-
     @Field("member_lists")
     private List<extGroupMemberEntity> memberLists;
 
     @Field("max_member")
     private Integer maxMember = 5000;
-
-    @Field("member_count")
-    private Integer memberCount = 0;
 
     @Field("created_unix_time")
     private Long createdUnixTime = new Date().getTime();
@@ -81,17 +75,17 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         this.id = id;
     }
 
-    public String getGroupId() {
-        return groupId;
+    public String getSeqId() {
+        return seqId;
     }
 
-    public GroupMembersEntity groupId(String groupId) {
-        this.groupId = groupId;
+    public GroupMembersEntity seqId(String seqId) {
+        this.seqId = seqId;
         return this;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setSeqId(String seqId) {
+        this.seqId = seqId;
     }
 
     public GroupTypeEnum getGroupType() {
@@ -185,19 +179,6 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         this.ownerId = ownerId;
     }
 
-    public String getOwnerLogin() {
-        return ownerLogin;
-    }
-
-    public GroupMembersEntity ownerLogin(String ownerLogin) {
-        this.ownerLogin = ownerLogin;
-        return this;
-    }
-
-    public void setOwnerLogin(String ownerLogin) {
-        this.ownerLogin = ownerLogin;
-    }
-
     public List<extGroupMemberEntity> getMemberLists() {
         return memberLists;
     }
@@ -222,19 +203,6 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
 
     public void setMaxMember(Integer maxMember) {
         this.maxMember = maxMember;
-    }
-
-    public Integer getMemberCount() {
-        return memberCount;
-    }
-
-    public GroupMembersEntity memberCount(Integer memberCount) {
-        this.memberCount = memberCount;
-        return this;
-    }
-
-    public void setMemberCount(Integer memberCount) {
-        this.memberCount = memberCount;
     }
 
     public Long getCreatedUnixTime() {
@@ -314,7 +282,6 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
     public String toString() {
         return "GroupMembersEntity{" +
             "id=" + getId() +
-            ", groupId='" + getGroupId() + "'" +
             ", groupType='" + getGroupType() + "'" +
             ", groupName='" + getGroupName() + "'" +
             ", groupIcon='" + getGroupIcon() + "'" +
@@ -322,10 +289,8 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
             ", groupAbout='" + getGroupAbout() + "'" +
             ", groupStatus=" + getGroupStatus() +
             ", ownerId=" + getOwnerId() +
-            ", ownerLogin='" + getOwnerLogin() + "'" +
             ", memberLists='" + getMemberLists() + "'" +
             ", maxMember=" + getMaxMember() +
-            ", memberCount=" + getMemberCount() +
             ", createdBy='" + getCreatedBy() + "'" +
             ", createdDate='" + getCreatedDate() + "'" +
             ", createdUnixTime=" + getCreatedUnixTime() +

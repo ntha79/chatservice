@@ -9,6 +9,7 @@ import com.hdmon.chatservice.service.util.DataTypeHelper;
 import com.hdmon.chatservice.web.rest.errors.ResponseErrorCode;
 import com.hdmon.chatservice.web.rest.vm.Contacts.RequireAddFriendsVM;
 import com.hdmon.chatservice.web.rest.vm.Contacts.ResponseAddFriendsVM;
+import com.hdmon.chatservice.web.rest.vm.Contacts.UpdateFriendVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -89,7 +90,6 @@ public class ContactsService {
     @Transactional(readOnly = true)
     public ContactsEntity findOneByownerId(Long ownerId)
     {
-        log.debug("Request to get all Contacts by ownerId: {}", ownerId);
         ContactsEntity dbInfo = new ContactsEntity();
         if(ownerId > 0)
         {
@@ -107,8 +107,6 @@ public class ContactsService {
     @Transactional(readOnly = true)
     public List<ContactsEntity> searchContacts(Long ownerId, String loginName)
     {
-        log.debug("Request to searc all Contacts by loginName: {}-{}", ownerId, loginName);
-
         Sort sortBy = new Sort(Sort.Direction.ASC, "ownerLogin");
         List<ContactsEntity> dbResults = new ArrayList<>();
         if(ownerId > 0)
@@ -131,8 +129,6 @@ public class ContactsService {
      */
     public List<extFriendMemberEntity> requireAddFriends(RequireAddFriendsVM viewModel, IsoResponseEntity outputEntity)
     {
-        log.debug("Send request to add friend for ownerId.: {}", viewModel);
-
         //Thêm mới bản ghi cho người thao tác
         String chatRoomId = viewModel.getOwnerId() + "#" + viewModel.getFriendId();
         List<extFriendMemberEntity> responseList = execAddFriendsForOwner(viewModel, chatRoomId, FriendStatusEnum.FOLLOW, true, outputEntity);
@@ -150,10 +146,8 @@ public class ContactsService {
      * Create Time: 2018-06-08
      * @return the entity
      */
-    public List<extFriendMemberEntity> acceptAddFriends(ResponseAddFriendsVM viewModel, IsoResponseEntity outputEntity)
+    public List<extFriendMemberEntity> acceptAddFriends(ResponseAddFriendsVM viewModel)
     {
-        log.debug("Send request accept friend for ownerId.: {}", viewModel);
-
         //Cập nhật cho người thao tác
         List<extFriendMemberEntity> responseList = execAcceptFriendsForOwner(viewModel, FriendStatusEnum.FRIEND);
 
@@ -170,10 +164,8 @@ public class ContactsService {
      * Create Time: 2018-06-08
      * @return the entity
      */
-    public List<extFriendMemberEntity> deniedAddFriends(ResponseAddFriendsVM viewModel, IsoResponseEntity outputEntity)
+    public List<extFriendMemberEntity> deniedAddFriends(ResponseAddFriendsVM viewModel)
     {
-        log.debug("Send request denied friend for ownerId.: {}", viewModel);
-
         List<extFriendMemberEntity> responseList = new ArrayList<>();
         ContactsEntity dbRequireInfo = contactsRepository.findOneByownerId(viewModel.getOwnerId());
         if(dbRequireInfo != null && dbRequireInfo.getId() != null)
@@ -183,6 +175,35 @@ public class ContactsService {
                 if(exists.getFriendId() == viewModel.getFriendId())
                 {
                     responseList.remove(exists);
+                    break;
+                }
+            }
+
+            dbRequireInfo.setFriendLists(responseList);
+            dbRequireInfo.setLastModifiedUnixTime(new Date().getTime());
+            contactsRepository.save(dbRequireInfo);
+        }
+        return responseList;
+    }
+
+    /**
+     * Cập nhật thông tin của bạn bè.
+     * (Hàm bổ sung)
+     * Create Time: 2018-06-09
+     * @return the entity
+     */
+    public List<extFriendMemberEntity> updateFriend(UpdateFriendVM viewModel)
+    {
+        List<extFriendMemberEntity> responseList = new ArrayList<>();
+        ContactsEntity dbRequireInfo = contactsRepository.findOneByownerId(viewModel.getOwnerId());
+        if(dbRequireInfo != null && dbRequireInfo.getId() != null)
+        {
+            responseList = dbRequireInfo.getFriendLists();
+            for (extFriendMemberEntity exists : responseList) {
+                if(exists.getFriendId() == viewModel.getFriendId())
+                {
+                    exists.setFriendName(viewModel.getFriendName());
+                    exists.setLastModifiedUnixTime(new Date().getTime());
                     break;
                 }
             }
@@ -244,7 +265,7 @@ public class ContactsService {
             else {
                 if(allowOutput) {
                     outputEntity.setError(ResponseErrorCode.EXISTS.getValue());
-                    outputEntity.setMessage("friendId_exists");
+                    outputEntity.setMessage("contacts_friendId_exists");
                     outputEntity.setException("This person already exists in list!");
                     return new ArrayList<>();
                 }

@@ -5,5 +5,5 @@ package com.hdmon.chatservice.domain.enumeration;
  * Using on: ChatMessages
  */
 public enum GroupTypeEnum {
-    PUBLIC, FANPAGE, SECRET, PEERTOPEER
+    PUBLIC, FANPAGE, SECRET
 }

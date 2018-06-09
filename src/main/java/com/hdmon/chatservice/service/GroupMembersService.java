@@ -1,12 +1,13 @@
 package com.hdmon.chatservice.service;
 
 import com.hdmon.chatservice.domain.ContactsEntity;
-import com.hdmon.chatservice.domain.FanpagesEntity;
 import com.hdmon.chatservice.domain.GroupMembersEntity;
 import com.hdmon.chatservice.domain.IsoResponseEntity;
-import com.hdmon.chatservice.domain.enumeration.*;
+import com.hdmon.chatservice.domain.enumeration.GroupMemberRoleEnum;
+import com.hdmon.chatservice.domain.enumeration.GroupMemberStatusEnum;
+import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
+import com.hdmon.chatservice.domain.enumeration.MessageReceiverStatusEnum;
 import com.hdmon.chatservice.domain.extents.extContactGroupEntity;
-import com.hdmon.chatservice.domain.extents.extFriendMemberEntity;
 import com.hdmon.chatservice.domain.extents.extGroupMemberEntity;
 import com.hdmon.chatservice.domain.extents.extMessageReceiverEntity;
 import com.hdmon.chatservice.repository.ContactsRepository;
@@ -14,8 +15,8 @@ import com.hdmon.chatservice.repository.GroupMemberStatisticsRepository;
 import com.hdmon.chatservice.repository.GroupMembersRepository;
 import com.hdmon.chatservice.service.util.DataTypeHelper;
 import com.hdmon.chatservice.web.rest.errors.ResponseErrorCode;
-import com.hdmon.chatservice.web.rest.vm.FriendsVM;
 import com.hdmon.chatservice.web.rest.vm.GroupMembersVM;
+import com.hdmon.chatservice.web.rest.vm.Groups.*;
 import com.hdmon.chatservice.web.rest.vm.MembersVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,6 @@ public class GroupMembersService {
                 for (extGroupMemberEntity memberItem : groupMemberLists) {
                     extMessageReceiverEntity receiverItem = new extMessageReceiverEntity();
                     receiverItem.setReceiverId(memberItem.getMemberId());
-                    receiverItem.setReceiverLogin(memberItem.getMemberLogin());
                     receiverItem.setStatus(MessageReceiverStatusEnum.NEW);
                     receiverItem.setUpdateUnixTime(new Date().getTime());
                     responseList.add(receiverItem);
@@ -125,44 +125,51 @@ public class GroupMembersService {
     /**
      * Thành viên tạo group mới (08/06/2018).
      * (Hàm bổ sung)
-     * @param inputGroups: entity chứa thông tin của group
-     * @param outResult: id của thành viên thực hiện xóa
+     * @param viewModel: entity chứa thông tin cơ bản của group
+     * @return the entity
      */
-    public GroupMembersEntity create(GroupMembersEntity inputGroups, IsoResponseEntity outResult)
+    public GroupMembersEntity create(CreateNewGroupVM viewModel)
     {
+        //Gán các thông tin cơ bản của group
+        GroupMembersEntity groupMembers = new GroupMembersEntity();
+        groupMembers.setOwnerId(viewModel.getOwnerId());
+        groupMembers.setGroupType(viewModel.getGroupType());
+        groupMembers.setGroupName(viewModel.getGroupName());
+        groupMembers.setGroupIcon(viewModel.getGroupIcon());
+        groupMembers.setGroupSlogan(viewModel.getGroupSlogan());
+        groupMembers.setGroupAbout(viewModel.getGroupAbout());
+
         //Bổ sung người tạo là thành viên
         List<extGroupMemberEntity> inputMemberLists = new ArrayList<>();
         extGroupMemberEntity memberItem = new extGroupMemberEntity();
-        memberItem.setMemberId(inputGroups.getOwnerId());
-        memberItem.setMemberLogin(inputGroups.getOwnerLogin());
+        memberItem.setMemberId(viewModel.getOwnerId());
         memberItem.setMemberRole(GroupMemberRoleEnum.ADMIN);
         memberItem.setMemberStatus(GroupMemberStatusEnum.NORMAL);
         memberItem.setJoinTime(Calendar.getInstance().toInstant());
         inputMemberLists.add(memberItem);
 
         //Danh sách thành viên
-        inputGroups.setMemberLists(inputMemberLists);
-        inputGroups.setMemberCount(inputMemberLists.size());
+        groupMembers.setMemberLists(inputMemberLists);
 
-        //Số thành viên tối đa
-        if(inputGroups.getGroupType() == GroupTypeEnum.PEERTOPEER)
-            inputGroups.setMaxMember(2);
+        //Số thành viên tối đa của nhóm bí mật (chưa chốt số cuối)
+        if(groupMembers.getGroupType() == GroupTypeEnum.SECRET)
+            groupMembers.setMaxMember(5000);
 
         //Người sửa, ngày sửa || người tạo, ngày tạo (log-history)
-        inputGroups.setLastModifiedBy(inputGroups.getOwnerId().toString());
-        inputGroups.setLastModifiedDate(Calendar.getInstance().toInstant());
-        inputGroups.setLastModifiedBy(inputGroups.getOwnerId().toString());
-        inputGroups.setLastModifiedDate(Calendar.getInstance().toInstant());
+        groupMembers.setLastModifiedBy(viewModel.getOwnerId().toString());
+        groupMembers.setLastModifiedDate(Calendar.getInstance().toInstant());
+        groupMembers.setLastModifiedBy(viewModel.getOwnerId().toString());
+        groupMembers.setLastModifiedDate(Calendar.getInstance().toInstant());
 
         //Dữ liệu thống kê
         GroupMemberStatisticsService gmStatisticsService = new GroupMemberStatisticsService(groupMemberStatisticsRepository);
         gmStatisticsService.increaseStatistics();
-        inputGroups.setReportDay(DataTypeHelper.ConvertDateTimeToReportDay());
+        groupMembers.setReportDay(DataTypeHelper.ConvertDateTimeToReportDay());
 
-        GroupMembersEntity newGroupInfo = groupMembersRepository.save(inputGroups);
+        GroupMembersEntity newGroupInfo = groupMembersRepository.save(groupMembers);
 
-        //Cập nhật bản ghi cho người gửi yêu cầu
-        addGroupIntoContactGroupList(inputGroups.getOwnerId(), newGroupInfo.getId(), newGroupInfo.getGroupName());
+        //Thêm group mới vào danh sách cho người gửi yêu cầu
+        addGroupIntoContactGroupList(viewModel.getOwnerId(), newGroupInfo.getId(), newGroupInfo.getGroupName());
 
         return newGroupInfo;
     }
@@ -170,61 +177,72 @@ public class GroupMembersService {
     /**
      * Thành viên cập nhật group (08/06/2018).
      * (Hàm bổ sung)
-     * @param inputGroups: entity chứa thông tin của group
-     * @param outResult: id của thành viên thực hiện xóa
+     * @param viewModel: entity chứa thông tin của group
+     * @param outResult: entity của thông tin sẽ trả về cho client
      */
-    public GroupMembersEntity update(GroupMembersVM inputGroups, IsoResponseEntity outResult)
+    public GroupMembersEntity update(UpdateGroupVM viewModel, IsoResponseEntity outResult)
     {
-        GroupMembersEntity dbInfo = groupMembersRepository.findOne(inputGroups.getId());
+        GroupMembersEntity dbInfo = groupMembersRepository.findOne(viewModel.getGroupId());
         if(dbInfo != null && dbInfo.getId() != null)
         {
             //Kiểm tra người thực hiện có là thành viên không
             boolean isExists = false;
             List<extGroupMemberEntity> memberLists = dbInfo.getMemberLists();
-            for (extGroupMemberEntity currentMbr : memberLists) {
-                if (currentMbr.getMemberId() == inputGroups.getOwnerId()) {
-                    isExists = true;
-                    break;
+            if(viewModel.getOwnerId() != dbInfo.getOwnerId()) {
+                for (extGroupMemberEntity currentMbr : memberLists) {
+                    if (currentMbr.getMemberId() == viewModel.getOwnerId()) {
+                        isExists = true;
+                        break;
+                    }
                 }
+            }
+            else
+            {
+                isExists = true;
             }
 
             //Trường hợp là thành viên của nhóm mới được quyền sửa
             if(isExists) {
                 //Loại nhóm
-                if (inputGroups.getGroupType() != null)
-                    dbInfo.setGroupType(inputGroups.getGroupType());
+                if (viewModel.getGroupType() != null)
+                    dbInfo.setGroupType(viewModel.getGroupType());
                 //Tên nhóm
-                if (!inputGroups.getGroupName().isEmpty())
-                    dbInfo.setGroupName(inputGroups.getGroupName());
+                if (!viewModel.getGroupName().isEmpty())
+                    dbInfo.setGroupName(viewModel.getGroupName());
                 //Ảnh đại diện
-                if (!inputGroups.getGroupIcon().isEmpty())
-                    dbInfo.setGroupIcon(inputGroups.getGroupIcon());
+                if (!viewModel.getGroupIcon().isEmpty())
+                    dbInfo.setGroupIcon(viewModel.getGroupIcon());
                 //Câu khẩu hiệu
-                if (!inputGroups.getGroupSlogan().isEmpty())
-                    dbInfo.setGroupSlogan(inputGroups.getGroupSlogan());
+                if (!viewModel.getGroupSlogan().isEmpty())
+                    dbInfo.setGroupSlogan(viewModel.getGroupSlogan());
                 //Giới thiệu nhóm
-                if (!inputGroups.getGroupAbout().isEmpty())
-                    dbInfo.setGroupAbout(inputGroups.getGroupAbout());
+                if (!viewModel.getGroupAbout().isEmpty())
+                    dbInfo.setGroupAbout(viewModel.getGroupAbout());
 
                 //Người sửa, ngày sửa || người tạo, ngày tạo (log-history)
-                dbInfo.setLastModifiedBy(inputGroups.getOwnerId().toString());
+                dbInfo.setLastModifiedBy(viewModel.getOwnerId().toString());
                 dbInfo.setLastModifiedDate(Calendar.getInstance().toInstant());
-                dbInfo.setLastModifiedBy(inputGroups.getOwnerId().toString());
+                dbInfo.setLastModifiedBy(viewModel.getOwnerId().toString());
                 dbInfo.setLastModifiedDate(Calendar.getInstance().toInstant());
+
+                //Cập nhật tên group trong danh sách của từng thành viên
+                for (extGroupMemberEntity currentMbr : memberLists) {
+                    updateGroupIntoContactGroupList(currentMbr.getMemberId(), dbInfo.getId(), dbInfo.getGroupName());
+                }
 
                 return groupMembersRepository.save(dbInfo);
             }
             else
             {
                 outResult.setError(ResponseErrorCode.DENIED.getValue());                                    //denied
-                outResult.setMessage("denied_error");
+                outResult.setMessage("groupmembers_denied_error");
                 outResult.setException("Request to update this group is rejected!");
                 return null;
             }
         }
         else {
             outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                                 //notfound
-            outResult.setMessage("notfound_error");
+            outResult.setMessage("groupmembers_notfound_error");
             outResult.setException("The record is not found!");
             return null;
         }
@@ -233,15 +251,15 @@ public class GroupMembersService {
     /**
      * Admin thực hiện xóa group (08/06/2018).
      * (Hàm bổ sung)
-     * @param inputGroups: entity chứa thông tin của group
-     * @param outResult: id của thành viên thực hiện xóa
+     * @param viewModel: entity chứa thông tin của group
+     * @param outResult: entity của thông tin sẽ trả về cho client
      */
-    public boolean delete(GroupMembersVM inputGroups, IsoResponseEntity outResult)
+    public boolean delete(DeleteGroupVM viewModel, IsoResponseEntity outResult)
     {
-        GroupMembersEntity dbSourceInfo = groupMembersRepository.findOne(inputGroups.getId());
+        GroupMembersEntity dbSourceInfo = groupMembersRepository.findOne(viewModel.getGroupId());
         if(dbSourceInfo != null && dbSourceInfo.getId() != null)
         {
-            if(dbSourceInfo.getOwnerId() == inputGroups.getOwnerId()) {
+            if(dbSourceInfo.getOwnerId() == viewModel.getOwnerId()) {
                 //Loại bỏ group cho toàn bộ danh sách thành viên của group
                 List<extGroupMemberEntity> removeMemberLists = dbSourceInfo.getMemberLists();
                 for (extGroupMemberEntity removeMember : removeMemberLists) {
@@ -249,20 +267,20 @@ public class GroupMembersService {
                 }
 
                 //Loại bỏ group
-                groupMembersRepository.delete(inputGroups.getId());
+                groupMembersRepository.delete(viewModel.getGroupId());
                 return true;
             }
             else
             {
                 outResult.setError(ResponseErrorCode.DENIED.getValue());                                    //denied
-                outResult.setMessage("denied_error");
+                outResult.setMessage("groupmembers_denied_error");
                 outResult.setException("Request to delete this group is rejected!");
                 return false;
             }
         }
         else {
             outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                                      //notfound
-            outResult.setMessage("notfound_error");
+            outResult.setMessage("groupmembers_notfound_error");
             outResult.setException("The record is not found!");
             return false;
         }
@@ -274,20 +292,18 @@ public class GroupMembersService {
      * Create Time: 2018-06-08
      * @return the list members
      */
-    public List<extGroupMemberEntity> appendMembers(GroupMembersVM groupMembersVM, IsoResponseEntity outResult)
+    public List<extGroupMemberEntity> appendMembers(ActionGroupVM viewModel, IsoResponseEntity outResult)
     {
-        log.debug("Send add member request for ownerId.: {}", groupMembersVM);
-
         //Kiểm tra nếu tồn tại thì cập nhật, nếu không tồn tại thì bổ sung vào
         List<extGroupMemberEntity> memberLists = new ArrayList<>();
-        GroupMembersEntity dbSourceInfo = groupMembersRepository.findOne(groupMembersVM.getId());
+        GroupMembersEntity dbSourceInfo = groupMembersRepository.findOne(viewModel.getGroupId());
         if(dbSourceInfo != null && dbSourceInfo.getId() != null) {
             memberLists = dbSourceInfo.getMemberLists();
 
-            List<MembersVM> toAppendLists = groupMembersVM.getListMembers();
+            List<MembersActionGroupVM> toAppendLists = viewModel.getListMembers();
             int totalAllMember = memberLists.size() + toAppendLists.size();
             if(totalAllMember < dbSourceInfo.getMaxMember()) {
-                for (MembersVM appendItem : toAppendLists) {
+                for (MembersActionGroupVM appendItem : toAppendLists) {
                     boolean isExists = false;
                     for (extGroupMemberEntity currentMbr : memberLists) {
                         if (currentMbr.getMemberId() == appendItem.getMemberId()) {
@@ -300,7 +316,6 @@ public class GroupMembersService {
                     if (!isExists) {
                         extGroupMemberEntity memberItem = new extGroupMemberEntity();
                         memberItem.setMemberId(appendItem.getMemberId());
-                        memberItem.setMemberLogin(appendItem.getMemberLogin());
                         memberItem.setMemberRole(GroupMemberRoleEnum.MEMBER);
                         memberItem.setMemberStatus(GroupMemberStatusEnum.NORMAL);
                         memberItem.setJoinTime(Calendar.getInstance().toInstant());
@@ -313,21 +328,20 @@ public class GroupMembersService {
 
                 //Lưu thông tin vào trong bảng GroupMembers
                 dbSourceInfo.setMemberLists(memberLists);
-                dbSourceInfo.setMemberCount(memberLists.size());
                 dbSourceInfo.setLastModifiedUnixTime(new Date().getTime());
                 groupMembersRepository.save(dbSourceInfo);
             }
             else
             {
                 outResult.setError(ResponseErrorCode.DENIED.getValue());                                 //denied
-                outResult.setMessage("denied_error");
+                outResult.setMessage("groupmembers_denied_error");
                 outResult.setException("Request to append the list members is rejected!");
             }
         }
         else
         {
             outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                                    //notfound
-            outResult.setMessage("notfound_error");
+            outResult.setMessage("groupmembers_notfound_error");
             outResult.setException("The record is not found!");
         }
 
@@ -335,29 +349,27 @@ public class GroupMembersService {
     }
 
     /**
-     * Loại bỏ thành viên khỏi group
+     * Loại bỏ thành viên khỏi group (chỉ ADMIN hoặc MANAGER mới có quyền)
      * (Hàm bổ sung)
      * Create Time: 2018-06-08
      * @return the list members
      */
-    public List<extGroupMemberEntity> removeMembers(GroupMembersVM groupMembersVM, IsoResponseEntity outResult)
+    public List<extGroupMemberEntity> removeMembers(ActionGroupVM viewModel, IsoResponseEntity outResult)
     {
-        log.debug("Send remove member request for ownerId.: {}", groupMembersVM);
-
         //Kiểm tra nếu tồn tại thì cập nhật, nếu không tồn tại thì bổ sung vào
         boolean allowRemove = false;
         List<extGroupMemberEntity> memberLists = new ArrayList<>();
-        GroupMembersEntity dbSourceInfo = groupMembersRepository.findOne(groupMembersVM.getId());
+        GroupMembersEntity dbSourceInfo = groupMembersRepository.findOne(viewModel.getGroupId());
         if(dbSourceInfo != null && dbSourceInfo.getId() != null) {
             memberLists = dbSourceInfo.getMemberLists();
 
             //Kiểm tra xem người thực hiện có quyền xóa không?
-            if ((groupMembersVM.getOwnerId() == dbSourceInfo.getOwnerId())) {
+            if ((viewModel.getOwnerId() == dbSourceInfo.getOwnerId())) {
                 allowRemove = true;
             }
             else {
                 for (extGroupMemberEntity exists : memberLists) {
-                    if (exists.getMemberId() == groupMembersVM.getOwnerId() && exists.getMemberRole() == GroupMemberRoleEnum.MANAGER) {
+                    if (exists.getMemberId() == viewModel.getOwnerId() && exists.getMemberRole() == GroupMemberRoleEnum.MANAGER) {
                         allowRemove = true;
                         break;
                     }
@@ -366,11 +378,11 @@ public class GroupMembersService {
 
             //Nếu có quyền thì thực hiện loại bỏ từng thành viên
             if(allowRemove) {
-                List<MembersVM> removeMemberLists = groupMembersVM.getListMembers();
-                for (MembersVM removeMember : removeMemberLists) {
+                List<MembersActionGroupVM> removeMemberLists = viewModel.getListMembers();
+                for (MembersActionGroupVM removeMember : removeMemberLists) {
                     boolean isExists = false;
                     for (extGroupMemberEntity currentMbr : memberLists) {
-                        if (currentMbr.getMemberId() != groupMembersVM.getOwnerId() && currentMbr.getMemberId() == removeMember.getMemberId()) {
+                        if (currentMbr.getMemberId() != viewModel.getOwnerId() && currentMbr.getMemberId() == removeMember.getMemberId()) {
                             memberLists.remove(currentMbr);
                             isExists = true;
                             break;
@@ -385,7 +397,6 @@ public class GroupMembersService {
 
                 //Cập nhật lại danh sách thành viên của bảng GroupMembers
                 dbSourceInfo.setMemberLists(memberLists);
-                dbSourceInfo.setMemberCount(memberLists.size());
                 dbSourceInfo.setLastModifiedUnixTime(new Date().getTime());
                 groupMembersRepository.save(dbSourceInfo);
             }
@@ -395,7 +406,7 @@ public class GroupMembersService {
         if(!allowRemove)
         {
             outResult.setError(ResponseErrorCode.DENIED.getValue());                                    //denied
-            outResult.setMessage("denied_error");
+            outResult.setMessage("groupmembers_denied_error");
             outResult.setException("Request to append the list members is rejected!");
         }
 
@@ -408,18 +419,16 @@ public class GroupMembersService {
      * Create Time: 2018-06-08
      * @return the list members
      */
-    public boolean memberLeave(MembersVM membersVM, IsoResponseEntity outResult)
+    public boolean memberLeave(MembersLeaveGroupVM viewModel, IsoResponseEntity outResult)
     {
-        log.debug("Send member leave request for ownerId.: {}", membersVM);
-
         //Kiểm tra nếu tồn tại thì cập nhật, nếu không tồn tại thì bổ sung vào
         boolean isExists = false;
-        GroupMembersEntity dbSourceInfo = groupMembersRepository.findOne(membersVM.getSourceId());
+        GroupMembersEntity dbSourceInfo = groupMembersRepository.findOne(viewModel.getGroupId());
         if(dbSourceInfo != null && dbSourceInfo.getId() != null) {
             List<extGroupMemberEntity> memberLists = dbSourceInfo.getMemberLists();
 
             for (extGroupMemberEntity currentMbr : memberLists) {
-                if (currentMbr.getMemberId() == membersVM.getMemberId()) {
+                if (currentMbr.getMemberId() == viewModel.getMemberId()) {
                     memberLists.remove(currentMbr);
                     isExists = true;
                     break;
@@ -429,11 +438,10 @@ public class GroupMembersService {
             //Cập nhật bản ghi cho người cần remove
             if (isExists) {
                 //Loại bỏ group trong danh sách group của User
-                removeGroupInContactGroupList(membersVM.getMemberId(), dbSourceInfo.getId());
+                removeGroupInContactGroupList(viewModel.getMemberId(), dbSourceInfo.getId());
 
                 //Cập nhật lại danh sách thành viên của bảng GroupMembers
                 dbSourceInfo.setMemberLists(memberLists);
-                dbSourceInfo.setMemberCount(memberLists.size());
                 dbSourceInfo.setLastModifiedUnixTime(new Date().getTime());
                 groupMembersRepository.save(dbSourceInfo);
 
@@ -445,7 +453,7 @@ public class GroupMembersService {
         if(!isExists)
         {
             outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                                    //notfound
-            outResult.setMessage("notfound_error");
+            outResult.setMessage("groupmembers_notfound_error");
             outResult.setException("The record is not found!");
         }
         return false;
@@ -462,6 +470,7 @@ public class GroupMembersService {
      */
     private boolean removeGroupInContactGroupList(Long memberId, String groupKeyId)
     {
+        log.debug("removeGroupInContactGroupList {}-{}", memberId, groupKeyId);
         ContactsEntity dbContactInfo = contactsRepository.findOneByownerId(memberId);
         if (dbContactInfo != null && dbContactInfo.getId() != null) {
             List<extContactGroupEntity> existGroupLists = dbContactInfo.getGroupLists();
@@ -514,6 +523,39 @@ public class GroupMembersService {
                 newGroup.setName(groupName);
                 existsGroupLists.add(newGroup);
 
+                dbContactInfo.setGroupLists(existsGroupLists);
+                dbContactInfo.setLastModifiedUnixTime(new Date().getTime());
+                contactsRepository.save(dbContactInfo);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Thêm group vào danh sách group của User
+     * (Hàm bổ sung)
+     * Create Time: 2018-06-09
+     * @return the action result
+     */
+    private boolean updateGroupIntoContactGroupList(Long ownerId, String groupKeyId, String groupName)
+    {
+        ContactsEntity dbContactInfo = contactsRepository.findOneByownerId(ownerId);
+        if (dbContactInfo != null && dbContactInfo.getId() != null) {
+            boolean existsInGroup = false;
+            List<extContactGroupEntity> existsGroupLists = dbContactInfo.getGroupLists();
+            if(existsGroupLists != null && existsGroupLists.size() > 0) {
+                for (extContactGroupEntity existsItem : existsGroupLists){
+                    if(existsItem.getId().equals(groupKeyId))
+                    {
+                        existsItem.setName(groupName);
+                        existsInGroup = true;
+                        break;
+                    }
+                }
+            }
+
+            //Nếu tồn tại thì thực hiện ghi nhận lại thông tin
+            if(existsInGroup) {
                 dbContactInfo.setGroupLists(existsGroupLists);
                 dbContactInfo.setLastModifiedUnixTime(new Date().getTime());
                 contactsRepository.save(dbContactInfo);

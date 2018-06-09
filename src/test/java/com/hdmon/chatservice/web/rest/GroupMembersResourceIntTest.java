@@ -43,8 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = {ChatserviceApp.class, SecurityBeanOverrideConfiguration.class})
 public class GroupMembersResourceIntTest {
 
-    private static final String DEFAULT_GROUP_ID = "AAAAAAAAAA";
-    private static final String UPDATED_GROUP_ID = "BBBBBBBBBB";
+    private static final String DEFAULT_SEQ_ID = "AAAAAAAAAA";
+    private static final String UPDATED_SEQ_ID = "BBBBBBBBBB";
 
     private static final GroupTypeEnum DEFAULT_GROUP_TYPE = GroupTypeEnum.PUBLIC;
     private static final GroupTypeEnum UPDATED_GROUP_TYPE = GroupTypeEnum.FANPAGE;
@@ -138,17 +138,15 @@ public class GroupMembersResourceIntTest {
      */
     public static GroupMembersEntity createEntity() {
         GroupMembersEntity groupMembers = new GroupMembersEntity()
-            .groupId(DEFAULT_GROUP_ID)
+            .seqId(DEFAULT_SEQ_ID)
             .groupType(DEFAULT_GROUP_TYPE)
             .groupName(DEFAULT_GROUP_NAME)
             .groupIcon(DEFAULT_GROUP_ICON)
             .groupSlogan(DEFAULT_GROUP_SLOGAN)
             .groupStatus(DEFAULT_GROUP_STATUS)
             .ownerId(DEFAULT_OWNER_ID)
-            .ownerLogin(DEFAULT_OWNER_LOGIN)
             .memberLists(DEFAULT_MEMBER_LISTS)
             .maxMember(DEFAULT_MAX_MEMBER)
-            .memberCount(DEFAULT_MEMBER_COUNT)
             .createdUnixTime(DEFAULT_CREATED_UNIX_TIME)
             .lastModifiedUnixTime(DEFAULT_LAST_MODIFIED_UNIX_TIME)
             .lastChatUnixTime(DEFAULT_LAST_CHAT_UNIX_TIME)
@@ -176,17 +174,15 @@ public class GroupMembersResourceIntTest {
         List<GroupMembersEntity> groupMembersList = groupMembersRepository.findAll();
         assertThat(groupMembersList).hasSize(databaseSizeBeforeCreate + 1);
         GroupMembersEntity testGroupMembers = groupMembersList.get(groupMembersList.size() - 1);
-        assertThat(testGroupMembers.getGroupId()).isEqualTo(DEFAULT_GROUP_ID);
+        assertThat(testGroupMembers.getSeqId()).isEqualTo(DEFAULT_SEQ_ID);
         assertThat(testGroupMembers.getGroupType()).isEqualTo(DEFAULT_GROUP_TYPE);
         assertThat(testGroupMembers.getGroupName()).isEqualTo(DEFAULT_GROUP_NAME);
         assertThat(testGroupMembers.getGroupIcon()).isEqualTo(DEFAULT_GROUP_ICON);
         assertThat(testGroupMembers.getGroupSlogan()).isEqualTo(DEFAULT_GROUP_SLOGAN);
         assertThat(testGroupMembers.getGroupStatus()).isEqualTo(DEFAULT_GROUP_STATUS);
         assertThat(testGroupMembers.getOwnerId()).isEqualTo(DEFAULT_OWNER_ID);
-        assertThat(testGroupMembers.getOwnerLogin()).isEqualTo(DEFAULT_OWNER_LOGIN);
         assertThat(testGroupMembers.getMemberLists()).isEqualTo(DEFAULT_MEMBER_LISTS);
         assertThat(testGroupMembers.getMaxMember()).isEqualTo(DEFAULT_MAX_MEMBER);
-        assertThat(testGroupMembers.getMemberCount()).isEqualTo(DEFAULT_MEMBER_COUNT);
         assertThat(testGroupMembers.getCreatedBy()).isEqualTo(DEFAULT_CREATED_BY);
         assertThat(testGroupMembers.getCreatedDate()).isEqualTo(DEFAULT_CREATED_DATE);
         assertThat(testGroupMembers.getCreatedUnixTime()).isEqualTo(DEFAULT_CREATED_UNIX_TIME);
@@ -225,7 +221,7 @@ public class GroupMembersResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(groupMembers.getId())))
-            .andExpect(jsonPath("$.[*].groupId").value(hasItem(DEFAULT_GROUP_ID.toString())))
+            .andExpect(jsonPath("$.[*].seqId").value(hasItem(DEFAULT_SEQ_ID.toString())))
             .andExpect(jsonPath("$.[*].groupType").value(hasItem(DEFAULT_GROUP_TYPE.toString())))
             .andExpect(jsonPath("$.[*].groupName").value(hasItem(DEFAULT_GROUP_NAME.toString())))
             .andExpect(jsonPath("$.[*].groupIcon").value(hasItem(DEFAULT_GROUP_ICON.toString())))
@@ -256,7 +252,7 @@ public class GroupMembersResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(groupMembers.getId()))
-            .andExpect(jsonPath("$.groupId").value(DEFAULT_GROUP_ID.toString()))
+            .andExpect(jsonPath("$.seqId").value(DEFAULT_SEQ_ID.toString()))
             .andExpect(jsonPath("$.groupType").value(DEFAULT_GROUP_TYPE.toString()))
             .andExpect(jsonPath("$.groupName").value(DEFAULT_GROUP_NAME.toString()))
             .andExpect(jsonPath("$.groupIcon").value(DEFAULT_GROUP_ICON.toString()))
@@ -293,17 +289,15 @@ public class GroupMembersResourceIntTest {
         // Update the groupMembers
         GroupMembersEntity updatedGroupMembers = groupMembersRepository.findOne(groupMembers.getId());
         updatedGroupMembers
-            .groupId(UPDATED_GROUP_ID)
+            .seqId(UPDATED_SEQ_ID)
             .groupType(UPDATED_GROUP_TYPE)
             .groupName(UPDATED_GROUP_NAME)
             .groupIcon(UPDATED_GROUP_ICON)
             .groupSlogan(UPDATED_GROUP_SLOGAN)
             .groupStatus(UPDATED_GROUP_STATUS)
             .ownerId(UPDATED_OWNER_ID)
-            .ownerLogin(UPDATED_OWNER_LOGIN)
             .memberLists(UPDATED_MEMBER_LISTS)
             .maxMember(UPDATED_MAX_MEMBER)
-            .memberCount(UPDATED_MEMBER_COUNT)
             .createdUnixTime(UPDATED_CREATED_UNIX_TIME)
             .lastModifiedUnixTime(UPDATED_LAST_MODIFIED_UNIX_TIME)
             .lastChatUnixTime(UPDATED_LAST_CHAT_UNIX_TIME)
@@ -318,17 +312,15 @@ public class GroupMembersResourceIntTest {
         List<GroupMembersEntity> groupMembersList = groupMembersRepository.findAll();
         assertThat(groupMembersList).hasSize(databaseSizeBeforeUpdate);
         GroupMembersEntity testGroupMembers = groupMembersList.get(groupMembersList.size() - 1);
-        assertThat(testGroupMembers.getGroupId()).isEqualTo(UPDATED_GROUP_ID);
+        assertThat(testGroupMembers.getSeqId()).isEqualTo(UPDATED_SEQ_ID);
         assertThat(testGroupMembers.getGroupType()).isEqualTo(UPDATED_GROUP_TYPE);
         assertThat(testGroupMembers.getGroupName()).isEqualTo(UPDATED_GROUP_NAME);
         assertThat(testGroupMembers.getGroupIcon()).isEqualTo(UPDATED_GROUP_ICON);
         assertThat(testGroupMembers.getGroupSlogan()).isEqualTo(UPDATED_GROUP_SLOGAN);
         assertThat(testGroupMembers.getGroupStatus()).isEqualTo(UPDATED_GROUP_STATUS);
         assertThat(testGroupMembers.getOwnerId()).isEqualTo(UPDATED_OWNER_ID);
-        assertThat(testGroupMembers.getOwnerLogin()).isEqualTo(UPDATED_OWNER_LOGIN);
         assertThat(testGroupMembers.getMemberLists()).isEqualTo(UPDATED_MEMBER_LISTS);
         assertThat(testGroupMembers.getMaxMember()).isEqualTo(UPDATED_MAX_MEMBER);
-        assertThat(testGroupMembers.getMemberCount()).isEqualTo(UPDATED_MEMBER_COUNT);
         assertThat(testGroupMembers.getCreatedBy()).isEqualTo(UPDATED_CREATED_BY);
         assertThat(testGroupMembers.getCreatedDate()).isEqualTo(UPDATED_CREATED_DATE);
         assertThat(testGroupMembers.getCreatedUnixTime()).isEqualTo(UPDATED_CREATED_UNIX_TIME);

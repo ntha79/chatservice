@@ -110,7 +110,6 @@ public class FanpagesService {
         List<extGroupMemberEntity> inputMemberLists = new ArrayList<>();
         extGroupMemberEntity memberItem = new extGroupMemberEntity();
         memberItem.setMemberId(inputFanpages.getOwnerId());
-        memberItem.setMemberLogin(inputFanpages.getOwnerLogin());
         memberItem.setMemberRole(GroupMemberRoleEnum.ADMIN);
         memberItem.setMemberStatus(GroupMemberStatusEnum.NORMAL);
         memberItem.setJoinTime(Calendar.getInstance().toInstant());
@@ -208,7 +207,6 @@ public class FanpagesService {
             if(!isExists) {
                 extGroupMemberEntity newMember = new extGroupMemberEntity();
                 newMember.setMemberId(memberId);
-                newMember.setMemberLogin(memberLogin);
                 newMember.setMemberStatus(GroupMemberStatusEnum.NORMAL);
                 newMember.setMemberRole(GroupMemberRoleEnum.MEMBER);
                 newMember.setJoinTime(Calendar.getInstance().toInstant());
