@@ -116,9 +116,7 @@ public class ContactsResourceIntTest {
         ContactsEntity contacts = new ContactsEntity()
             .seqId(DEFAULT_SEQ_ID)
             .ownerId(DEFAULT_OWNER_ID)
-            .ownerLogin(DEFAULT_OWNER_LOGIN)
             .friendLists(DEFAULT_FRIEND_LISTS)
-            .friendCount(DEFAULT_FRIEND_COUNT)
             .createdUnixTime(DEFAULT_CREATED_UNIX_TIME)
             .lastModifiedUnixTime(DEFAULT_LAST_MODIFIED_UNIX_TIME)
             .reportDay(DEFAULT_REPORT_DAY);
@@ -147,9 +145,7 @@ public class ContactsResourceIntTest {
         ContactsEntity testContacts = contactsList.get(contactsList.size() - 1);
         assertThat(testContacts.getSeqId()).isEqualTo(DEFAULT_SEQ_ID);
         assertThat(testContacts.getOwnerId()).isEqualTo(DEFAULT_OWNER_ID);
-        assertThat(testContacts.getOwnerLogin()).isEqualTo(DEFAULT_OWNER_LOGIN);
         assertThat(testContacts.getFriendLists()).isEqualTo(DEFAULT_FRIEND_LISTS);
-        assertThat(testContacts.getFriendCount()).isEqualTo(DEFAULT_FRIEND_COUNT);
         assertThat(testContacts.getCreatedBy()).isEqualTo(DEFAULT_CREATED_BY);
         assertThat(testContacts.getCreatedDate()).isEqualTo(DEFAULT_CREATED_DATE);
         assertThat(testContacts.getCreatedUnixTime()).isEqualTo(DEFAULT_CREATED_UNIX_TIME);
@@ -243,9 +239,7 @@ public class ContactsResourceIntTest {
         updatedContacts
             .seqId(UPDATED_SEQ_ID)
             .ownerId(UPDATED_OWNER_ID)
-            .ownerLogin(UPDATED_OWNER_LOGIN)
             .friendLists(UPDATED_FRIEND_LISTS)
-            .friendCount(UPDATED_FRIEND_COUNT)
             .createdUnixTime(UPDATED_CREATED_UNIX_TIME)
             .lastModifiedUnixTime(UPDATED_LAST_MODIFIED_UNIX_TIME)
             .reportDay(UPDATED_REPORT_DAY);
@@ -261,9 +255,7 @@ public class ContactsResourceIntTest {
         ContactsEntity testContacts = contactsList.get(contactsList.size() - 1);
         assertThat(testContacts.getSeqId()).isEqualTo(UPDATED_SEQ_ID);
         assertThat(testContacts.getOwnerId()).isEqualTo(UPDATED_OWNER_ID);
-        assertThat(testContacts.getOwnerLogin()).isEqualTo(UPDATED_OWNER_LOGIN);
         assertThat(testContacts.getFriendLists()).isEqualTo(UPDATED_FRIEND_LISTS);
-        assertThat(testContacts.getFriendCount()).isEqualTo(UPDATED_FRIEND_COUNT);
         assertThat(testContacts.getCreatedBy()).isEqualTo(UPDATED_CREATED_BY);
         assertThat(testContacts.getCreatedDate()).isEqualTo(UPDATED_CREATED_DATE);
         assertThat(testContacts.getCreatedUnixTime()).isEqualTo(UPDATED_CREATED_UNIX_TIME);

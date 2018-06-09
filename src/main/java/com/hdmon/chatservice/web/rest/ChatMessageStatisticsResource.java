@@ -56,7 +56,7 @@ public class ChatMessageStatisticsResource {
         }
         ChatMessageStatisticsEntity result = chatMessageStatisticsRepository.save(chatMessageStatistics);
         return ResponseEntity.created(new URI("/api/chat-message-statistics/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -78,7 +78,7 @@ public class ChatMessageStatisticsResource {
         }
         ChatMessageStatisticsEntity result = chatMessageStatisticsRepository.save(chatMessageStatistics);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, chatMessageStatistics.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, chatMessageStatistics.getId()))
             .body(result);
     }
 

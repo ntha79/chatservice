@@ -2,21 +2,18 @@ package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.hdmon.chatservice.domain.ContactsEntity;
-
 import com.hdmon.chatservice.domain.IsoResponseEntity;
 import com.hdmon.chatservice.domain.extents.extFriendMemberEntity;
-import com.hdmon.chatservice.security.SecurityUtils;
 import com.hdmon.chatservice.service.ContactsService;
 import com.hdmon.chatservice.web.rest.errors.BadRequestAlertException;
-import com.hdmon.chatservice.web.rest.errors.InternalServerErrorException;
 import com.hdmon.chatservice.web.rest.errors.ResponseErrorCode;
 import com.hdmon.chatservice.web.rest.util.HeaderUtil;
 import com.hdmon.chatservice.web.rest.util.PaginationUtil;
-import com.hdmon.chatservice.web.rest.vm.FriendsVM;
+import com.hdmon.chatservice.web.rest.vm.Contacts.RequireAddFriendsVM;
+import com.hdmon.chatservice.web.rest.vm.Contacts.ResponseAddFriendsVM;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -63,7 +59,7 @@ public class ContactsResource {
         }
         ContactsEntity result = contactsService.save(contacts);
         return ResponseEntity.created(new URI("/api/Contacts/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -85,7 +81,7 @@ public class ContactsResource {
         }
         ContactsEntity result = contactsService.save(contacts);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, contacts.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, contacts.getId()))
             .body(result);
     }
 
@@ -189,7 +185,7 @@ public class ContactsResource {
      */
     @PostMapping("/contacts/requireaddfriends")
     @Timed
-    public ResponseEntity<IsoResponseEntity> requireAddFriends(@RequestBody FriendsVM viewModel) {
+    public ResponseEntity<IsoResponseEntity> requireAddFriends(@RequestBody RequireAddFriendsVM viewModel) throws URISyntaxException {
         log.debug("REST request to send add friend in Contacts : {}", viewModel);
 
         IsoResponseEntity responseEntity = new IsoResponseEntity();
@@ -199,8 +195,8 @@ public class ContactsResource {
             if (viewModel.getOwnerId() == null || viewModel.getFriendId() == null ) {
                 responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
                 responseEntity.setMessage("invalid_data");
-                responseEntity.setException("OwnerId/FriendId cannot not null!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "Contacts_invalid_data", "OwnerId/FriendId cannot not null!");
+                responseEntity.setException("The fields OwnerId, FriendId are not allowed NULL!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "Contacts_invalid_data", "The fields OwnerId, FriendId are not allowed NULL!");
             }
             else {
                 List<extFriendMemberEntity> dbResults = contactsService.requireAddFriends(viewModel, responseEntity);
@@ -234,8 +230,8 @@ public class ContactsResource {
      */
     @PostMapping("/contacts/acceptaddfriends")
     @Timed
-    public ResponseEntity<IsoResponseEntity> acceptAddFriends(@RequestBody FriendsVM viewModel) {
-        log.debug("REST request to accept add friend in Contacts : {}", viewModel);
+    public ResponseEntity<IsoResponseEntity> acceptAddFriends(@RequestBody ResponseAddFriendsVM viewModel) throws URISyntaxException {
+        log.debug("REST request to accept friend in Contacts : {}", viewModel);
 
         IsoResponseEntity responseEntity = new IsoResponseEntity();
         HttpHeaders httpHeaders;
@@ -244,11 +240,56 @@ public class ContactsResource {
             if (viewModel.getOwnerId() == null || viewModel.getFriendId() == null ) {
                 responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
                 responseEntity.setMessage("invalid_data");
-                responseEntity.setException("OwnerId/FriendId cannot not null!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "Contacts_invalid_data", "OwnerId/FriendId cannot not null!");
+                responseEntity.setException("The fields OwnerId, FriendId are not allowed NULL!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "Contacts_invalid_data", "The fields OwnerId, FriendId are not allowed NULL!");
             }
             else {
                 List<extFriendMemberEntity> dbResults = contactsService.acceptAddFriends(viewModel, responseEntity);
+                int memberCount = dbResults.size();
+                httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));
+                if(responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
+                    responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
+                    responseEntity.setData(dbResults);
+                    responseEntity.setMessage("successfull");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
+            responseEntity.setMessage("system_error");
+            responseEntity.setException(ex.getMessage());
+
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
+        }
+
+        return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
+    }
+
+    /**
+     * Từ chối yêu cầu kết bạn (nếu người chấp nhận chưa có contact thì tạo mới)
+     *
+     * @param viewModel: json chứa thông tin gửi lên
+     * @return the ResponseEntity with status 200 (OK) and with body the new friends, or with status 400 (Bad Request) if the friends has already an ID
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PostMapping("/contacts/deniedaddfriends")
+    @Timed
+    public ResponseEntity<IsoResponseEntity> deniedAddFriends(@RequestBody ResponseAddFriendsVM viewModel) throws URISyntaxException {
+        log.debug("REST request to denied friend in Contacts : {}", viewModel);
+
+        IsoResponseEntity responseEntity = new IsoResponseEntity();
+        HttpHeaders httpHeaders;
+
+        try {
+            if (viewModel.getOwnerId() == null || viewModel.getFriendId() == null ) {
+                responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
+                responseEntity.setMessage("invalid_data");
+                responseEntity.setException("The fields OwnerId, FriendId are not allowed NULL!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "Contacts_invalid_data", "The fields OwnerId, FriendId are not allowed NULL!");
+            }
+            else {
+                List<extFriendMemberEntity> dbResults = contactsService.deniedAddFriends(viewModel, responseEntity);
                 int memberCount = dbResults.size();
                 httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));
                 if(responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {

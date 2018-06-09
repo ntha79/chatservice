@@ -476,7 +476,6 @@ public class GroupMembersService {
 
                 //Ghi nhận lại thông tin Group
                 dbContactInfo.setGroupLists(existGroupLists);
-                dbContactInfo.setGroupCount(existGroupLists.size());
                 dbContactInfo.setLastModifiedUnixTime(new Date().getTime());
                 contactsRepository.save(dbContactInfo);
             }
@@ -516,7 +515,6 @@ public class GroupMembersService {
                 existsGroupLists.add(newGroup);
 
                 dbContactInfo.setGroupLists(existsGroupLists);
-                dbContactInfo.setGroupCount(existsGroupLists.size());
                 dbContactInfo.setLastModifiedUnixTime(new Date().getTime());
                 contactsRepository.save(dbContactInfo);
             }

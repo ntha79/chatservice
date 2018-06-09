@@ -56,7 +56,7 @@ public class FanpageStatisticsResource {
         }
         FanpageStatisticsEntity result = fanpageStatisticsRepository.save(fanpageStatistics);
         return ResponseEntity.created(new URI("/api/fanpage-statistics/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -78,7 +78,7 @@ public class FanpageStatisticsResource {
         }
         FanpageStatisticsEntity result = fanpageStatisticsRepository.save(fanpageStatistics);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, fanpageStatistics.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, fanpageStatistics.getId()))
             .body(result);
     }
 

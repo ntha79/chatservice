@@ -56,7 +56,7 @@ public class GroupMemberStatisticsResource {
         }
         GroupMemberStatisticsEntity result = groupMemberStatisticsRepository.save(groupMemberStatistics);
         return ResponseEntity.created(new URI("/api/group-member-statistics/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -78,7 +78,7 @@ public class GroupMemberStatisticsResource {
         }
         GroupMemberStatisticsEntity result = groupMemberStatisticsRepository.save(groupMemberStatistics);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, groupMemberStatistics.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, groupMemberStatistics.getId()))
             .body(result);
     }
 

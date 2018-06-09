@@ -66,7 +66,7 @@ public class GroupMembersResource {
         }
         GroupMembersEntity result = groupMembersService.save(groupMembers);
         return ResponseEntity.created(new URI("/api/group-members/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -88,7 +88,7 @@ public class GroupMembersResource {
         }
         GroupMembersEntity result = groupMembersService.save(groupMembers);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, groupMembers.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, groupMembers.getId()))
             .body(result);
     }
 

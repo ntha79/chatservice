@@ -3,13 +3,12 @@ package com.hdmon.chatservice.service;
 import com.hdmon.chatservice.domain.ContactsEntity;
 import com.hdmon.chatservice.domain.IsoResponseEntity;
 import com.hdmon.chatservice.domain.enumeration.FriendStatusEnum;
-import com.hdmon.chatservice.domain.extents.extContactGroupEntity;
 import com.hdmon.chatservice.domain.extents.extFriendMemberEntity;
-import com.hdmon.chatservice.domain.responses.resFriendItemInfo;
 import com.hdmon.chatservice.repository.ContactsRepository;
 import com.hdmon.chatservice.service.util.DataTypeHelper;
 import com.hdmon.chatservice.web.rest.errors.ResponseErrorCode;
-import com.hdmon.chatservice.web.rest.vm.FriendsVM;
+import com.hdmon.chatservice.web.rest.vm.Contacts.RequireAddFriendsVM;
+import com.hdmon.chatservice.web.rest.vm.Contacts.ResponseAddFriendsVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -18,7 +17,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Service Implementation for managing Contacts.
@@ -125,22 +126,94 @@ public class ContactsService {
      * Tạo yêu cầu kết bạn, nếu người gửi chưa có thông tin thì tạo mới.
      * (Hàm bổ sung)
      * Create Time: 2018-06-05
+     * Update Time: 2018-06-09
+     * @return the list friends entity
+     */
+    public List<extFriendMemberEntity> requireAddFriends(RequireAddFriendsVM viewModel, IsoResponseEntity outputEntity)
+    {
+        log.debug("Send request to add friend for ownerId.: {}", viewModel);
+
+        //Thêm mới bản ghi cho người thao tác
+        String chatRoomId = viewModel.getOwnerId() + "#" + viewModel.getFriendId();
+        List<extFriendMemberEntity> responseList = execAddFriendsForOwner(viewModel, chatRoomId, FriendStatusEnum.FOLLOW, true, outputEntity);
+
+        //Thêm mới bản ghi cho người được mời
+        RequireAddFriendsVM viewModelFri = new RequireAddFriendsVM(viewModel.getFriendId(), viewModel.getFriendName(), viewModel.getOwnerId(), viewModel.getOwnerName());
+        execAddFriendsForOwner(viewModelFri, chatRoomId, FriendStatusEnum.WAIT, false, outputEntity);
+
+        return responseList;
+    }
+
+    /**
+     * Chấp nhận yêu cầu kết bạn, nếu người nhận chưa có thông tin thì tạo mới.
+     * (Hàm bổ sung)
+     * Create Time: 2018-06-08
      * @return the entity
      */
-    public List<extFriendMemberEntity> requireAddFriends(FriendsVM friendsVm, IsoResponseEntity responseEntity)
+    public List<extFriendMemberEntity> acceptAddFriends(ResponseAddFriendsVM viewModel, IsoResponseEntity outputEntity)
     {
-        log.debug("Send add friend request for ownerId.: {}", friendsVm);
+        log.debug("Send request accept friend for ownerId.: {}", viewModel);
 
-        //Kiểm tra
-        ContactsEntity dbInfo = contactsRepository.findOneByownerId(friendsVm.getOwnerId());
+        //Cập nhật cho người thao tác
+        List<extFriendMemberEntity> responseList = execAcceptFriendsForOwner(viewModel, FriendStatusEnum.FRIEND);
+
+        //Cập nhật cho người bạn
+        ResponseAddFriendsVM viewModelFri = new ResponseAddFriendsVM(viewModel.getFriendId(), viewModel.getOwnerId());
+        execAcceptFriendsForOwner(viewModelFri, FriendStatusEnum.FRIEND);
+
+        return  responseList;
+    }
+
+    /**
+     * Chấp nhận yêu cầu kết bạn, nếu người nhận chưa có thông tin thì tạo mới.
+     * (Hàm bổ sung)
+     * Create Time: 2018-06-08
+     * @return the entity
+     */
+    public List<extFriendMemberEntity> deniedAddFriends(ResponseAddFriendsVM viewModel, IsoResponseEntity outputEntity)
+    {
+        log.debug("Send request denied friend for ownerId.: {}", viewModel);
+
+        List<extFriendMemberEntity> responseList = new ArrayList<>();
+        ContactsEntity dbRequireInfo = contactsRepository.findOneByownerId(viewModel.getOwnerId());
+        if(dbRequireInfo != null && dbRequireInfo.getId() != null)
+        {
+            responseList = dbRequireInfo.getFriendLists();
+            for (extFriendMemberEntity exists : responseList) {
+                if(exists.getFriendId() == viewModel.getFriendId())
+                {
+                    responseList.remove(exists);
+                    break;
+                }
+            }
+
+            dbRequireInfo.setFriendLists(responseList);
+            dbRequireInfo.setLastModifiedUnixTime(new Date().getTime());
+            contactsRepository.save(dbRequireInfo);
+        }
+        return responseList;
+    }
+
+    //==================================================================================================================
+    //===================================================PRIVATE START==================================================
+    /**
+     * Thực hiện kiểm tra và ghi dữ liệu vào DB.
+     * (Hàm bổ sung)
+     * Create Time: 2018-06-09
+     * @return the list friends entity
+     */
+    private List<extFriendMemberEntity> execAddFriendsForOwner(RequireAddFriendsVM viewModel, String chatRoomId, FriendStatusEnum statusEnum, boolean allowOutput, IsoResponseEntity outputEntity)
+    {
+        //Kiểm tra nếu chưa có thông tin thì thêm mới
+        ContactsEntity dbInfo = contactsRepository.findOneByownerId(viewModel.getOwnerId());
         if(dbInfo != null && dbInfo.getId() != null) {
             boolean isExists = false;
             List<extFriendMemberEntity> memberExists = dbInfo.getFriendLists();
             if(memberExists != null && memberExists.size() > 0)
             {
                 //Check if it is exists in list
-                for (extFriendMemberEntity exist : memberExists) {
-                    if(exist.getFriendId() == friendsVm.getFriendId())
+                for (extFriendMemberEntity exists : memberExists) {
+                    if(exists.getFriendId() == viewModel.getFriendId())
                     {
                         isExists = true;
                         break;
@@ -156,26 +229,26 @@ public class ContactsService {
             if(!isExists)
             {
                 extFriendMemberEntity memberItem = new extFriendMemberEntity();
-                String chatRoomId = friendsVm.getOwnerId() + "#" + friendsVm.getFriendId();
                 memberItem.setChatRoomChatId(chatRoomId);
-                memberItem.setFriendId(friendsVm.getFriendId());
-                memberItem.setFriendLogin(friendsVm.getFriendLogin());
-                memberItem.setFriendName(friendsVm.getFriendName());
-                memberItem.setStatus(FriendStatusEnum.FOLLOW);
+                memberItem.setFriendId(viewModel.getFriendId());
+                memberItem.setFriendName(viewModel.getFriendName());
+                memberItem.setStatus(statusEnum);
                 memberExists.add(memberItem);
 
                 dbInfo.setFriendLists(memberExists);
-                dbInfo.setFriendCount(memberExists.size());
                 dbInfo.setLastModifiedUnixTime(new Date().getTime());
                 contactsRepository.save(dbInfo);
 
                 return memberExists;
             }
             else {
-                responseEntity.setError(ResponseErrorCode.EXISTS.getValue());
-                responseEntity.setMessage("friendId_exists");
-                responseEntity.setException("This person already exists in list!");
-                return new ArrayList<>();
+                if(allowOutput) {
+                    outputEntity.setError(ResponseErrorCode.EXISTS.getValue());
+                    outputEntity.setMessage("friendId_exists");
+                    outputEntity.setException("This person already exists in list!");
+                    return new ArrayList<>();
+                }
+                return null;
             }
         }
         else
@@ -183,21 +256,16 @@ public class ContactsService {
             //Trường hợp không tồn tại thì tiến hành tạo mới
             List<extFriendMemberEntity> memberLists = new ArrayList<>();
             extFriendMemberEntity memberItem = new extFriendMemberEntity();
-            String chatRoomId = friendsVm.getOwnerId() + "#" + friendsVm.getFriendId();
             memberItem.setChatRoomChatId(chatRoomId);
-            memberItem.setFriendId(friendsVm.getFriendId());
-            memberItem.setFriendLogin(friendsVm.getFriendLogin());
-            memberItem.setFriendName(friendsVm.getFriendName());
-            memberItem.setStatus(FriendStatusEnum.FOLLOW);
+            memberItem.setFriendId(viewModel.getFriendId());
+            memberItem.setFriendName(viewModel.getFriendName());
+            memberItem.setStatus(statusEnum);
             memberLists.add(memberItem);
 
             ContactsEntity input = new ContactsEntity();
-            input.setOwnerId(friendsVm.getOwnerId());
-            input.setOwnerLogin(friendsVm.getOwnerLogin());
+            input.setOwnerId(viewModel.getOwnerId());
             input.setFriendLists(memberLists);
-            input.setFriendCount(memberLists.size());
             input.setGroupLists(new ArrayList<>());
-            input.setGroupCount(0);
             input.setReportDay(DataTypeHelper.ConvertDateTimeToReportDay());
             contactsRepository.save(input);
 
@@ -206,95 +274,33 @@ public class ContactsService {
     }
 
     /**
-     * Chấp nhận yêu cầu kết bạn, nếu người nhận chưa có thông tin thì tạo mới.
+     * Thực ghi nhận trạng thái chấp nhận là bạn bè DB.
      * (Hàm bổ sung)
-     * Create Time: 2018-06-08
-     * @return the entity
+     * Create Time: 2018-06-09
+     * @return the list friends entity
      */
-    public List<extFriendMemberEntity> acceptAddFriends(FriendsVM friendsVm, IsoResponseEntity responseEntity)
+    private List<extFriendMemberEntity> execAcceptFriendsForOwner(ResponseAddFriendsVM viewModel, FriendStatusEnum statusEnum)
     {
-        log.debug("Send accept friend request for ownerId.: {}", friendsVm);
-
-        //Kiểm tra nếu tồn tại thì cập nhật, nếu không tồn tại thì bổ sung vào
-        List<extFriendMemberEntity> memberLists = new ArrayList<>();
-        ContactsEntity dbAcceptInfo = contactsRepository.findOneByownerId(friendsVm.getOwnerId());
-        if(dbAcceptInfo != null && dbAcceptInfo.getId() != null) {
-            boolean isExists = false;
-
-            if(dbAcceptInfo.getFriendLists() != null && dbAcceptInfo.getFriendLists().size() > 0)
-            {
-                memberLists = dbAcceptInfo.getFriendLists();
-                for (extFriendMemberEntity exist : memberLists) {
-                    if(exist.getFriendId() == friendsVm.getFriendId())
-                    {
-                        exist.setStatus(FriendStatusEnum.FRIEND);
-                        exist.setLastModifiedUnixTime(new Date().getTime());
-                        isExists = true;
-                        break;
-                    }
-                }
-            }
-
-            //insert if it is not exists
-            if(!isExists)
-            {
-                extFriendMemberEntity memberItem = new extFriendMemberEntity();
-                String chatRoomId = friendsVm.getFriendId() + "#" + friendsVm.getOwnerId();
-                memberItem.setChatRoomChatId(chatRoomId);
-                memberItem.setFriendId(friendsVm.getFriendId());
-                memberItem.setFriendLogin(friendsVm.getFriendLogin());
-                memberItem.setFriendName(friendsVm.getFriendName());
-                memberItem.setStatus(FriendStatusEnum.FRIEND);
-                memberLists.add(memberItem);
-            }
-
-            dbAcceptInfo.setFriendLists(memberLists);
-            dbAcceptInfo.setFriendCount(memberLists.size());
-            dbAcceptInfo.setLastModifiedUnixTime(new Date().getTime());
-            contactsRepository.save(dbAcceptInfo);
-        }
-        else
-        {
-            //Trường hợp không tồn tại thì tiến hành tạo mới cho người đồng ý
-            extFriendMemberEntity memberItem = new extFriendMemberEntity();
-            String chatRoomId = friendsVm.getFriendId() + "#" + friendsVm.getOwnerId();
-            memberItem.setChatRoomChatId(chatRoomId);
-            memberItem.setFriendId(friendsVm.getFriendId());
-            memberItem.setFriendLogin(friendsVm.getFriendLogin());
-            memberItem.setFriendName(friendsVm.getFriendName());
-            memberItem.setStatus(FriendStatusEnum.FRIEND);
-            memberLists.add(memberItem);
-
-            ContactsEntity input = new ContactsEntity();
-            input.setOwnerId(friendsVm.getOwnerId());
-            input.setOwnerLogin(friendsVm.getOwnerLogin());
-            input.setFriendLists(memberLists);
-            input.setFriendCount(memberLists.size());
-            input.setGroupLists(new ArrayList<>());
-            input.setGroupCount(0);
-            input.setReportDay(DataTypeHelper.ConvertDateTimeToReportDay());
-            contactsRepository.save(input);
-        }
-
-        //Cập nhật bản ghi cho người gửi yêu cầu
-        ContactsEntity dbRequireInfo = contactsRepository.findOneByownerId(friendsVm.getFriendId());
+        List<extFriendMemberEntity> requireMemberLists = new ArrayList<>();
+        ContactsEntity dbRequireInfo = contactsRepository.findOneByownerId(viewModel.getOwnerId());
         if(dbRequireInfo != null && dbRequireInfo.getId() != null)
         {
-            List<extFriendMemberEntity> requireMemberLists = dbRequireInfo.getFriendLists();
-            for (extFriendMemberEntity exist : requireMemberLists) {
-                if(exist.getFriendId() == friendsVm.getOwnerId())
+            requireMemberLists = dbRequireInfo.getFriendLists();
+            for (extFriendMemberEntity exists : requireMemberLists) {
+                if(exists.getFriendId() == viewModel.getFriendId())
                 {
-                    exist.setStatus(FriendStatusEnum.FRIEND);
-                    exist.setLastModifiedUnixTime(new Date().getTime());
+                    exists.setStatus(statusEnum);
+                    exists.setLastModifiedUnixTime(new Date().getTime());
                     break;
                 }
             }
+
             dbRequireInfo.setFriendLists(requireMemberLists);
-            dbRequireInfo.setFriendCount(requireMemberLists.size());
             dbRequireInfo.setLastModifiedUnixTime(new Date().getTime());
             contactsRepository.save(dbRequireInfo);
         }
-
-        return  memberLists;
+        return requireMemberLists;
     }
+    //====================================================PRIVATE END===================================================
+    //==================================================================================================================
 }

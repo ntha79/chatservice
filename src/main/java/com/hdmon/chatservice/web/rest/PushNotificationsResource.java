@@ -56,7 +56,7 @@ public class PushNotificationsResource {
         }
         PushNotificationsEntity result = pushNotificationsRepository.save(pushNotifications);
         return ResponseEntity.created(new URI("/api/push-notifications/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -78,7 +78,7 @@ public class PushNotificationsResource {
         }
         PushNotificationsEntity result = pushNotificationsRepository.save(pushNotifications);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pushNotifications.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pushNotifications.getId()))
             .body(result);
     }
 

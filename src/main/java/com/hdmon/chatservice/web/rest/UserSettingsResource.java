@@ -56,7 +56,7 @@ public class UserSettingsResource {
         }
         UserSettingsEntity result = userSettingsRepository.save(userSettings);
         return ResponseEntity.created(new URI("/api/user-settings/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -78,7 +78,7 @@ public class UserSettingsResource {
         }
         UserSettingsEntity result = userSettingsRepository.save(userSettings);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, userSettings.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, userSettings.getId()))
             .body(result);
     }
 

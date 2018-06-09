@@ -56,7 +56,7 @@ public class ServiceSettingsResource {
         }
         ServiceSettingsEntity result = serviceSettingsRepository.save(serviceSettings);
         return ResponseEntity.created(new URI("/api/service-settings/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -78,7 +78,7 @@ public class ServiceSettingsResource {
         }
         ServiceSettingsEntity result = serviceSettingsRepository.save(serviceSettings);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, serviceSettings.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, serviceSettings.getId()))
             .body(result);
     }
 

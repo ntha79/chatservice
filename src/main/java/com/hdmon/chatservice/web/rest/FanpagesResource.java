@@ -63,7 +63,7 @@ public class FanpagesResource {
         }
         FanpagesEntity result = fanpagesService.save(fanpages);
         return ResponseEntity.created(new URI("/api/fanpages/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -85,7 +85,7 @@ public class FanpagesResource {
         }
         FanpagesEntity result = fanpagesService.save(fanpages);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, fanpages.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, fanpages.getId()))
             .body(result);
     }
 
@@ -293,7 +293,6 @@ public class FanpagesResource {
      *
      * @param membersVM: json chứa thông tin gửi lên
      * @return the ResponseEntity with status 201 (Created) and with body the new friends, or with status 400 (Bad Request) if the friends has already an ID
-     * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/fanpages/appendmember")
     @Timed
@@ -313,7 +312,7 @@ public class FanpagesResource {
             }
             else {
                 FanpagesEntity dbResults = fanpagesService.appendMember(membersVM.getSourceId(), membersVM.getMemberId(), membersVM.getMemberLogin(), responseEntity);
-                httpHeaders = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, dbResults.getId().toString());
+                httpHeaders = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, dbResults.getId());
                 if(responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
                     responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                     responseEntity.setData(dbResults.getMemberList());

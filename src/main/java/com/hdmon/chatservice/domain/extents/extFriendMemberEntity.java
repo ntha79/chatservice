@@ -8,7 +8,7 @@ import java.util.Date;
 public class extFriendMemberEntity implements Serializable {
     private String chatRoomChatId;
     private Long friendId;
-    private String friendLogin;
+    //private String friendLogin;
     private String friendName;
     private FriendStatusEnum status = FriendStatusEnum.FOLLOW;
     private Long lastModifiedUnixTime = new Date().getTime();
@@ -21,7 +21,7 @@ public class extFriendMemberEntity implements Serializable {
     {
         this.chatRoomChatId = chatRoomChatId;
         this.friendId = friendId;
-        this.friendLogin = friendLogin;
+        //this.friendLogin = friendLogin;
         this.friendName = friendName;
         this.lastModifiedUnixTime = lastModifiedUnixTime;
         this.status = status;
@@ -43,13 +43,13 @@ public class extFriendMemberEntity implements Serializable {
         this.friendId = friendId;
     }
 
-    public String getFriendLogin(){
+    /*public String getFriendLogin(){
         return friendLogin;
     }
 
     public void setFriendLogin(String friendLogin) {
         this.friendLogin = friendLogin;
-    }
+    }*/
 
     public String getFriendName() {
         return friendName;
@@ -81,7 +81,7 @@ public class extFriendMemberEntity implements Serializable {
         return "extFriendMemberEntity{"
             + "ChatRoomChatId=" + getChatRoomChatId() + ","
             + "FriendId=" + getFriendId() + ","
-            + "FriendLogin=" + getFriendLogin() + ","
+            //+ "FriendLogin=" + getFriendLogin() + ","
             + "FriendName=" + getFriendName() + ","
             + "Status=" + getStatus() + ","
             + "LastModifiedUnixTime=" + getLastModifiedUnixTime() + ","

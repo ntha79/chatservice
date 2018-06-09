@@ -58,7 +58,7 @@ public class ChatMessagesResource {
         }
         ChatMessagesEntity result = chatMessagesService.save(chatMessages);
         return ResponseEntity.created(new URI("/api/chat-messages/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -80,7 +80,7 @@ public class ChatMessagesResource {
         }
         ChatMessagesEntity result = chatMessagesService.save(chatMessages);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, chatMessages.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, chatMessages.getId()))
             .body(result);
     }
 

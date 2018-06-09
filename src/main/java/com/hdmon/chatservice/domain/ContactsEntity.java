@@ -29,20 +29,11 @@ public class ContactsEntity extends AbstractAuditingEntity implements Serializab
     @Field("owner_id")
     private Long ownerId;
 
-    @Field("owner_login")
-    private String ownerLogin;
-
     @Field("friend_lists")
     private List<extFriendMemberEntity> friendLists;
 
-    @Field("friend_count")
-    private Integer friendCount = 0;
-
     @Field("group_lists")
     private List<extContactGroupEntity> groupLists;
-
-    @Field("group_count")
-    private Integer groupCount = 0;
 
     @Field("created_unix_time")
     private Long createdUnixTime = new Date().getTime();
@@ -88,19 +79,6 @@ public class ContactsEntity extends AbstractAuditingEntity implements Serializab
         this.ownerId = ownerId;
     }
 
-    public String getOwnerLogin() {
-        return ownerLogin;
-    }
-
-    public ContactsEntity ownerLogin(String ownerLogin) {
-        this.ownerLogin = ownerLogin;
-        return this;
-    }
-
-    public void setOwnerLogin(String ownerLogin) {
-        this.ownerLogin = ownerLogin;
-    }
-
     public List<extFriendMemberEntity> getFriendLists() {
         return friendLists;
     }
@@ -114,19 +92,6 @@ public class ContactsEntity extends AbstractAuditingEntity implements Serializab
         this.friendLists = friendLists;
     }
 
-    public Integer getFriendCount() {
-        return friendCount;
-    }
-
-    public ContactsEntity friendCount(Integer friendCount) {
-        this.friendCount = friendCount;
-        return this;
-    }
-
-    public void setFriendCount(Integer friendCount) {
-        this.friendCount = friendCount;
-    }
-
     public List<extContactGroupEntity> getGroupLists() {
         return groupLists;
     }
@@ -138,19 +103,6 @@ public class ContactsEntity extends AbstractAuditingEntity implements Serializab
 
     public void setGroupLists(List<extContactGroupEntity> groupLists) {
         this.groupLists = groupLists;
-    }
-
-    public Integer getGroupCount() {
-        return groupCount;
-    }
-
-    public ContactsEntity groupCount(Integer groupCount) {
-        this.groupCount = groupCount;
-        return this;
-    }
-
-    public void setGroupCount(Integer groupCount) {
-        this.groupCount = groupCount;
     }
 
     public Long getCreatedUnixTime() {
@@ -219,9 +171,8 @@ public class ContactsEntity extends AbstractAuditingEntity implements Serializab
             "id=" + getId() +
             ", seqId='" + getSeqId() + "'" +
             ", ownerId=" + getOwnerId() +
-            ", ownerLogin='" + getOwnerLogin() + "'" +
             ", friendLists='" + getFriendLists() + "'" +
-            ", friendCount=" + getFriendCount() +
+            ", groupLists='" + getGroupLists() + "'" +
             ", createdBy='" + getCreatedBy() + "'" +
             ", createdDate='" + getCreatedDate() + "'" +
             ", createdUnixTime=" + getCreatedUnixTime() +
