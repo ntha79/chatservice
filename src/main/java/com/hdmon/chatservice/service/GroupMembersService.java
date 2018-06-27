@@ -1,6 +1,6 @@
 package com.hdmon.chatservice.service;
 
-import com.hdmon.chatservice.domain.ContactsEntity;
+import com.hdmon.chatservice.domain.FriendsEntity;
 import com.hdmon.chatservice.domain.GroupMembersEntity;
 import com.hdmon.chatservice.domain.IsoResponseEntity;
 import com.hdmon.chatservice.domain.enumeration.GroupMemberRoleEnum;
@@ -10,7 +10,7 @@ import com.hdmon.chatservice.domain.enumeration.MessageReceiverStatusEnum;
 import com.hdmon.chatservice.domain.extents.extContactGroupEntity;
 import com.hdmon.chatservice.domain.extents.extGroupMemberEntity;
 import com.hdmon.chatservice.domain.extents.extMessageReceiverEntity;
-import com.hdmon.chatservice.repository.ContactsRepository;
+import com.hdmon.chatservice.repository.FriendsRepository;
 import com.hdmon.chatservice.repository.GroupMemberStatisticsRepository;
 import com.hdmon.chatservice.repository.GroupMembersRepository;
 import com.hdmon.chatservice.service.util.DataTypeHelper;
@@ -38,14 +38,14 @@ import java.util.List;
 public class GroupMembersService {
     private final Logger log = LoggerFactory.getLogger(GroupMembersService.class);
 
-    private final ContactsRepository contactsRepository;
+    private final FriendsRepository friendsRepository;
     private final GroupMembersRepository groupMembersRepository;
     private final GroupMemberStatisticsRepository groupMemberStatisticsRepository;
 
-    public GroupMembersService(GroupMembersRepository groupMembersRepository, GroupMemberStatisticsRepository groupMemberStatisticsRepository, ContactsRepository contactsRepository) {
+    public GroupMembersService(GroupMembersRepository groupMembersRepository, GroupMemberStatisticsRepository groupMemberStatisticsRepository, FriendsRepository friendsRepository) {
         this.groupMembersRepository = groupMembersRepository;
         this.groupMemberStatisticsRepository = groupMemberStatisticsRepository;
-        this.contactsRepository = contactsRepository;
+        this.friendsRepository = friendsRepository;
     }
 
     /**
@@ -470,25 +470,25 @@ public class GroupMembersService {
      */
     private boolean removeGroupInContactGroupList(Long memberId, String groupKeyId)
     {
-        log.debug("removeGroupInContactGroupList {}-{}", memberId, groupKeyId);
-        ContactsEntity dbContactInfo = contactsRepository.findOneByownerId(memberId);
-        if (dbContactInfo != null && dbContactInfo.getId() != null) {
-            List<extContactGroupEntity> existGroupLists = dbContactInfo.getGroupLists();
-            if (existGroupLists != null && existGroupLists.size() > 0) {
-                for (extContactGroupEntity currentGrp : existGroupLists) {
-                    if(currentGrp.getId().equals(groupKeyId))
-                    {
-                        existGroupLists.remove(currentGrp);
-                        break;
-                    }
-                }
-
-                //Ghi nhận lại thông tin Group
-                dbContactInfo.setGroupLists(existGroupLists);
-                dbContactInfo.setLastModifiedUnixTime(new Date().getTime());
-                contactsRepository.save(dbContactInfo);
-            }
-        }
+//        log.debug("removeGroupInContactGroupList {}-{}", memberId, groupKeyId);
+//        ContactsEntity dbContactInfo = contactsRepository.findOneByownerId(memberId);
+//        if (dbContactInfo != null && dbContactInfo.getId() != null) {
+//            List<extContactGroupEntity> existGroupLists = dbContactInfo.getGroupLists();
+//            if (existGroupLists != null && existGroupLists.size() > 0) {
+//                for (extContactGroupEntity currentGrp : existGroupLists) {
+//                    if(currentGrp.getId().equals(groupKeyId))
+//                    {
+//                        existGroupLists.remove(currentGrp);
+//                        break;
+//                    }
+//                }
+//
+//                //Ghi nhận lại thông tin Group
+//                dbContactInfo.setGroupLists(existGroupLists);
+//                dbContactInfo.setLastModifiedUnixTime(new Date().getTime());
+//                contactsRepository.save(dbContactInfo);
+//            }
+//        }
         return true;
     }
 
@@ -500,34 +500,34 @@ public class GroupMembersService {
      */
     private boolean addGroupIntoContactGroupList(Long ownerId, String groupKeyId, String groupName)
     {
-        ContactsEntity dbContactInfo = contactsRepository.findOneByownerId(ownerId);
-        if (dbContactInfo != null && dbContactInfo.getId() != null) {
-            boolean existsInGroup = false;
-            List<extContactGroupEntity> existsGroupLists = dbContactInfo.getGroupLists();
-            if (existsGroupLists == null)
-                existsGroupLists = new ArrayList<>();
-            if(existsGroupLists != null && existsGroupLists.size() > 0) {
-                for (extContactGroupEntity existsItem : existsGroupLists){
-                    if(existsItem.getId().equals(groupKeyId))
-                    {
-                        existsInGroup = true;
-                        break;
-                    }
-                }
-            }
-
-            //Nếu chưa có group trong danh sách thì thêm vào
-            if(!existsInGroup) {
-                extContactGroupEntity newGroup = new extContactGroupEntity();
-                newGroup.setId(groupKeyId);
-                newGroup.setName(groupName);
-                existsGroupLists.add(newGroup);
-
-                dbContactInfo.setGroupLists(existsGroupLists);
-                dbContactInfo.setLastModifiedUnixTime(new Date().getTime());
-                contactsRepository.save(dbContactInfo);
-            }
-        }
+//        ContactsEntity dbContactInfo = contactsRepository.findOneByownerId(ownerId);
+//        if (dbContactInfo != null && dbContactInfo.getId() != null) {
+//            boolean existsInGroup = false;
+//            List<extContactGroupEntity> existsGroupLists = dbContactInfo.getGroupLists();
+//            if (existsGroupLists == null)
+//                existsGroupLists = new ArrayList<>();
+//            if(existsGroupLists != null && existsGroupLists.size() > 0) {
+//                for (extContactGroupEntity existsItem : existsGroupLists){
+//                    if(existsItem.getId().equals(groupKeyId))
+//                    {
+//                        existsInGroup = true;
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            //Nếu chưa có group trong danh sách thì thêm vào
+//            if(!existsInGroup) {
+//                extContactGroupEntity newGroup = new extContactGroupEntity();
+//                newGroup.setId(groupKeyId);
+//                newGroup.setName(groupName);
+//                existsGroupLists.add(newGroup);
+//
+//                dbContactInfo.setGroupLists(existsGroupLists);
+//                dbContactInfo.setLastModifiedUnixTime(new Date().getTime());
+//                contactsRepository.save(dbContactInfo);
+//            }
+//        }
         return true;
     }
 
@@ -539,28 +539,28 @@ public class GroupMembersService {
      */
     private boolean updateGroupIntoContactGroupList(Long ownerId, String groupKeyId, String groupName)
     {
-        ContactsEntity dbContactInfo = contactsRepository.findOneByownerId(ownerId);
-        if (dbContactInfo != null && dbContactInfo.getId() != null) {
-            boolean existsInGroup = false;
-            List<extContactGroupEntity> existsGroupLists = dbContactInfo.getGroupLists();
-            if(existsGroupLists != null && existsGroupLists.size() > 0) {
-                for (extContactGroupEntity existsItem : existsGroupLists){
-                    if(existsItem.getId().equals(groupKeyId))
-                    {
-                        existsItem.setName(groupName);
-                        existsInGroup = true;
-                        break;
-                    }
-                }
-            }
-
-            //Nếu tồn tại thì thực hiện ghi nhận lại thông tin
-            if(existsInGroup) {
-                dbContactInfo.setGroupLists(existsGroupLists);
-                dbContactInfo.setLastModifiedUnixTime(new Date().getTime());
-                contactsRepository.save(dbContactInfo);
-            }
-        }
+//        ContactsEntity dbContactInfo = contactsRepository.findOneByownerId(ownerId);
+//        if (dbContactInfo != null && dbContactInfo.getId() != null) {
+//            boolean existsInGroup = false;
+//            List<extContactGroupEntity> existsGroupLists = dbContactInfo.getGroupLists();
+//            if(existsGroupLists != null && existsGroupLists.size() > 0) {
+//                for (extContactGroupEntity existsItem : existsGroupLists){
+//                    if(existsItem.getId().equals(groupKeyId))
+//                    {
+//                        existsItem.setName(groupName);
+//                        existsInGroup = true;
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            //Nếu tồn tại thì thực hiện ghi nhận lại thông tin
+//            if(existsInGroup) {
+//                dbContactInfo.setGroupLists(existsGroupLists);
+//                dbContactInfo.setLastModifiedUnixTime(new Date().getTime());
+//                contactsRepository.save(dbContactInfo);
+//            }
+//        }
         return true;
     }
 }
