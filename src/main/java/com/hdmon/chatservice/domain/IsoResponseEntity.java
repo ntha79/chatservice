@@ -7,9 +7,9 @@ import java.io.Serializable;
 /**
  * Created by UserName on 6/5/2018.
  */
-public class IsoResponseEntity implements Serializable {
+public class IsoResponseEntity<T> implements Serializable {
     private int error = ResponseErrorCode.UNKNOW_ERROR.getValue();         //no action
-    private Object data = null;                                            //no action
+    private T data = null;                                            //no action
     private String message = "";                                           //no action
     private String exception = "";                                         //no action
 
@@ -18,7 +18,7 @@ public class IsoResponseEntity implements Serializable {
         super();
     }
 
-    public IsoResponseEntity(int error, Object data, String message, String exception)
+    public IsoResponseEntity(int error, T data, String message, String exception)
     {
         this.error = error;
         this.data = data;
@@ -34,11 +34,11 @@ public class IsoResponseEntity implements Serializable {
         this.error = error;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(T data) {
         this.data = data;
     }
 

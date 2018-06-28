@@ -16,6 +16,7 @@ public class extFriendContactEntity implements Serializable {
     private Long createdTime = new Date().getTime();
     private Long lastModifiedTime = new Date().getTime();
     private Integer inSystem = 0;
+    private String imageUrl = "";
 
     public extFriendContactEntity(){
         super();
@@ -151,6 +152,19 @@ public class extFriendContactEntity implements Serializable {
         this.inSystem = inSystem;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public extFriendContactEntity imageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+        return this;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     @Override
     public String toString() {
         return "extFriendContactEntity{"
@@ -163,6 +177,7 @@ public class extFriendContactEntity implements Serializable {
             + "CreatedTime=" + getCreatedTime() + ","
             + "LastModifiedTime=" + getLastModifiedTime() + ","
             + "InSystem=" + getInSystem() + ","
+            + "ImageUrl=" + getImageUrl() + ","
             + "}";
     }
 }

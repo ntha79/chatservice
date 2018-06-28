@@ -16,6 +16,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 @Repository
 public interface FriendsRepository extends MongoRepository<FriendsEntity, String> {
+    @Async
     FriendsEntity findOneByOwnerUsername(String ownerUsername);
 
     @Async

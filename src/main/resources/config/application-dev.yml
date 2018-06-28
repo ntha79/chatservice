@@ -157,3 +157,5 @@ oauth2:
 # ===================================================================
 
 application:
+    portal:
+        gateway-url: http://localhost:8088

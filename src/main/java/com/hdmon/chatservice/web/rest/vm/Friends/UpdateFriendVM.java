@@ -13,7 +13,7 @@ public class UpdateFriendVM {
     private String friendCompany;
     private String friendMobile;
     private String friendEmail;
-    private String friendStatus;
+    //private String friendStatus;
 
     public UpdateFriendVM(UpdateFriendVM viewModel) {
         this.ownerUsername = viewModel.getOwnerUsername();
@@ -22,17 +22,17 @@ public class UpdateFriendVM {
         this.friendCompany = viewModel.getFriendCompany();
         this.friendMobile = viewModel.getFriendMobile();
         this.friendEmail = viewModel.getFriendEmail();
-        this.friendStatus = viewModel.getFriendStatus();
+        //this.friendStatus = viewModel.getFriendStatus();
     }
 
-    public UpdateFriendVM(String ownerUsername, String friendUsername, String friendFullname, String friendCompany, String friendMobile, String friendEmail, String friendStatus) {
+    public UpdateFriendVM(String ownerUsername, String friendUsername, String friendFullname, String friendCompany, String friendMobile, String friendEmail) {
         this.ownerUsername = ownerUsername;
         this.friendUsername = friendUsername;
         this.friendFullname = friendFullname;
         this.friendCompany = friendCompany;
         this.friendMobile = friendMobile;
         this.friendEmail = friendEmail;
-        this.friendStatus = friendStatus;
+        //this.friendStatus = friendStatus;
     }
 
     public UpdateFriendVM() {
@@ -117,18 +117,18 @@ public class UpdateFriendVM {
         this.friendEmail = friendEmail;
     }
 
-    public String getFriendStatus() {
-        return friendStatus;
-    }
-
-    public UpdateFriendVM friendStatus(String friendStatus) {
-        this.friendStatus = friendStatus;
-        return this;
-    }
-
-    public void setFriendStatus(String friendStatus) {
-        this.friendStatus = friendStatus;
-    }
+//    public String getFriendStatus() {
+//        return friendStatus;
+//    }
+//
+//    public UpdateFriendVM friendStatus(String friendStatus) {
+//        this.friendStatus = friendStatus;
+//        return this;
+//    }
+//
+//    public void setFriendStatus(String friendStatus) {
+//        this.friendStatus = friendStatus;
+//    }
 
     @Override
     public String toString() {
@@ -139,7 +139,7 @@ public class UpdateFriendVM {
             ", friendCompany='" + getFriendCompany() + '\'' +
             ", friendMobile='" + getFriendMobile() + '\'' +
             ", friendEmail='" + getFriendEmail() + '\'' +
-            ", friendStatus='" + getFriendStatus() + '\'' +
+            //", friendStatus='" + getFriendStatus() + '\'' +
             '}';
     }
 }

@@ -1,13 +1,14 @@
 package com.hdmon.chatservice.service;
 
+import com.hdmon.chatservice.config.ApplicationProperties;
 import com.hdmon.chatservice.domain.FriendsEntity;
 import com.hdmon.chatservice.domain.IsoResponseEntity;
 import com.hdmon.chatservice.domain.enumeration.FriendStatusEnum;
 import com.hdmon.chatservice.domain.extents.extFriendContactEntity;
-import com.hdmon.chatservice.domain.extents.extFriendMemberEntity;
 import com.hdmon.chatservice.repository.FriendsRepository;
-import com.hdmon.chatservice.repository.FriendsRepository;
+import com.hdmon.chatservice.service.dto.User;
 import com.hdmon.chatservice.service.util.DataTypeHelper;
+import com.hdmon.chatservice.service.util.UserHelper;
 import com.hdmon.chatservice.web.rest.errors.ResponseErrorCode;
 import com.hdmon.chatservice.web.rest.vm.Friends.RequireAddFriendsVM;
 import com.hdmon.chatservice.web.rest.vm.Friends.ResponseAddFriendsVM;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -95,6 +97,17 @@ public class FriendsService {
         if(!ownerUsername.isEmpty())
         {
             dbInfo = friendsRepository.findOneByOwnerUsername(ownerUsername);
+            if(dbInfo == null)
+            {
+                //Trường hợp không tồn tại thì tiến hành tạo mới
+                dbInfo = new FriendsEntity();
+                dbInfo.setOwnerUsername(ownerUsername);
+                dbInfo.setFriendLists(new ArrayList<>());
+                dbInfo.setGroupLists(new ArrayList<>());
+                dbInfo.setReportDay(DataTypeHelper.ConvertDateTimeToReportDay());
+                friendsRepository.save(dbInfo);
+            }
+
             responseList = dbInfo.getFriendLists();
 
             //sort by inSystem
@@ -138,10 +151,10 @@ public class FriendsService {
      * Update Time: 2018-06-26
      * @return the list friends entity
      */
-    public List<extFriendContactEntity> addContact(UpdateFriendVM viewModel, IsoResponseEntity outputEntity)
+    public List<extFriendContactEntity> addContact(HttpServletRequest request, UpdateFriendVM viewModel, IsoResponseEntity outputEntity)
     {
         //Thêm mới bản ghi cho người thao tác
-        List<extFriendContactEntity> responseList = execAddContactForOwner(viewModel, FriendStatusEnum.FOLLOW, outputEntity);
+        List<extFriendContactEntity> responseList = execAddContactForOwner(request, viewModel, outputEntity);
 
         return responseList;
     }
@@ -278,16 +291,14 @@ public class FriendsService {
      * Update Time:  2018-06-26
      * @return the list friends entity
      */
-    private List<extFriendContactEntity> execAddContactForOwner(UpdateFriendVM viewModel, FriendStatusEnum statusEnum, IsoResponseEntity outputEntity)
+    private List<extFriendContactEntity> execAddContactForOwner(HttpServletRequest request, UpdateFriendVM viewModel, IsoResponseEntity outputEntity)
     {
-        //Kiểm tra nếu chưa có thông tin thì thêm mới
         FriendsEntity dbInfo = friendsRepository.findOneByOwnerUsername(viewModel.getOwnerUsername());
         if(dbInfo != null && dbInfo.getId() != null) {
             boolean isExists = false;
             List<extFriendContactEntity> friendExists = dbInfo.getFriendLists();
             if(friendExists != null && friendExists.size() > 0)
             {
-                //Check if it is exists in list
                 for (extFriendContactEntity exists : friendExists) {
                     if(exists.getUsername().equals(viewModel.getFriendUsername()))
                     {
@@ -300,6 +311,11 @@ public class FriendsService {
             //insert if it is not exists
             if(!isExists)
             {
+                Integer intInSystem = execCheckUserExistsInSystem(request, 3, viewModel.getFriendUsername(), viewModel.getFriendMobile());
+                FriendStatusEnum statusEnum = FriendStatusEnum.UNKNOW;
+                if(intInSystem == 1)
+                    statusEnum = FriendStatusEnum.FOLLOW;
+
                 extFriendContactEntity friendItem = new extFriendContactEntity();
                 friendItem.setUsername(viewModel.getFriendUsername());
                 friendItem.setFullname(viewModel.getFriendFullname());
@@ -307,7 +323,7 @@ public class FriendsService {
                 friendItem.setMobile(viewModel.getFriendMobile());
                 friendItem.setEmail(viewModel.getFriendEmail());
                 friendItem.setStatus(statusEnum);
-                friendItem.setInSystem(0);                          //Chỗ này cần kiểm tra xem user có trong hệ thống chưa
+                friendItem.setInSystem(intInSystem);
                 friendExists.add(friendItem);
 
                 dbInfo.setFriendLists(friendExists);
@@ -325,6 +341,11 @@ public class FriendsService {
         else
         {
             //Trường hợp không tồn tại thì tiến hành tạo mới
+            Integer intInSystem = execCheckUserExistsInSystem(request, 3, viewModel.getFriendUsername(), viewModel.getFriendMobile());
+            FriendStatusEnum statusEnum = FriendStatusEnum.UNKNOW;
+            if(intInSystem == 1)
+                statusEnum = FriendStatusEnum.FOLLOW;
+
             List<extFriendContactEntity> friendLists = new ArrayList<>();
             extFriendContactEntity friendItem = new extFriendContactEntity();
             friendItem.setUsername(viewModel.getFriendUsername());
@@ -333,7 +354,7 @@ public class FriendsService {
             friendItem.setMobile(viewModel.getFriendMobile());
             friendItem.setEmail(viewModel.getFriendEmail());
             friendItem.setStatus(statusEnum);
-            friendItem.setInSystem(0);                          //Chỗ này cần kiểm tra xem user có trong hệ thống chưa
+            friendItem.setInSystem(intInSystem);
             friendLists.add(friendItem);
 
             FriendsEntity input = new FriendsEntity();
@@ -475,6 +496,44 @@ public class FriendsService {
 
         return requireFriendLists;
     }
+
+    /**
+     * Thực hiện kiểm tra xem bạn bè có trong danh sách chưa?
+     * (Hàm bổ sung)
+     * Create Time: 2018-06-09
+     * Update Time:  2018-06-28
+     * @return the list friends entity
+     */
+    private Integer execCheckUserExistsInSystem(HttpServletRequest request, Integer findType, String username, String mobile)
+    {
+        Integer intResult = 0;
+        try {
+            UserHelper clsUserHelper = new UserHelper();
+            ApplicationProperties clsApplicationProperties = new ApplicationProperties();
+            String gatewayUrl = clsApplicationProperties.getPortal().getGatewayUrl();
+            User userInfo = null;
+            if (findType == 1) {
+                userInfo = clsUserHelper.getUserInfoFromUaaByUsername(request, gatewayUrl, username);
+            } else if (findType == 2) {
+                userInfo = clsUserHelper.getUserInfoFromUaaByMobile(request, gatewayUrl, mobile);
+            } else {
+                userInfo = clsUserHelper.getUserInfoFromUaaByUsername(request, gatewayUrl, username);
+
+                if (userInfo == null || userInfo.getId() <= 0)
+                    userInfo = clsUserHelper.getUserInfoFromUaaByMobile(request, gatewayUrl, mobile);
+            }
+
+            if (userInfo != null && userInfo.getId() > 0)
+                intResult = 1;
+        }
+        catch (Exception ex)
+        {
+            log.info("Co loi xay ra goi ham FriendsService.execCheckUserExistsInSystem(request, {},{},{})", findType, username, mobile);
+            log.error(ex.getMessage() + "\\r\\n" + ex.getStackTrace());
+        }
+        return intResult;
+    }
+
     //====================================================PRIVATE END===================================================
     //==================================================================================================================
 }
