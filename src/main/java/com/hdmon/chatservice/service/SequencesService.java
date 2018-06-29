@@ -4,7 +4,7 @@ import com.hdmon.chatservice.domain.SequencesEntity;
 import com.hdmon.chatservice.exception.SequencesException;
 import com.hdmon.chatservice.repository.ChatMessageStatisticsRepository;
 import com.hdmon.chatservice.repository.ChatMessagesRepository;
-import com.hdmon.chatservice.repository.GroupMembersRepository;
+import com.hdmon.chatservice.repository.ChatGroupsRepository;
 import com.hdmon.chatservice.repository.SequencesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;

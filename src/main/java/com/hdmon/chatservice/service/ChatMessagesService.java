@@ -1,7 +1,7 @@
 package com.hdmon.chatservice.service;
 
 import com.hdmon.chatservice.domain.ChatMessagesEntity;
-import com.hdmon.chatservice.domain.GroupMembersEntity;
+import com.hdmon.chatservice.domain.ChatGroupsEntity;
 import com.hdmon.chatservice.domain.IsoResponseEntity;
 import com.hdmon.chatservice.domain.enumeration.ChatMessageTypeEnum;
 import com.hdmon.chatservice.domain.enumeration.MessageReceiverStatusEnum;
@@ -33,18 +33,20 @@ public class ChatMessagesService {
 
     private final SequencesRepository sequencesRepository;
     private final ChatMessagesRepository chatMessagesRepository;
-    private final GroupMembersRepository groupMembersRepository;
+    private final ChatGroupsRepository chatGroupsRepository;
     private final GroupMemberStatisticsRepository groupMemberStatisticsRepository;
     private final ChatMessageStatisticsRepository chatMessageStatisticsRepository;
     private final ContactsRepository contactsRepository;
+    private final ChatGroupsService groupService;
 
-    public ChatMessagesService(SequencesRepository sequencesRepository, ChatMessagesRepository chatMessagesRepository, GroupMembersRepository groupMembersRepository, GroupMemberStatisticsRepository groupMemberStatisticsRepository, ChatMessageStatisticsRepository chatMessageStatisticsRepository, ContactsRepository contactsRepository) {
+    public ChatMessagesService(SequencesRepository sequencesRepository, ChatMessagesRepository chatMessagesRepository, ChatGroupsRepository chatGroupsRepository, GroupMemberStatisticsRepository groupMemberStatisticsRepository, ChatMessageStatisticsRepository chatMessageStatisticsRepository, ContactsRepository contactsRepository, ChatGroupsService groupService) {
         this.sequencesRepository = sequencesRepository;
         this.chatMessagesRepository = chatMessagesRepository;
-        this.groupMembersRepository = groupMembersRepository;
+        this.chatGroupsRepository = chatGroupsRepository;
         this.groupMemberStatisticsRepository = groupMemberStatisticsRepository;
         this.chatMessageStatisticsRepository = chatMessageStatisticsRepository;
         this.contactsRepository = contactsRepository;
+        this.groupService = groupService;
     }
 
     /**
@@ -108,8 +110,7 @@ public class ChatMessagesService {
         if(inputReceiverType.equals(ReceiverTypeEnum.GROUP))
         {
             //GROUP: Lập danh sách tất cả thành viên
-            GroupMembersEntity dbInfoGroup = new GroupMembersEntity();
-            GroupMembersService groupService = new GroupMembersService(groupMembersRepository, groupMemberStatisticsRepository, contactsRepository);
+            ChatGroupsEntity dbInfoGroup = new ChatGroupsEntity();
             inputReceiverLists = groupService.createMessageReceiverLists(inputChatMessages.getGroupChatId(), dbInfoGroup);
             if(inputReceiverLists == null || inputReceiverLists.size() <= 0)
             {

@@ -2,14 +2,15 @@ package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.hdmon.chatservice.domain.FanpagesEntity;
-import com.hdmon.chatservice.domain.GroupMembersEntity;
+import com.hdmon.chatservice.domain.ChatGroupsEntity;
 
 import com.hdmon.chatservice.domain.IsoResponseEntity;
 import com.hdmon.chatservice.domain.extents.extGroupMemberEntity;
-import com.hdmon.chatservice.repository.GroupMembersRepository;
-import com.hdmon.chatservice.service.GroupMembersService;
+import com.hdmon.chatservice.repository.ChatGroupsRepository;
+import com.hdmon.chatservice.service.ChatGroupsService;
 import com.hdmon.chatservice.web.rest.errors.BadRequestAlertException;
 import com.hdmon.chatservice.web.rest.errors.ResponseErrorCode;
+import com.hdmon.chatservice.web.rest.util.BusinessUtil;
 import com.hdmon.chatservice.web.rest.util.HeaderUtil;
 import com.hdmon.chatservice.web.rest.util.PaginationUtil;
 import com.hdmon.chatservice.web.rest.vm.ChatMessagesVM;
@@ -27,6 +28,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -38,87 +41,86 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api")
-public class GroupMembersResource {
+public class ChatGroupsResource {
 
-    private final Logger log = LoggerFactory.getLogger(GroupMembersResource.class);
+    private final Logger log = LoggerFactory.getLogger(ChatGroupsResource.class);
 
-    private static final String ENTITY_NAME = "groupMembers";
+    private static final String ENTITY_NAME = "chatGroups";
 
-    //private final GroupMembersRepository groupMembersRepository;
-    private final GroupMembersService groupMembersService;
+    private final ChatGroupsService chatGroupsService;
 
-    public GroupMembersResource(GroupMembersService groupMembersService) {
-        this.groupMembersService = groupMembersService;
+    public ChatGroupsResource(ChatGroupsService chatGroupsService) {
+        this.chatGroupsService = chatGroupsService;
     }
 
     /**
-     * POST  /group-members : Create a new groupMembers.
+     * POST  /chatgroups : Create a new chatGroups.
      *
-     * @param groupMembers the groupMembers to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new groupMembers, or with status 400 (Bad Request) if the groupMembers has already an ID
+     * @param groupMembers the chatGroups to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new chatGroups, or with status 400 (Bad Request) if the chatGroups has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PostMapping("/group-members")
+    @PostMapping("/chatgroups")
     @Timed
-    public ResponseEntity<GroupMembersEntity> createGroupMembers(@RequestBody GroupMembersEntity groupMembers) throws URISyntaxException {
-        log.debug("REST request to save GroupMembers : {}", groupMembers);
+    public ResponseEntity<ChatGroupsEntity> createGroupMembers(@RequestBody ChatGroupsEntity groupMembers) throws URISyntaxException {
+        log.debug("REST request to save ChatGroups : {}", groupMembers);
         if (groupMembers.getId() != null) {
-            throw new BadRequestAlertException("A new groupMembers cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new chatGroups cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        GroupMembersEntity result = groupMembersService.save(groupMembers);
-        return ResponseEntity.created(new URI("/api/group-members/" + result.getId()))
+        ChatGroupsEntity result = chatGroupsService.save(groupMembers);
+        return ResponseEntity.created(new URI("/api/chatgroups/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
     /**
-     * PUT  /group-members : Updates an existing groupMembers.
+     * PUT  /chatgroups : Updates an existing chatGroups.
      *
-     * @param groupMembers the groupMembers to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated groupMembers,
-     * or with status 400 (Bad Request) if the groupMembers is not valid,
-     * or with status 500 (Internal Server Error) if the groupMembers couldn't be updated
+     * @param groupMembers the chatGroups to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated chatGroups,
+     * or with status 400 (Bad Request) if the chatGroups is not valid,
+     * or with status 500 (Internal Server Error) if the chatGroups couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PutMapping("/group-members")
+    @PutMapping("/chatgroups")
     @Timed
-    public ResponseEntity<GroupMembersEntity> updateGroupMembers(@RequestBody GroupMembersEntity groupMembers) throws URISyntaxException {
-        log.debug("REST request to update GroupMembers : {}", groupMembers);
+    public ResponseEntity<ChatGroupsEntity> updateGroupMembers(@RequestBody ChatGroupsEntity groupMembers) throws URISyntaxException {
+        log.debug("REST request to update ChatGroups : {}", groupMembers);
         if (groupMembers.getId() == null) {
             return createGroupMembers(groupMembers);
         }
-        GroupMembersEntity result = groupMembersService.save(groupMembers);
+        ChatGroupsEntity result = chatGroupsService.save(groupMembers);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, groupMembers.getId()))
             .body(result);
     }
 
     /**
-     * GET  /group-members : get all the groupMembers.
+     * GET  /chatgroups : get all the chatGroups.
      *
      * @param pageable the pagination information
-     * @return the ResponseEntity with status 200 (OK) and the list of groupMembers in body
+     * @return the ResponseEntity with status 200 (OK) and the list of chatGroups in body
      */
-    @GetMapping("/group-members")
+    @GetMapping("/chatgroups")
     @Timed
-    public ResponseEntity<List<GroupMembersEntity>> getAllGroupMembers(Pageable pageable) {
-        log.debug("REST request to get a page of GroupMembers");
-        Page<GroupMembersEntity> page = groupMembersService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/group-members");
+    public ResponseEntity<List<ChatGroupsEntity>> getAllGroupMembers(Pageable pageable) {
+        log.debug("REST request to get a page of ChatGroups");
+        Page<ChatGroupsEntity> page = chatGroupsService.findAll(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/chatgroups");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
-     * DELETE  /group-members/:id : delete the "id" groupMembers.
+     * DELETE  /chatgroups/:id : delete the "id" chatGroups.
      *
-     * @param id the id of the groupMembers to delete
+     * @param id the id of the chatGroups to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/groupmembers/{id}")
+    @DeleteMapping("/chatgroups/{id}")
     @Timed
     public ResponseEntity<Void> deleteGroupMembers(@PathVariable String id) {
-        log.debug("REST request to delete GroupMembers : {}", id);
-        groupMembersService.delete(id);
+        log.debug("REST request to delete ChatGroups : {}", id);
+        chatGroupsService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id)).build();
     }
 
@@ -126,48 +128,56 @@ public class GroupMembersResource {
     * ================CAC HAM BO SUNG===================================================================================
     * ================================================================================================================*/
     /**
-     * POST  /groupmembers/create : Create a new groupmembers.
+     * POST  /chatgroups/create : Create a new chatGroups.
      *
-     * @param viewModel the groupmembers to create
-     * @return the ResponseEntity with status 200 (Created) and with body the new groupmembers, or with status 400 (Bad Request) if the groupmembers has already an ID
+     * @param viewModel the chatGroups to create
+     * @return the ResponseEntity with status 200 (Created) and with body the new chatGroups, or with status 400 (Bad Request) if the chatGroups has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PostMapping("/groupmembers/create")
+    @PostMapping("/chatgroups/create")
     @Timed
-    public ResponseEntity<IsoResponseEntity> createNewGroupMembers(@RequestBody CreateNewGroupVM viewModel) {
-        log.debug("REST request to create GroupMembers: {}", viewModel);
+    public ResponseEntity<IsoResponseEntity> createNewChatGroups(HttpServletRequest request, HttpServletResponse response, @RequestBody CreateNewGroupVM viewModel) {
+        log.debug("REST request to create ChatGroups: {}", viewModel);
 
-        IsoResponseEntity responseEntity = new IsoResponseEntity();
+        IsoResponseEntity<ChatGroupsEntity> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
 
         try {
-            if(viewModel.getOwnerId() == 0 || viewModel.getGroupName().isEmpty() || viewModel.getGroupType() == null) {
-                responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                responseEntity.setMessage("groupmembers_createnew_invalid");
-                responseEntity.setException("The fields OwnerId, GroupName, GroupType are not allowed NULL!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_createnew_invalid", "The fields OwnerId, GroupName, GroupType are not allowed NULL!");
-            }
-            else {
-                GroupMembersEntity dbResult = groupMembersService.create(viewModel);
-                if (dbResult != null && dbResult.getId() != null) {
-                    responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
-                    responseEntity.setData(dbResult);
-                    responseEntity.setMessage("groupmembers_successfull");
-                    httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, dbResult.getId());
+            if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
+                if (viewModel.getOwnerUsername().isEmpty() || viewModel.getGroupName().isEmpty() || viewModel.getGroupType() == null) {
+                    responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
+                    responseEntity.setMessage("chatgroups_createnew_invalid");
+                    responseEntity.setException("The fields OwnerUsername, GroupName, GroupType are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_createnew_invalid", "The fields OwnerUsername, GroupName, GroupType are not allowed NULL!");
                 } else {
-                    responseEntity.setError(ResponseErrorCode.CREATEFAIL.getValue());                 //Create fail
-                    responseEntity.setMessage("groupmembers_createnew_fail");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_createnew_fail", "Create group fail, please try again!");
+                    ChatGroupsEntity dbResult = chatGroupsService.create(request, viewModel, responseEntity);
+                    if (dbResult != null && dbResult.getId() != null) {
+                        responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
+                        responseEntity.setData(dbResult);
+                        responseEntity.setMessage("chatgroups_successfull");
+                        httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, dbResult.getId());
+                    } else {
+                        responseEntity.setError(ResponseErrorCode.CREATEFAIL.getValue());                 //Create fail
+                        responseEntity.setMessage("chatgroups_createnew_fail");
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_createnew_fail", "Create group fail, please try again!");
+                    }
                 }
+            }
+            else
+            {
+                responseEntity.setError(ResponseErrorCode.DENIED.getValue());
+                responseEntity.setMessage("chatgroups_denied");
+                responseEntity.setException("You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("groupmembers_system_error");
+            responseEntity.setMessage("chatgroups_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -176,35 +186,35 @@ public class GroupMembersResource {
     /**
      * Cập nhật thông tin cơ bản của nhóm.
      *
-     * @param viewModel: thông tin groupmembers cần gửi lên
+     * @param viewModel: thông tin chatGroups cần gửi lên
      * @return the ResponseEntity with status 200 (OK)
      */
-    @PostMapping("/groupmembers/update")
+    @PostMapping("/chatgroups/update")
     @Timed
-    public ResponseEntity<IsoResponseEntity> updateGroupMembers(@RequestBody UpdateGroupVM viewModel) {
-        log.debug("REST request to update GroupMembers: {}", viewModel);
+    public ResponseEntity<IsoResponseEntity> updateChatGroups(@RequestBody UpdateGroupVM viewModel) {
+        log.debug("REST request to update ChatGroups: {}", viewModel);
 
-        IsoResponseEntity responseEntity = new IsoResponseEntity();
+        IsoResponseEntity<ChatGroupsEntity> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
 
         try {
-            if(viewModel.getGroupId() == null || viewModel.getGroupName().isEmpty() || viewModel.getGroupType() == null) {
+            if(viewModel.getGroupId() == null || viewModel.getGroupName().isEmpty() || viewModel.getOwnerUsername() == null) {
                 responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                responseEntity.setMessage("groupmembers_update_invalid");
-                responseEntity.setException("The fields GroupId, Name, Type are not allowed NULL!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_update_invalid", "The fields GroupId, Name, Type are not allowed NULL!");
+                responseEntity.setMessage("chatgroups_update_invalid");
+                responseEntity.setException("The fields GroupId, GroupName, OwnerUsername are not allowed NULL!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_update_invalid", "The fields GroupId, GroupName, OwnerUsername are not allowed NULL!");
             }
             else {
-                GroupMembersEntity dbResult = groupMembersService.update(viewModel, responseEntity);
+                ChatGroupsEntity dbResult = chatGroupsService.update(viewModel, responseEntity);
                 if (dbResult != null && dbResult.getId() != null) {
                     responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
                     responseEntity.setData(dbResult);
-                    responseEntity.setMessage("groupmembers_successfull");
+                    responseEntity.setMessage("chatgroups_update_successfull");
                     httpHeaders = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, dbResult.getId());
                 } else if(responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
                     responseEntity.setError(ResponseErrorCode.UPDATEFAIL.getValue());                 //Update fail
-                    responseEntity.setMessage("groupmembers_update_invalid");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_update_invalid", "Update groupmembers fail, please try again!");
+                    responseEntity.setMessage("chatgroups_update_fail");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_update_fail", "Update groupmembers fail, please try again!");
                 }
                 else
                 {
@@ -215,22 +225,22 @@ public class GroupMembersResource {
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("groupmembers_system_error");
+            responseEntity.setMessage("chatgroups_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
     }
 
     /**
-     * POST  /groupmembers/delete : update info for groupmembers item.
+     * POST  /groupmembers/delete : update info for chatGroups item.
      *
-     * @param viewModel the groupmembers of the groupmembers to delete
+     * @param viewModel the chatGroups of the chatGroups to delete
      * @return the Id of group with status 200 (OK)
      */
-    @PostMapping("/groupmembers/delete")
+    @PostMapping("/chatgroups/delete")
     @Timed
     public ResponseEntity<IsoResponseEntity> deleteGroupMembers(@RequestBody DeleteGroupVM viewModel) {
         log.debug("REST request to delete GroupMembers by member: {}", viewModel);
@@ -239,7 +249,7 @@ public class GroupMembersResource {
         HttpHeaders httpHeaders;
 
         try {
-            Boolean blDelete = groupMembersService.delete(viewModel, responseEntity);
+            Boolean blDelete = chatGroupsService.delete(viewModel, responseEntity);
             if(blDelete) {
                 responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                 responseEntity.setData(viewModel.getGroupId());
@@ -275,13 +285,13 @@ public class GroupMembersResource {
     }
 
     /**
-     * POST  /groupmembers/appendmembers : Append listmember to groupmembers.
+     * POST  /chatgroups/appendmembers : Append listmember to chatGroups.
      *
      * @param viewModel the info to create
-     * @return the ResponseEntity with status 200 (OK) and with body the new groupmembers, or with status 400 (Bad Request) if the groupmembers has already an ID
+     * @return the ResponseEntity with status 200 (OK) and with body the new chatGroups, or with status 400 (Bad Request) if the chatGroups has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PostMapping("/groupmembers/appendmembers")
+    @PostMapping("/chatgroups/appendmembers")
     @Timed
     public ResponseEntity<IsoResponseEntity> appendMembersToGroup(@RequestBody ActionGroupVM viewModel) {
         log.debug("REST request to appendmembers into GroupMembers: {}", viewModel);
@@ -297,7 +307,7 @@ public class GroupMembersResource {
                 httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_appendmembers_invalid", "The fields GroupId, Listmembers are not allowed NULL!");
             }
             else {
-                List<extGroupMemberEntity> dbResults = groupMembersService.appendMembers(viewModel, responseEntity);
+                List<extGroupMemberEntity> dbResults = chatGroupsService.appendMembers(viewModel, responseEntity);
                 if (dbResults != null && dbResults.size() > 0) {
                     responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
                     responseEntity.setData(dbResults);
@@ -327,13 +337,13 @@ public class GroupMembersResource {
     }
 
     /**
-     * POST  /groupmembers/removemembers : Remove listmembers from groupmembers.
+     * POST  /chatgroups/removemembers : Remove listmembers from chatGroups.
      *
      * @param viewModel the info to create
-     * @return the ResponseEntity with status 200 (OK) and with body the new groupmembers, or with status 400 (Bad Request) if the groupmembers has already an ID
+     * @return the ResponseEntity with status 200 (OK) and with body the new chatGroups, or with status 400 (Bad Request) if the chatGroups has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PostMapping("/groupmembers/removemembers")
+    @PostMapping("/chatgroups/removemembers")
     @Timed
     public ResponseEntity<IsoResponseEntity> removeMembersInGroup(@RequestBody ActionGroupVM viewModel) {
         log.debug("REST request to removemembers in GroupMembers: {}", viewModel);
@@ -349,7 +359,7 @@ public class GroupMembersResource {
                 httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_removemembers_invalid", "The fields GroupId, OwnerId, ListMembers are not allowed NULL!");
             }
             else {
-                List<extGroupMemberEntity> dbResults = groupMembersService.removeMembers(viewModel, responseEntity);
+                List<extGroupMemberEntity> dbResults = chatGroupsService.removeMembers(viewModel, responseEntity);
                 if (dbResults != null && dbResults.size() > 0) {
                     responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
                     responseEntity.setData(dbResults);
@@ -379,13 +389,13 @@ public class GroupMembersResource {
     }
 
     /**
-     * POST  /groupmembers/memberLeave : Leave a new groupmembers.
+     * POST  /chatgroups/memberLeave : Leave a new groupmembers.
      *
      * @param viewModel the info to leave
-     * @return the ResponseEntity with status 200 (OK) and with body the new groupmembers, or with status 400 (Bad Request) if the groupmembers has already an ID
+     * @return the ResponseEntity with status 200 (OK) and with body the new chatGroups, or with status 400 (Bad Request) if the chatGroups has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PostMapping("/groupmembers/memberLeave")
+    @PostMapping("/chatgroups/memberLeave")
     @Timed
     public ResponseEntity<IsoResponseEntity> memberLeaveGroup(@RequestBody MembersLeaveGroupVM viewModel) {
         log.debug("REST request to memberLeave on GroupMembers: {}", viewModel);
@@ -401,7 +411,7 @@ public class GroupMembersResource {
                 httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_memberLeave_invalid", "The fields GroupId, MemberId are not allowed NULL!");
             }
             else {
-                boolean dbResult = groupMembersService.memberLeave(viewModel, responseEntity);
+                boolean dbResult = chatGroupsService.memberLeave(viewModel, responseEntity);
                 if (dbResult) {
                     responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
                     responseEntity.setData(dbResult);
@@ -431,12 +441,12 @@ public class GroupMembersResource {
     }
 
     /**
-     * GET  /group-members/:id : get the "id" groupMembers.
+     * GET  /chatgroups/getInfo/:id : get the "id" chatGroups.
      *
-     * @param groupId the groupId of the groupMembers to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the groupMembers, or with status 404 (Not Found)
+     * @param groupId the groupId of the chatGroups to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the chatGroups, or with status 404 (Not Found)
      */
-    @GetMapping("/groupmembers/getInfo/{groupId}")
+    @GetMapping("/chatgroups/getinfo/{groupId}")
     @Timed
     public ResponseEntity<IsoResponseEntity> getGroupMembersInfo(@PathVariable String groupId) {
         log.debug("REST request to get GroupMembers : {}", groupId);
@@ -446,7 +456,7 @@ public class GroupMembersResource {
 
         try {
             if(!groupId.isEmpty()) {
-                GroupMembersEntity dbResults = groupMembersService.findOne(groupId);
+                ChatGroupsEntity dbResults = chatGroupsService.findOne(groupId);
 
                 responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                 responseEntity.setData(dbResults);

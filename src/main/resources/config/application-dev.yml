@@ -159,3 +159,6 @@ oauth2:
 application:
     portal:
         gateway-url: http://localhost:8080
+    chat-service:
+        chatgroup-max-member: 50000
+        chatgroup-secret-max-member: 5

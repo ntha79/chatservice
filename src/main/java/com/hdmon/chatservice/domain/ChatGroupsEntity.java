@@ -14,18 +14,15 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * A GroupMembers.
+ * A ChatGroups.
  */
-@Document(collection = "group_members")
-public class GroupMembersEntity extends AbstractAuditingEntity implements Serializable {
+@Document(collection = "chat_groups")
+public class ChatGroupsEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
     private String id;
-
-    @Field("seq_id")
-    private String seqId = UUID.randomUUID().toString();
 
     @Field("group_type")
     private GroupTypeEnum groupType;
@@ -36,17 +33,17 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
     @Field("group_icon")
     private String groupIcon;
 
+    @Field("group_background")
+    private String groupBackground;
+
     @Field("group_slogan")
     private String groupSlogan;
 
-    @Field("group_about")
-    private String groupAbout;
+    @Field("group_sumary")
+    private String groupSumary;
 
     @Field("group_status")
     private GroupMemberStatusEnum groupStatus = GroupMemberStatusEnum.NORMAL;
-
-    @Field("owner_id")
-    private Long ownerId;
 
     @Field("member_lists")
     private List<extGroupMemberEntity> memberLists;
@@ -54,14 +51,20 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
     @Field("max_member")
     private Integer maxMember = 5000;
 
-    @Field("created_unix_time")
-    private Long createdUnixTime = new Date().getTime();
+    @Field("created_by_id")
+    private Long createdById;
 
-    @Field("last_modified_unix_time")
-    private Long lastModifiedUnixTime = new Date().getTime();
+    @Field("created_by")
+    private String createdBy;
 
-    @Field("last_chat_unix_time")
-    private Long lastChatUnixTime = new Date().getTime();
+    @Field("created_time")
+    private Long createdTime = new Date().getTime();
+
+    @Field("last_modified_by")
+    private String lastModifiedBy;
+
+    @Field("last_modified_time")
+    private Long lastModifiedTime = new Date().getTime();
 
     @Field("report_day")
     private Integer reportDay;
@@ -75,24 +78,11 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         this.id = id;
     }
 
-    public String getSeqId() {
-        return seqId;
-    }
-
-    public GroupMembersEntity seqId(String seqId) {
-        this.seqId = seqId;
-        return this;
-    }
-
-    public void setSeqId(String seqId) {
-        this.seqId = seqId;
-    }
-
     public GroupTypeEnum getGroupType() {
         return groupType;
     }
 
-    public GroupMembersEntity groupType(GroupTypeEnum groupType) {
+    public ChatGroupsEntity groupType(GroupTypeEnum groupType) {
         this.groupType = groupType;
         return this;
     }
@@ -105,7 +95,7 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         return groupName;
     }
 
-    public GroupMembersEntity groupName(String groupName) {
+    public ChatGroupsEntity groupName(String groupName) {
         this.groupName = groupName;
         return this;
     }
@@ -114,11 +104,24 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         this.groupName = groupName;
     }
 
+    public String getGroupBackground() {
+        return groupBackground;
+    }
+
+    public ChatGroupsEntity groupBackground(String groupBackground) {
+        this.groupBackground = groupBackground;
+        return this;
+    }
+
+    public void setGroupBackground(String groupBackground) {
+        this.groupBackground = groupBackground;
+    }
+
     public String getGroupIcon() {
         return groupIcon;
     }
 
-    public GroupMembersEntity groupIcon(String groupIcon) {
+    public ChatGroupsEntity groupIcon(String groupIcon) {
         this.groupIcon = groupIcon;
         return this;
     }
@@ -131,7 +134,7 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         return groupSlogan;
     }
 
-    public GroupMembersEntity groupSlogan(String groupSlogan) {
+    public ChatGroupsEntity groupSlogan(String groupSlogan) {
         this.groupSlogan = groupSlogan;
         return this;
     }
@@ -144,7 +147,7 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         return groupStatus;
     }
 
-    public GroupMembersEntity groupStatus(GroupMemberStatusEnum groupStatus) {
+    public ChatGroupsEntity groupStatus(GroupMemberStatusEnum groupStatus) {
         this.groupStatus = groupStatus;
         return this;
     }
@@ -153,37 +156,24 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         this.groupStatus = groupStatus;
     }
 
-    public String getGroupAbout() {
-        return groupAbout;
+    public String getGroupSumary() {
+        return groupSumary;
     }
 
-    public GroupMembersEntity groupAbout(String groupAbout) {
-        this.groupAbout = groupAbout;
+    public ChatGroupsEntity groupSumary(String groupSumary) {
+        this.groupSumary = groupSumary;
         return this;
     }
 
-    public void setGroupAbout(String groupAbout) {
-        this.groupAbout = groupAbout;
-    }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public GroupMembersEntity ownerId(Long ownerId) {
-        this.ownerId = ownerId;
-        return this;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public void setGroupSumary(String groupSumary) {
+        this.groupSumary = groupSumary;
     }
 
     public List<extGroupMemberEntity> getMemberLists() {
         return memberLists;
     }
 
-    public GroupMembersEntity memberLists(List<extGroupMemberEntity> memberLists) {
+    public ChatGroupsEntity memberLists(List<extGroupMemberEntity> memberLists) {
         this.memberLists = memberLists;
         return this;
     }
@@ -196,7 +186,7 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         return maxMember;
     }
 
-    public GroupMembersEntity maxMember(Integer maxMember) {
+    public ChatGroupsEntity maxMember(Integer maxMember) {
         this.maxMember = maxMember;
         return this;
     }
@@ -205,50 +195,76 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         this.maxMember = maxMember;
     }
 
-    public Long getCreatedUnixTime() {
-        return createdUnixTime;
+    public Long getCreatedById() {
+        return createdById;
     }
 
-    public GroupMembersEntity createdUnixTime(Long createdUnixTime) {
-        this.createdUnixTime = createdUnixTime;
+    public ChatGroupsEntity createdById(Long createdById) {
+        this.createdById = createdById;
         return this;
     }
 
-    public void setCreatedUnixTime(Long createdUnixTime) {
-        this.createdUnixTime = createdUnixTime;
+    public void setCreatedById(Long createdById) {
+        this.createdById = createdById;
     }
 
-    public Long getLastModifiedUnixTime() {
-        return lastModifiedUnixTime;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public GroupMembersEntity lastModifiedUnixTime(Long lastModifiedUnixTime) {
-        this.lastModifiedUnixTime = lastModifiedUnixTime;
+    public ChatGroupsEntity createdBy(String createdBy) {
+        this.createdBy = createdBy;
         return this;
     }
 
-    public void setLastModifiedUnixTime(Long lastModifiedUnixTime) {
-        this.lastModifiedUnixTime = lastModifiedUnixTime;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
-    public Long getLastChatUnixTime() {
-        return lastChatUnixTime;
+    public Long getCreatedTime() {
+        return createdTime;
     }
 
-    public GroupMembersEntity lastChatUnixTime(Long lastChatUnixTime) {
-        this.lastChatUnixTime = lastChatUnixTime;
+    public ChatGroupsEntity createdTime(Long createdTime) {
+        this.createdTime = createdTime;
         return this;
     }
 
-    public void setLastChatUnixTime(Long lastChatUnixTime) {
-        this.lastChatUnixTime = lastChatUnixTime;
+    public void setCreatedUnixTime(Long createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public Long getLastModifiedTime() {
+        return lastModifiedTime;
+    }
+
+    public ChatGroupsEntity lastModifiedTime(Long lastModifiedTime) {
+        this.lastModifiedTime = lastModifiedTime;
+        return this;
+    }
+
+    public void setLastModifiedTime(Long lastModifiedTime) {
+        this.lastModifiedTime = lastModifiedTime;
+    }
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public ChatGroupsEntity lastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+        return this;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
     }
 
     public Integer getReportDay() {
         return reportDay;
     }
 
-    public GroupMembersEntity reportDay(Integer reportDay) {
+    public ChatGroupsEntity reportDay(Integer reportDay) {
         this.reportDay = reportDay;
         return this;
     }
@@ -266,7 +282,7 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        GroupMembersEntity groupMembers = (GroupMembersEntity) o;
+        ChatGroupsEntity groupMembers = (ChatGroupsEntity) o;
         if (groupMembers.getId() == null || getId() == null) {
             return false;
         }
@@ -280,24 +296,22 @@ public class GroupMembersEntity extends AbstractAuditingEntity implements Serial
 
     @Override
     public String toString() {
-        return "GroupMembersEntity{" +
+        return "ChatGroupsEntity{" +
             "id=" + getId() +
             ", groupType='" + getGroupType() + "'" +
             ", groupName='" + getGroupName() + "'" +
             ", groupIcon='" + getGroupIcon() + "'" +
+            ", groupBackground='" + getGroupBackground() + "'" +
             ", groupSlogan='" + getGroupSlogan() + "'" +
-            ", groupAbout='" + getGroupAbout() + "'" +
+            ", groupSumary='" + getGroupSumary() + "'" +
             ", groupStatus=" + getGroupStatus() +
-            ", ownerId=" + getOwnerId() +
             ", memberLists='" + getMemberLists() + "'" +
             ", maxMember=" + getMaxMember() +
+            ", createdById=" + getCreatedById() +
             ", createdBy='" + getCreatedBy() + "'" +
-            ", createdDate='" + getCreatedDate() + "'" +
-            ", createdUnixTime=" + getCreatedUnixTime() +
+            ", createdTime='" + getCreatedTime() + "'" +
             ", lastModifiedBy='" + getLastModifiedBy() + "'" +
-            ", lastModifiedDate='" + getLastModifiedDate() + "'" +
-            ", lastModifiedUnixTime=" + getLastModifiedUnixTime() +
-            ", lastChatUnixTime=" + getLastChatUnixTime() +
+            ", lastModifiedTime='" + getLastModifiedTime() + "'" +
             ", reportDay=" + getReportDay() +
             "}";
     }

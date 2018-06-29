@@ -6,40 +6,40 @@ import com.hdmon.chatservice.domain.enumeration.ContactStatusEnum;
  * Created by UserName on 6/7/2018.
  */
 public class extContactGroupEntity {
-    private String id;
-    private String name;
+    private String groupId;
+    private String groupName;
 
     public extContactGroupEntity(){
         super();
     }
 
-    public extContactGroupEntity(String id, String name)
+    public extContactGroupEntity(String groupId, String groupName)
     {
-        this.id = id;
-        this.name = name;
+        this.groupId = groupId;
+        this.groupName = groupName;
     }
 
-    public String getId() {
-        return id;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
-    public String getName() {
-        return name;
+    public String getGroupName() {
+        return groupName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     @Override
     public String toString() {
         return "extContactGroupEntity{"
-            + "Id=" + getId() + ","
-            + "Name=" + getName() + ","
+            + "GroupId=" + getGroupId() + ","
+            + "GroupName=" + getGroupName() + ","
             + "}";
     }
 }

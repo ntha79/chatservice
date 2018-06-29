@@ -7,58 +7,62 @@ import com.hdmon.chatservice.web.rest.vm.GroupMembersVM;
  * Created by UserName on 6/9/2018.
  */
 public class UpdateGroupVM {
-    private Long ownerId;
+    private String ownerUsername;
 
     private String groupId;
-    private GroupTypeEnum groupType;
     private String groupName;
     private String groupIcon = "";
+    private String groupBackground = "";
     private String groupSlogan = "";
-    private String groupAbout = "";
+    private String groupSumary = "";
 
     public UpdateGroupVM(UpdateGroupVM updateGroupVM) {
-        this.ownerId = updateGroupVM.getOwnerId();
+        this.ownerUsername = updateGroupVM.getOwnerUsername();
         this.groupId = updateGroupVM.getGroupId();
-        this.groupType = updateGroupVM.getGroupType();
         this.groupName = updateGroupVM.getGroupName();
         this.groupIcon = updateGroupVM.getGroupIcon();
+        this.groupBackground = updateGroupVM.getGroupBackground();
         this.groupSlogan = updateGroupVM.getGroupSlogan();
-        this.groupAbout = updateGroupVM.getGroupAbout();
+        this.groupSumary = updateGroupVM.getGroupSumary();
     }
 
     public UpdateGroupVM() {
         // Empty public constructor used by Jackson.
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public String getOwnerUsername() {
+        return ownerUsername;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public UpdateGroupVM ownerUsername(String ownerUsername) {
+        this.ownerUsername = ownerUsername;
+        return this;
+    }
+
+    public void setOwnerUsername(String ownerUsername) {
+        this.ownerUsername = ownerUsername;
     }
 
     public String getGroupId() {
         return groupId;
     }
 
+    public UpdateGroupVM groupId(String groupId) {
+        this.groupId = groupId;
+        return this;
+    }
+
     public void setGroupId(String groupId) {
         this.groupId = groupId;
     }
 
-    /**
-     * PUBLIC, FANPAGE, SECRET, PEERTOPEER
-     */
-    public GroupTypeEnum getGroupType() {
-        return groupType;
-    }
-
-    public void setGroupType(GroupTypeEnum groupType) {
-        this.groupType = groupType;
-    }
-
     public String getGroupName() {
         return groupName;
+    }
+
+    public UpdateGroupVM groupName(String groupName) {
+        this.groupName = groupName;
+        return this;
     }
 
     public void setGroupName(String groupName) {
@@ -69,36 +73,64 @@ public class UpdateGroupVM {
         return groupIcon;
     }
 
+    public UpdateGroupVM groupIcon(String groupIcon) {
+        this.groupIcon = groupIcon;
+        return this;
+    }
+
     public void setGroupIcon(String groupIcon) {
         this.groupIcon = groupIcon;
+    }
+
+    public String getGroupBackground() {
+        return groupBackground;
+    }
+
+    public UpdateGroupVM groupBackground(String groupBackground) {
+        this.groupBackground = groupBackground;
+        return this;
+    }
+
+    public void setGroupBackground(String groupBackground) {
+        this.groupBackground = groupBackground;
     }
 
     public String getGroupSlogan() {
         return groupSlogan;
     }
 
+    public UpdateGroupVM groupSlogan(String groupSlogan) {
+        this.groupSlogan = groupSlogan;
+        return this;
+    }
+
     public void setGroupSlogan(String groupSlogan) {
         this.groupSlogan = groupSlogan;
     }
 
-    public String getGroupAbout() {
-        return groupAbout;
+    public String getGroupSumary() {
+        return groupSumary;
     }
 
-    public void setGroupAbout(String groupAbout) {
-        this.groupAbout = groupAbout;
+    public UpdateGroupVM groupSumary(String groupSumary) {
+        this.groupSumary = groupSumary;
+        return this;
+    }
+
+    public void setGroupSumary(String groupSumary) {
+        this.groupSumary = groupSumary;
     }
 
     @Override
     public String toString() {
         return "GroupMembersVM{" +
-            "OwnerId='" + getOwnerId() + '\'' +
+            "OwnerUsername='" + getOwnerUsername() + '\'' +
             ", GroupId='" + getGroupId() + '\'' +
-            ", GroupType='" + getGroupType() + '\'' +
             ", GroupName='" + getGroupName() + '\'' +
             ", GroupIcon='" + getGroupIcon() + '\'' +
+            ", GroupBackground='" + getGroupBackground() + '\'' +
             ", GroupSlogan='" + getGroupSlogan() + '\'' +
-            ", GroupAbout='" + getGroupAbout() + '\'' +
+            ", GroupSumary='" + getGroupSumary() + '\'' +
             '}';
     }
 }

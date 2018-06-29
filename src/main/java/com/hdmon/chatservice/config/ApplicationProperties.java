@@ -12,12 +12,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "application", ignoreUnknownFields = false)
 public class ApplicationProperties {
     private final ApplicationProperties.Portal portal = new ApplicationProperties.Portal();
+    private final ApplicationProperties.ChatService chatService = new ApplicationProperties.ChatService();
 
     public ApplicationProperties() {
     }
 
     public Portal getPortal() {
         return portal;
+    }
+
+    public ChatService getChatService() {
+        return chatService;
     }
 
     public static class Portal {
@@ -32,6 +37,30 @@ public class ApplicationProperties {
 
         public void setGatewayUrl(String gatewayUrl) {
             this.gatewayUrl = gatewayUrl;
+        }
+    }
+
+    public static class ChatService {
+        private Integer chatgroupMaxMember = 5000;
+        private Integer chatgroupSecretMaxMember = 5;
+
+        public ChatService() {
+        }
+
+        public Integer getChatgroupMaxMember() {
+            return chatgroupMaxMember;
+        }
+
+        public void setChatgroupMaxMember(Integer chatgroupMaxMember) {
+            this.chatgroupMaxMember = chatgroupMaxMember;
+        }
+
+        public Integer getChatgroupSecretMaxMember() {
+            return chatgroupSecretMaxMember;
+        }
+
+        public void setChatgroupSecretMaxMember(Integer chatgroupSecretMaxMember) {
+            this.chatgroupSecretMaxMember = chatgroupSecretMaxMember;
         }
     }
 }

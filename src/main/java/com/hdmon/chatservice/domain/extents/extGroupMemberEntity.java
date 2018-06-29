@@ -8,6 +8,7 @@ import java.time.Instant;
 
 public class extGroupMemberEntity implements Serializable {
     private Long memberId;
+    private String memberUsername;
     private GroupMemberRoleEnum memberRole;
     private GroupMemberStatusEnum memberStatus;
     private Instant joinTime;
@@ -17,9 +18,10 @@ public class extGroupMemberEntity implements Serializable {
         super();
     }
 
-    public extGroupMemberEntity(long memberId, GroupMemberRoleEnum memberRole, GroupMemberStatusEnum memberStatus, Instant joinTime, Instant leaveTime)
+    public extGroupMemberEntity(long memberId, String memberUsername, GroupMemberRoleEnum memberRole, GroupMemberStatusEnum memberStatus, Instant joinTime, Instant leaveTime)
     {
         this.memberId = memberId;
+        this.memberUsername = memberUsername;
         this.memberRole = memberRole;
         this.memberStatus = memberStatus;
         this.joinTime = joinTime;
@@ -30,8 +32,26 @@ public class extGroupMemberEntity implements Serializable {
         return memberId;
     }
 
+    public extGroupMemberEntity memberId(Long memberId) {
+        this.memberId = memberId;
+        return this;
+    }
+
     public void setMemberId(Long memberId) {
         this.memberId = memberId;
+    }
+
+    public String getMemberUsername() {
+        return memberUsername;
+    }
+
+    public extGroupMemberEntity memberUsername(String memberUsername) {
+        this.memberUsername = memberUsername;
+        return this;
+    }
+
+    public void setMemberUsername(String memberUsername) {
+        this.memberUsername = memberUsername;
     }
 
     public GroupMemberRoleEnum getMemberRole() {
@@ -70,6 +90,7 @@ public class extGroupMemberEntity implements Serializable {
     public String toString() {
         return "extGroupMemberEntity{"
             + "MemberId=" + getMemberId() + ","
+            + "MemberUsername=" + getMemberUsername() + ","
             + "MemberRole=" + getMemberRole() + ","
             + "MemberStatus=" + getMemberStatus() + ","
             + "JoinTime=" + getJoinTime() + ","
