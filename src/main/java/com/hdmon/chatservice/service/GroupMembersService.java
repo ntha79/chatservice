@@ -1,6 +1,6 @@
 package com.hdmon.chatservice.service;
 
-import com.hdmon.chatservice.domain.FriendsEntity;
+import com.hdmon.chatservice.domain.ContactsEntity;
 import com.hdmon.chatservice.domain.GroupMembersEntity;
 import com.hdmon.chatservice.domain.IsoResponseEntity;
 import com.hdmon.chatservice.domain.enumeration.GroupMemberRoleEnum;
@@ -10,7 +10,7 @@ import com.hdmon.chatservice.domain.enumeration.MessageReceiverStatusEnum;
 import com.hdmon.chatservice.domain.extents.extContactGroupEntity;
 import com.hdmon.chatservice.domain.extents.extGroupMemberEntity;
 import com.hdmon.chatservice.domain.extents.extMessageReceiverEntity;
-import com.hdmon.chatservice.repository.FriendsRepository;
+import com.hdmon.chatservice.repository.ContactsRepository;
 import com.hdmon.chatservice.repository.GroupMemberStatisticsRepository;
 import com.hdmon.chatservice.repository.GroupMembersRepository;
 import com.hdmon.chatservice.service.util.DataTypeHelper;
@@ -38,14 +38,14 @@ import java.util.List;
 public class GroupMembersService {
     private final Logger log = LoggerFactory.getLogger(GroupMembersService.class);
 
-    private final FriendsRepository friendsRepository;
+    private final ContactsRepository contactsRepository;
     private final GroupMembersRepository groupMembersRepository;
     private final GroupMemberStatisticsRepository groupMemberStatisticsRepository;
 
-    public GroupMembersService(GroupMembersRepository groupMembersRepository, GroupMemberStatisticsRepository groupMemberStatisticsRepository, FriendsRepository friendsRepository) {
+    public GroupMembersService(GroupMembersRepository groupMembersRepository, GroupMemberStatisticsRepository groupMemberStatisticsRepository, ContactsRepository contactsRepository) {
         this.groupMembersRepository = groupMembersRepository;
         this.groupMemberStatisticsRepository = groupMemberStatisticsRepository;
-        this.friendsRepository = friendsRepository;
+        this.contactsRepository = contactsRepository;
     }
 
     /**

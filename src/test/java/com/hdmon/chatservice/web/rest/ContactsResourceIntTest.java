@@ -2,11 +2,10 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.FriendsEntity;
+import com.hdmon.chatservice.domain.ContactsEntity;
 import com.hdmon.chatservice.domain.extents.extFriendContactEntity;
-import com.hdmon.chatservice.domain.extents.extFriendMemberEntity;
-import com.hdmon.chatservice.repository.FriendsRepository;
-import com.hdmon.chatservice.service.FriendsService;
+import com.hdmon.chatservice.repository.ContactsRepository;
+import com.hdmon.chatservice.service.ContactsService;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,10 +77,10 @@ public class ContactsResourceIntTest {
     private static final Integer UPDATED_REPORT_DAY = 2;
 
     @Autowired
-    private FriendsRepository friendsRepository;
+    private ContactsRepository contactsRepository;
 
     @Autowired
-    private FriendsService friendsService;
+    private ContactsService friendsService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -94,12 +93,12 @@ public class ContactsResourceIntTest {
 
     private MockMvc restContactsMockMvc;
 
-    private FriendsEntity contacts;
+    private ContactsEntity contacts;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final FriendsResource friendsResource = new FriendsResource(friendsService);
+        final ContactsResource friendsResource = new ContactsResource(friendsService);
         this.restContactsMockMvc = MockMvcBuilders.standaloneSetup(friendsService)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -113,8 +112,8 @@ public class ContactsResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static FriendsEntity createEntity() {
-        FriendsEntity friends = new FriendsEntity()
+    public static ContactsEntity createEntity() {
+        ContactsEntity friends = new ContactsEntity()
             .ownerUsername(DEFAULT_OWNER_USERNAME)
             .friendLists(DEFAULT_FRIEND_LISTS)
             .createdUnixTime(DEFAULT_CREATED_UNIX_TIME)
@@ -125,13 +124,13 @@ public class ContactsResourceIntTest {
 
     @Before
     public void initTest() {
-        friendsRepository.deleteAll();
+        contactsRepository.deleteAll();
         contacts = createEntity();
     }
 
     @Test
     public void createContacts() throws Exception {
-        int databaseSizeBeforeCreate = friendsRepository.findAll().size();
+        int databaseSizeBeforeCreate = contactsRepository.findAll().size();
 
         // Create the Contacts
         restContactsMockMvc.perform(post("/api/friends")
@@ -140,9 +139,9 @@ public class ContactsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the Contacts in the database
-        List<FriendsEntity> contactsList = friendsRepository.findAll();
+        List<ContactsEntity> contactsList = contactsRepository.findAll();
         assertThat(contactsList).hasSize(databaseSizeBeforeCreate + 1);
-        FriendsEntity testContacts = contactsList.get(contactsList.size() - 1);
+        ContactsEntity testContacts = contactsList.get(contactsList.size() - 1);
         assertThat(testContacts.getOwnerUsername()).isEqualTo(DEFAULT_OWNER_USERNAME);
         assertThat(testContacts.getFriendLists()).isEqualTo(DEFAULT_FRIEND_LISTS);
         assertThat(testContacts.getCreatedTime()).isEqualTo(DEFAULT_CREATED_DATE);
@@ -152,7 +151,7 @@ public class ContactsResourceIntTest {
 
     @Test
     public void createContactsWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = friendsRepository.findAll().size();
+        int databaseSizeBeforeCreate = contactsRepository.findAll().size();
 
         // Create the Friends with an existing ID
         contacts.setId("existing_id");
@@ -164,14 +163,14 @@ public class ContactsResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the Contacts in the database
-        List<FriendsEntity> contactsList = friendsRepository.findAll();
+        List<ContactsEntity> contactsList = contactsRepository.findAll();
         assertThat(contactsList).hasSize(databaseSizeBeforeCreate);
     }
 
     @Test
     public void getAllContacts() throws Exception {
         // Initialize the database
-        friendsRepository.save(contacts);
+        contactsRepository.save(contacts);
 
         // Get all the contactsList
         restContactsMockMvc.perform(get("/api/friends?sort=id,desc"))
@@ -193,7 +192,7 @@ public class ContactsResourceIntTest {
     @Test
     public void getContacts() throws Exception {
         // Initialize the database
-        friendsRepository.save(contacts);
+        contactsRepository.save(contacts);
 
         // Get the contacts
         restContactsMockMvc.perform(get("/api/friends/{id}", contacts.getId()))
@@ -224,11 +223,11 @@ public class ContactsResourceIntTest {
     @Test
     public void updateContacts() throws Exception {
         // Initialize the database
-        friendsRepository.save(contacts);
-        int databaseSizeBeforeUpdate = friendsRepository.findAll().size();
+        contactsRepository.save(contacts);
+        int databaseSizeBeforeUpdate = contactsRepository.findAll().size();
 
         // Update the contacts
-        FriendsEntity updatedContacts = friendsRepository.findOne(contacts.getId());
+        ContactsEntity updatedContacts = contactsRepository.findOne(contacts.getId());
         updatedContacts
             .ownerUsername(UPDATED_OWNER_USERNAME)
             .friendLists(UPDATED_FRIEND_LISTS)
@@ -242,9 +241,9 @@ public class ContactsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the Contacts in the database
-        List<FriendsEntity> friendsList = friendsRepository.findAll();
+        List<ContactsEntity> friendsList = contactsRepository.findAll();
         assertThat(friendsList).hasSize(databaseSizeBeforeUpdate);
-        FriendsEntity testContacts = friendsList.get(friendsList.size() - 1);
+        ContactsEntity testContacts = friendsList.get(friendsList.size() - 1);
         assertThat(testContacts.getOwnerUsername()).isEqualTo(UPDATED_OWNER_USERNAME);
         assertThat(testContacts.getFriendLists()).isEqualTo(UPDATED_FRIEND_LISTS);
         assertThat(testContacts.getCreatedTime()).isEqualTo(UPDATED_CREATED_UNIX_TIME);
@@ -254,7 +253,7 @@ public class ContactsResourceIntTest {
 
     @Test
     public void updateNonExistingContacts() throws Exception {
-        int databaseSizeBeforeUpdate = friendsRepository.findAll().size();
+        int databaseSizeBeforeUpdate = contactsRepository.findAll().size();
 
         // Create the Contacts
 
@@ -265,15 +264,15 @@ public class ContactsResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the Contacts in the database
-        List<FriendsEntity> contactsList = friendsRepository.findAll();
+        List<ContactsEntity> contactsList = contactsRepository.findAll();
         assertThat(contactsList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
     @Test
     public void deleteContacts() throws Exception {
         // Initialize the database
-        friendsRepository.save(contacts);
-        int databaseSizeBeforeDelete = friendsRepository.findAll().size();
+        contactsRepository.save(contacts);
+        int databaseSizeBeforeDelete = contactsRepository.findAll().size();
 
         // Get the contacts
         restContactsMockMvc.perform(delete("/api/friends/{id}", contacts.getId())
@@ -281,16 +280,16 @@ public class ContactsResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<FriendsEntity> friendsList = friendsRepository.findAll();
+        List<ContactsEntity> friendsList = contactsRepository.findAll();
         assertThat(friendsList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FriendsEntity.class);
-        FriendsEntity contacts1 = new FriendsEntity();
+        TestUtil.equalsVerifier(ContactsEntity.class);
+        ContactsEntity contacts1 = new ContactsEntity();
         contacts1.setId("id1");
-        FriendsEntity contacts2 = new FriendsEntity();
+        ContactsEntity contacts2 = new ContactsEntity();
         contacts2.setId(contacts1.getId());
         assertThat(contacts1).isEqualTo(contacts2);
         contacts2.setId("id2");

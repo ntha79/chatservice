@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class extFriendContactEntity implements Serializable {
+    private Long userId;
     private String username;
     private String fullname;
     private String company;
@@ -22,8 +23,9 @@ public class extFriendContactEntity implements Serializable {
         super();
     }
 
-    public extFriendContactEntity(String username, String fullname, String company, String mobile, String email, FriendStatusEnum status, Long createdTime, Long lastModifiedTime, Integer inSystem)
+    public extFriendContactEntity(Long userId, String username, String fullname, String company, String mobile, String email, FriendStatusEnum status, Long createdTime, Long lastModifiedTime, Integer inSystem)
     {
+        this.userId = userId;
         this.username = username;
         this.fullname = fullname;
         this.company = company;
@@ -33,6 +35,19 @@ public class extFriendContactEntity implements Serializable {
         this.createdTime = createdTime;
         this.lastModifiedTime = lastModifiedTime;
         this.inSystem = inSystem;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public extFriendContactEntity userId(Long userId) {
+        this.userId = userId;
+        return this;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getUsername() {

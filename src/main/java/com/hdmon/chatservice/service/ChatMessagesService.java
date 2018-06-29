@@ -36,15 +36,15 @@ public class ChatMessagesService {
     private final GroupMembersRepository groupMembersRepository;
     private final GroupMemberStatisticsRepository groupMemberStatisticsRepository;
     private final ChatMessageStatisticsRepository chatMessageStatisticsRepository;
-    private final FriendsRepository friendsRepository;
+    private final ContactsRepository contactsRepository;
 
-    public ChatMessagesService(SequencesRepository sequencesRepository, ChatMessagesRepository chatMessagesRepository, GroupMembersRepository groupMembersRepository, GroupMemberStatisticsRepository groupMemberStatisticsRepository, ChatMessageStatisticsRepository chatMessageStatisticsRepository, FriendsRepository friendsRepository) {
+    public ChatMessagesService(SequencesRepository sequencesRepository, ChatMessagesRepository chatMessagesRepository, GroupMembersRepository groupMembersRepository, GroupMemberStatisticsRepository groupMemberStatisticsRepository, ChatMessageStatisticsRepository chatMessageStatisticsRepository, ContactsRepository contactsRepository) {
         this.sequencesRepository = sequencesRepository;
         this.chatMessagesRepository = chatMessagesRepository;
         this.groupMembersRepository = groupMembersRepository;
         this.groupMemberStatisticsRepository = groupMemberStatisticsRepository;
         this.chatMessageStatisticsRepository = chatMessageStatisticsRepository;
-        this.friendsRepository = friendsRepository;
+        this.contactsRepository = contactsRepository;
     }
 
     /**
@@ -109,7 +109,7 @@ public class ChatMessagesService {
         {
             //GROUP: Lập danh sách tất cả thành viên
             GroupMembersEntity dbInfoGroup = new GroupMembersEntity();
-            GroupMembersService groupService = new GroupMembersService(groupMembersRepository, groupMemberStatisticsRepository, friendsRepository);
+            GroupMembersService groupService = new GroupMembersService(groupMembersRepository, groupMemberStatisticsRepository, contactsRepository);
             inputReceiverLists = groupService.createMessageReceiverLists(inputChatMessages.getGroupChatId(), dbInfoGroup);
             if(inputReceiverLists == null || inputReceiverLists.size() <= 0)
             {

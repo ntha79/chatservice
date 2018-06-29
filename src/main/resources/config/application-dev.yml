@@ -88,7 +88,7 @@ jhipster:
         version: V_1_1 # To use HTTP/2 you will need SSL support (see above the "server.ssl" configuration)
     cache: # Cache configuration
         hazelcast: # Hazelcast distributed cache
-            time-to-live-seconds: 3600
+            time-to-live-seconds: 1200
             backup-count: 1
             management-center: # Full reference is available at: http://docs.hazelcast.org/docs/management-center/3.9/manual/html/Deploying_and_Starting.html
                 enabled: false
@@ -158,4 +158,4 @@ oauth2:
 
 application:
     portal:
-        gateway-url: http://localhost:8088
+        gateway-url: http://localhost:8080
