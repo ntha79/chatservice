@@ -2,7 +2,6 @@ package com.hdmon.chatservice.domain;
 
 import com.hdmon.chatservice.domain.extents.extContactGroupEntity;
 import com.hdmon.chatservice.domain.extents.extFriendContactEntity;
-import com.hdmon.chatservice.domain.extents.extFriendMemberEntity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -20,12 +19,10 @@ public class ContactsEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id
-    private String id;
-
     @Field("owner_userid")
     private Long ownerUserid;
 
+    @Id
     @Field("owner_username")
     private String ownerUsername;
 
@@ -45,14 +42,6 @@ public class ContactsEntity implements Serializable {
     private Integer reportDay;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public Long getOwnerUserid() {
         return ownerUserid;
     }
@@ -154,21 +143,20 @@ public class ContactsEntity implements Serializable {
             return false;
         }
         ContactsEntity friends = (ContactsEntity) o;
-        if (friends.getId() == null || getId() == null) {
+        if (friends.getOwnerUsername() == null || getOwnerUsername() == null) {
             return false;
         }
-        return Objects.equals(getId(), friends.getId());
+        return Objects.equals(getOwnerUsername(), friends.getOwnerUsername());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hashCode(getOwnerUsername());
     }
 
     @Override
     public String toString() {
         return "ContactsEntity{" +
-            "id=" + getId() +
             ", ownerUserid='" + getOwnerUserid() + "'" +
             ", ownerUsername='" + getOwnerUsername() + "'" +
             ", friendLists='" + getFriendLists() + "'" +

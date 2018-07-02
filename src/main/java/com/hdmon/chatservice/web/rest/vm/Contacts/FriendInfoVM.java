@@ -18,6 +18,16 @@ public class FriendInfoVM {
         super();
     }
 
+    public FriendInfoVM(FriendInfoVM friendInfoVM)
+    {
+        this.username = friendInfoVM.getUsername();
+        this.fullname = friendInfoVM.getFullname();
+        this.mobile = friendInfoVM.getMobile();
+        this.email = friendInfoVM.getEmail();
+        this.imageUrl = friendInfoVM.getImageUrl();
+        this.status = friendInfoVM.getStatus();
+    }
+
     public FriendInfoVM(String username, String fullname, String mobile, String email, String imageUrl, FriendStatusEnum status)
     {
         this.username = username;

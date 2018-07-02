@@ -143,15 +143,10 @@ public class ChatMessagesResourceIntTest {
             .groupType(DEFAULT_GROUP_TYPE)
             .messageValue(DEFAULT_MESSAGE_VALUE)
             .messageType(DEFAULT_MESSAGE_TYPE)
-            .senderId(DEFAULT_SENDER_ID)
-            .senderLogin(DEFAULT_SENDER_LOGIN)
-            .receiverLists(DEFAULT_RECEIVER_LISTS)
-            .receiverType(DEFAULT_RECEIVER_TYPE)
-            .receiverText(DEFAULT_RECEIVER_TEXT)
-            .createdUnixTime(DEFAULT_CREATED_UNIX_TIME)
-            .lastModifiedUnixTime(DEFAULT_LAST_MODIFIED_UNIX_TIME)
+            .createdTime(DEFAULT_CREATED_UNIX_TIME)
+            .lastModifiedTime(DEFAULT_LAST_MODIFIED_UNIX_TIME)
             .reportDay(DEFAULT_REPORT_DAY)
-            .maxTimeToAction(DEFAULT_MAX_TIME_TO_ACTION)
+            .maxSecondToAction(DEFAULT_MAX_TIME_TO_ACTION)
             .referMessageId(DEFAULT_REFER_MESSAGE_ID);
         return chatMessages;
     }
@@ -181,19 +176,11 @@ public class ChatMessagesResourceIntTest {
         assertThat(testChatMessages.getGroupType()).isEqualTo(DEFAULT_GROUP_TYPE);
         assertThat(testChatMessages.getMessageValue()).isEqualTo(DEFAULT_MESSAGE_VALUE);
         assertThat(testChatMessages.getMessageType()).isEqualTo(DEFAULT_MESSAGE_TYPE);
-        assertThat(testChatMessages.getSenderId()).isEqualTo(DEFAULT_SENDER_ID);
-        assertThat(testChatMessages.getSenderLogin()).isEqualTo(DEFAULT_SENDER_LOGIN);
-        assertThat(testChatMessages.getReceiverLists()).isEqualTo(DEFAULT_RECEIVER_LISTS);
-        assertThat(testChatMessages.getReceiverType()).isEqualTo(DEFAULT_RECEIVER_TYPE);
-        assertThat(testChatMessages.getReceiverText()).isEqualTo(DEFAULT_RECEIVER_TEXT);
-        assertThat(testChatMessages.getCreatedBy()).isEqualTo(DEFAULT_CREATED_BY);
-        assertThat(testChatMessages.getCreatedDate()).isEqualTo(DEFAULT_CREATED_DATE);
-        assertThat(testChatMessages.getCreatedUnixTime()).isEqualTo(DEFAULT_CREATED_UNIX_TIME);
+        assertThat(testChatMessages.getCreatedTime()).isEqualTo(DEFAULT_CREATED_UNIX_TIME);
         assertThat(testChatMessages.getLastModifiedBy()).isEqualTo(DEFAULT_LAST_MODIFIED_BY);
-        assertThat(testChatMessages.getLastModifiedDate()).isEqualTo(DEFAULT_LAST_MODIFIED_DATE);
-        assertThat(testChatMessages.getLastModifiedUnixTime()).isEqualTo(DEFAULT_LAST_MODIFIED_UNIX_TIME);
+        assertThat(testChatMessages.getLastModifiedTime()).isEqualTo(DEFAULT_LAST_MODIFIED_UNIX_TIME);
         assertThat(testChatMessages.getReportDay()).isEqualTo(DEFAULT_REPORT_DAY);
-        assertThat(testChatMessages.getMaxTimeToAction()).isEqualTo(DEFAULT_MAX_TIME_TO_ACTION);
+        assertThat(testChatMessages.getMaxSecondToAction()).isEqualTo(DEFAULT_MAX_TIME_TO_ACTION);
         assertThat(testChatMessages.getReferMessageId()).isEqualTo(DEFAULT_REFER_MESSAGE_ID);
     }
 
@@ -202,7 +189,7 @@ public class ChatMessagesResourceIntTest {
         int databaseSizeBeforeCreate = chatMessagesRepository.findAll().size();
 
         // Create the ChatMessages with an existing ID
-        chatMessages.setId("existing_id");
+        chatMessages.setSeqId("existing_id");
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restChatMessagesMockMvc.perform(post("/api/chat-messages")
@@ -224,7 +211,7 @@ public class ChatMessagesResourceIntTest {
         restChatMessagesMockMvc.perform(get("/api/chat-messages?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(chatMessages.getId())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(chatMessages.getSeqId())))
             .andExpect(jsonPath("$.[*].messageId").value(hasItem(DEFAULT_MESSAGE_ID.toString())))
             .andExpect(jsonPath("$.[*].groupChatId").value(hasItem(DEFAULT_GROUP_CHAT_ID.toString())))
             .andExpect(jsonPath("$.[*].groupType").value(hasItem(DEFAULT_GROUP_TYPE.toString())))
@@ -252,10 +239,10 @@ public class ChatMessagesResourceIntTest {
         chatMessagesRepository.save(chatMessages);
 
         // Get the chatMessages
-        restChatMessagesMockMvc.perform(get("/api/chat-messages/{id}", chatMessages.getId()))
+        restChatMessagesMockMvc.perform(get("/api/chat-messages/{id}", chatMessages.getSeqId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(chatMessages.getId()))
+            .andExpect(jsonPath("$.id").value(chatMessages.getSeqId()))
             .andExpect(jsonPath("$.messageId").value(DEFAULT_MESSAGE_ID.toString()))
             .andExpect(jsonPath("$.groupChatId").value(DEFAULT_GROUP_CHAT_ID.toString()))
             .andExpect(jsonPath("$.groupType").value(DEFAULT_GROUP_TYPE.toString()))
@@ -291,22 +278,17 @@ public class ChatMessagesResourceIntTest {
         int databaseSizeBeforeUpdate = chatMessagesRepository.findAll().size();
 
         // Update the chatMessages
-        ChatMessagesEntity updatedChatMessages = chatMessagesRepository.findOne(chatMessages.getId());
+        ChatMessagesEntity updatedChatMessages = chatMessagesRepository.findOne(chatMessages.getSeqId());
         updatedChatMessages
             .messageId(UPDATED_MESSAGE_ID)
             .groupChatId(UPDATED_GROUP_CHAT_ID)
             .groupType(UPDATED_GROUP_TYPE)
             .messageValue(UPDATED_MESSAGE_VALUE)
             .messageType(UPDATED_MESSAGE_TYPE)
-            .senderId(UPDATED_SENDER_ID)
-            .senderLogin(UPDATED_SENDER_LOGIN)
-            .receiverLists(UPDATED_RECEIVER_LISTS)
-            .receiverType(UPDATED_RECEIVER_TYPE)
-            .receiverText(UPDATED_RECEIVER_TEXT)
-            .createdUnixTime(UPDATED_CREATED_UNIX_TIME)
-            .lastModifiedUnixTime(UPDATED_LAST_MODIFIED_UNIX_TIME)
+            .createdTime(UPDATED_CREATED_UNIX_TIME)
+            .lastModifiedTime(UPDATED_LAST_MODIFIED_UNIX_TIME)
             .reportDay(UPDATED_REPORT_DAY)
-            .maxTimeToAction(UPDATED_MAX_TIME_TO_ACTION)
+            .maxSecondToAction(UPDATED_MAX_TIME_TO_ACTION)
             .referMessageId(UPDATED_REFER_MESSAGE_ID);
 
         restChatMessagesMockMvc.perform(put("/api/chat-messages")
@@ -323,19 +305,11 @@ public class ChatMessagesResourceIntTest {
         assertThat(testChatMessages.getGroupType()).isEqualTo(UPDATED_GROUP_TYPE);
         assertThat(testChatMessages.getMessageValue()).isEqualTo(UPDATED_MESSAGE_VALUE);
         assertThat(testChatMessages.getMessageType()).isEqualTo(UPDATED_MESSAGE_TYPE);
-        assertThat(testChatMessages.getSenderId()).isEqualTo(UPDATED_SENDER_ID);
-        assertThat(testChatMessages.getSenderLogin()).isEqualTo(UPDATED_SENDER_LOGIN);
-        assertThat(testChatMessages.getReceiverLists()).isEqualTo(UPDATED_RECEIVER_LISTS);
-        assertThat(testChatMessages.getReceiverType()).isEqualTo(UPDATED_RECEIVER_TYPE);
-        assertThat(testChatMessages.getReceiverText()).isEqualTo(UPDATED_RECEIVER_TEXT);
-        assertThat(testChatMessages.getCreatedBy()).isEqualTo(UPDATED_CREATED_BY);
-        assertThat(testChatMessages.getCreatedDate()).isEqualTo(UPDATED_CREATED_DATE);
-        assertThat(testChatMessages.getCreatedUnixTime()).isEqualTo(UPDATED_CREATED_UNIX_TIME);
+        assertThat(testChatMessages.getCreatedTime()).isEqualTo(UPDATED_CREATED_UNIX_TIME);
         assertThat(testChatMessages.getLastModifiedBy()).isEqualTo(UPDATED_LAST_MODIFIED_BY);
-        assertThat(testChatMessages.getLastModifiedDate()).isEqualTo(UPDATED_LAST_MODIFIED_DATE);
-        assertThat(testChatMessages.getLastModifiedUnixTime()).isEqualTo(UPDATED_LAST_MODIFIED_UNIX_TIME);
+        assertThat(testChatMessages.getLastModifiedTime()).isEqualTo(UPDATED_LAST_MODIFIED_UNIX_TIME);
         assertThat(testChatMessages.getReportDay()).isEqualTo(UPDATED_REPORT_DAY);
-        assertThat(testChatMessages.getMaxTimeToAction()).isEqualTo(UPDATED_MAX_TIME_TO_ACTION);
+        assertThat(testChatMessages.getMaxSecondToAction()).isEqualTo(UPDATED_MAX_TIME_TO_ACTION);
         assertThat(testChatMessages.getReferMessageId()).isEqualTo(UPDATED_REFER_MESSAGE_ID);
     }
 
@@ -363,7 +337,7 @@ public class ChatMessagesResourceIntTest {
         int databaseSizeBeforeDelete = chatMessagesRepository.findAll().size();
 
         // Get the chatMessages
-        restChatMessagesMockMvc.perform(delete("/api/chat-messages/{id}", chatMessages.getId())
+        restChatMessagesMockMvc.perform(delete("/api/chat-messages/{id}", chatMessages.getSeqId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
@@ -376,13 +350,13 @@ public class ChatMessagesResourceIntTest {
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(ChatMessagesEntity.class);
         ChatMessagesEntity chatMessages1 = new ChatMessagesEntity();
-        chatMessages1.setId("id1");
+        chatMessages1.setSeqId("id1");
         ChatMessagesEntity chatMessages2 = new ChatMessagesEntity();
-        chatMessages2.setId(chatMessages1.getId());
+        chatMessages2.setSeqId(chatMessages1.getSeqId());
         assertThat(chatMessages1).isEqualTo(chatMessages2);
-        chatMessages2.setId("id2");
+        chatMessages2.setSeqId("id2");
         assertThat(chatMessages1).isNotEqualTo(chatMessages2);
-        chatMessages1.setId(null);
+        chatMessages1.setSeqId(null);
         assertThat(chatMessages1).isNotEqualTo(chatMessages2);
     }
 }

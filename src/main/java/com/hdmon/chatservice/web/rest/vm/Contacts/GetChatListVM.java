@@ -14,6 +14,12 @@ public class GetChatListVM {
         super();
     }
 
+    public GetChatListVM(GetChatListVM getChatListVM)
+    {
+        this.listFriends = getChatListVM.getListFriends();
+        this.listGroups = getChatListVM.getListGroups();
+    }
+
     public GetChatListVM(List<FriendInfoVM> listFriends, List<GroupInfoVM> listGroups)
     {
         this.listFriends = listFriends;

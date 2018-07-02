@@ -1,15 +1,20 @@
 package com.hdmon.chatservice.service;
 
+import com.hdmon.chatservice.config.ApplicationProperties;
 import com.hdmon.chatservice.domain.ChatMessagesEntity;
-import com.hdmon.chatservice.domain.ChatGroupsEntity;
 import com.hdmon.chatservice.domain.IsoResponseEntity;
+import com.hdmon.chatservice.domain.enumeration.ChatMessageStatusEnum;
 import com.hdmon.chatservice.domain.enumeration.ChatMessageTypeEnum;
-import com.hdmon.chatservice.domain.enumeration.MessageReceiverStatusEnum;
-import com.hdmon.chatservice.domain.enumeration.ReceiverTypeEnum;
-import com.hdmon.chatservice.domain.extents.extMessageReceiverEntity;
-import com.hdmon.chatservice.repository.*;
+import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
+import com.hdmon.chatservice.domain.enumeration.UserFindTypeEnum;
+import com.hdmon.chatservice.repository.ChatMessagesRepository;
 import com.hdmon.chatservice.service.util.DataTypeHelper;
+import com.hdmon.chatservice.service.util.UserHelper;
 import com.hdmon.chatservice.web.rest.errors.ResponseErrorCode;
+import com.hdmon.chatservice.web.rest.vm.Messages.CreateNewMessageVM;
+import com.hdmon.chatservice.web.rest.vm.Messages.EditMessageVM;
+import com.hdmon.chatservice.web.rest.vm.Messages.OutputMessageVM;
+import com.hdmon.chatservice.web.rest.vm.Messages.UpdateMessageVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -18,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,22 +37,18 @@ import java.util.List;
 public class ChatMessagesService {
     private final Logger log = LoggerFactory.getLogger(ChatMessagesService.class);
 
-    private final SequencesRepository sequencesRepository;
     private final ChatMessagesRepository chatMessagesRepository;
-    private final ChatGroupsRepository chatGroupsRepository;
-    private final GroupMemberStatisticsRepository groupMemberStatisticsRepository;
-    private final ChatMessageStatisticsRepository chatMessageStatisticsRepository;
-    private final ContactsRepository contactsRepository;
-    private final ChatGroupsService groupService;
+    private final ChatMessageStatisticsService chatMessageStatisticsService;
 
-    public ChatMessagesService(SequencesRepository sequencesRepository, ChatMessagesRepository chatMessagesRepository, ChatGroupsRepository chatGroupsRepository, GroupMemberStatisticsRepository groupMemberStatisticsRepository, ChatMessageStatisticsRepository chatMessageStatisticsRepository, ContactsRepository contactsRepository, ChatGroupsService groupService) {
-        this.sequencesRepository = sequencesRepository;
+    private final ApplicationProperties applicationProperties;
+    private String gatewayUrl;
+
+    public ChatMessagesService(ChatMessagesRepository chatMessagesRepository, ChatMessageStatisticsService chatMessageStatisticsService, ApplicationProperties applicationProperties) {
         this.chatMessagesRepository = chatMessagesRepository;
-        this.chatGroupsRepository = chatGroupsRepository;
-        this.groupMemberStatisticsRepository = groupMemberStatisticsRepository;
-        this.chatMessageStatisticsRepository = chatMessageStatisticsRepository;
-        this.contactsRepository = contactsRepository;
-        this.groupService = groupService;
+        this.chatMessageStatisticsService = chatMessageStatisticsService;
+
+        this.applicationProperties = applicationProperties;
+        this.gatewayUrl = this.applicationProperties.getPortal().getGatewayUrl();
     }
 
     /**
@@ -95,260 +97,346 @@ public class ChatMessagesService {
     }
 
     /**
-     * Thành viên thực hiện gửi tin nhắn mới lên (06/06/2018).
+     * Thành viên thực hiện gửi tin nhắn mới lên.
      * (Hàm bổ sung)
-     * @param inputChatMessages: entity của tin nhắn gửi lên
-     * @param outResult: id của thành viên thực hiện xóa
+     * Create Time: 2018-06-08
+     * Update Time: 2018-06-30
+     * @param viewModel: entity của tin nhắn gửi lên
+     * @param outputEntity: entity trả kết quả về cho client
      */
-    public ChatMessagesEntity create(ChatMessagesEntity inputChatMessages, IsoResponseEntity outResult)
+    public ChatMessagesEntity createMessage(HttpServletRequest request, CreateNewMessageVM viewModel, IsoResponseEntity outputEntity)
     {
-        //Gửi cho những ai
-        boolean isInvalidData = false;
-        String receiverText = "";
-        List<extMessageReceiverEntity> inputReceiverLists = inputChatMessages.getReceiverLists();
-        ReceiverTypeEnum inputReceiverType = inputChatMessages.getReceiverType();
-        if(inputReceiverType.equals(ReceiverTypeEnum.GROUP))
-        {
-            //GROUP: Lập danh sách tất cả thành viên
-            ChatGroupsEntity dbInfoGroup = new ChatGroupsEntity();
-            inputReceiverLists = groupService.createMessageReceiverLists(inputChatMessages.getGroupChatId(), dbInfoGroup);
-            if(inputReceiverLists == null || inputReceiverLists.size() <= 0)
-            {
-                isInvalidData = true;
-            }
-            else
-            {
-                inputChatMessages.setGroupType(dbInfoGroup.getGroupType());
-            }
-        }
-        else if(inputReceiverType.equals(ReceiverTypeEnum.FRIEND))
-        {
-            //FRIEND: chỉnh sửa danh sách
-            if(inputReceiverLists != null && inputReceiverLists.size() > 0)
-            {
-                for (extMessageReceiverEntity receiver : inputReceiverLists) {
-                    receiver.setUpdateUnixTime(new Date().getTime());
-                    receiver.setStatus(MessageReceiverStatusEnum.NEW);
+        ChatMessagesEntity dbSourceInfo = new ChatMessagesEntity();
 
-                    receiverText+= "," + receiver.getReceiverId();
-                }
+        //Lấy thông tin tài khoản người tạo
+        Long fromUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, viewModel.getFromUserName(), "");
+        Long toUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, viewModel.getToUserName(), "");
+        if(fromUserId > 0 && toUserId > 0) {
+            dbSourceInfo.setMessageId(viewModel.getMsgId());
+            dbSourceInfo.setGroupChatId(viewModel.getCode());
+            dbSourceInfo.setGroupType(viewModel.getCodeType());                     //Client gửi lên cho đỡ tốn time
+            dbSourceInfo.setMessageValue(viewModel.getMessage());
+            dbSourceInfo.setMessageType(viewModel.getMsgType());
+            dbSourceInfo.setMessageStatus(ChatMessageStatusEnum.RECEIVED);          //Xem lại chỗ này
+            dbSourceInfo.setOwnerUserName(viewModel.getOwnerUserName());
+            dbSourceInfo.setFromUserId(fromUserId);
+            dbSourceInfo.setFromUserName(viewModel.getFromUserName());
+            dbSourceInfo.setFromFullName(viewModel.getFromFullName());
+            dbSourceInfo.setToUserName(viewModel.getToUserName());
+            dbSourceInfo.setToUserId(toUserId);
+            dbSourceInfo.setSendTime(viewModel.getSendTime());
+            dbSourceInfo.setReadTime("");
+            dbSourceInfo.setMaxSecondToAction(applicationProperties.getChatService().getChatmessageMaxSecondToAction());
+            dbSourceInfo.setReferMessageId(viewModel.getReferMessageId());
 
-                //Bổ sung người nhận là người gửi luôn
-                extMessageReceiverEntity ownerItem = new extMessageReceiverEntity();
-                ownerItem.setReceiverId(inputChatMessages.getSenderId());
-                ownerItem.setReceiverLogin(inputChatMessages.getSenderLogin());
-                ownerItem.setUpdateUnixTime(new Date().getTime());
-                ownerItem.setStatus(MessageReceiverStatusEnum.NEW);
-                inputReceiverLists.add(ownerItem);
+            //Dữ liệu thống kê
+            chatMessageStatisticsService.increaseStatistics();
+            dbSourceInfo.setReportDay(DataTypeHelper.ConvertDateTimeToReportDay());
 
-                receiverText = inputChatMessages.getSenderId() + receiverText;
-            }
-            else
-            {
-                isInvalidData = true;
-            }
+            dbSourceInfo = chatMessagesRepository.save(dbSourceInfo);
         }
         else
         {
-            //FANPAGE: Lập danh sách tất cả thành viên
+            outputEntity.setError(ResponseErrorCode.NOTFOUND.getValue());
+            outputEntity.setMessage("chatmessages_create_notfound");
+            outputEntity.setException("The user info is notfound!");
         }
-
-        if(isInvalidData)
-        {
-            outResult.setError(ResponseErrorCode.NOMEMBER.getValue());                 //no-member
-            outResult.setMessage("chat_messages_create_error");
-            outResult.setException("The recipient must be specified!");
-
-            return  null;
-        }
-        else {
-            //Tạo sequence id
-            //SequencesService sequencesService = new SequencesService(sequencesRepository);
-            //Long newSequenceId = sequencesService.getNextSequenceId("ChatMessages");
-            //inputChatMessages.setGroupChatId(newSequenceId.toString());
-
-            //Danh sách nhận
-            inputChatMessages.setReceiverLists(inputReceiverLists);
-            inputChatMessages.setReceiverText(receiverText);
-
-            //Người sửa, ngày sửa || người tạo, ngày tạo (log-history)
-            inputChatMessages.setLastModifiedBy(inputChatMessages.getSenderId().toString());
-            inputChatMessages.setLastModifiedDate(Calendar.getInstance().toInstant());
-            inputChatMessages.setLastModifiedBy(inputChatMessages.getSenderId().toString());
-            inputChatMessages.setLastModifiedDate(Calendar.getInstance().toInstant());
-
-            //Dữ liệu thống kê
-            ChatMessageStatisticsService msgStatisticsService = new ChatMessageStatisticsService(chatMessageStatisticsRepository);
-            msgStatisticsService.increaseStatistics();
-            inputChatMessages.setReportDay(DataTypeHelper.ConvertDateTimeToReportDay());
-
-            return  chatMessagesRepository.save(inputChatMessages);
-        }
-    }
-
-    /**
-     * Thành viên thực hiện lệnh xóa tin nhắn (05/06/2018).
-     * (Hàm bổ sung)
-     * @param id: id của tin nhắn
-     * @param memberId: id của thành viên thực hiện xóa
-     */
-    public boolean deleteInfoByMember(String id, Long memberId, IsoResponseEntity outResult) {
-        log.debug("Request to delete ChatMessages : {}", memberId);
-
-        boolean isNotFound = true;
-        boolean blResult = true;
-        ChatMessagesEntity dbInfo = chatMessagesRepository.findOne(id);
-        if(dbInfo != null && dbInfo.getId() != null)
-        {
-            Long lngNowValue = new Date().getTime();
-            List<extMessageReceiverEntity> dbReceiverLists = dbInfo.getReceiverLists();
-            if(dbReceiverLists != null && dbReceiverLists.size() > 0)
-            {
-                for (extMessageReceiverEntity msgItem : dbReceiverLists) {
-                    if(msgItem.getReceiverId().equals(memberId))
-                    {
-                        isNotFound = false;
-                        msgItem.setStatus(MessageReceiverStatusEnum.DELETED);
-                        msgItem.setUpdateUnixTime(lngNowValue);
-                        break;
-                    }
-                }
-
-                //if it is exists
-                if(!isNotFound) {
-                    //Cập nhật trường LastModifiedUnixTime
-                    dbInfo.setLastModifiedUnixTime(lngNowValue);
-                    //Người sửa, ngày sửa (log-history)
-                    dbInfo.setLastModifiedBy(memberId.toString());
-                    dbInfo.setLastModifiedDate(Calendar.getInstance().toInstant());
-
-                    chatMessagesRepository.save(dbInfo);
-                }
-                else
-                {
-                    blResult = false;
-                }
-            }
-        }
-        else{
-            blResult = false;
-        }
-
-        //Return more value
-        if(isNotFound) {
-            outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                                 //notfound
-            outResult.setMessage("chatmessages_notfound_error");
-            outResult.setException("The record is not found!");
-        }
-
-        return blResult;
+        return dbSourceInfo;
     }
 
     /**
      * Người tạo thực hiện sửa tin nhắn (05/06/2018).
      * (Hàm bổ sung)
-     * @param id: id của tin nhắn
-     * @param memberId: id của người tạo
-     * @param messageValue: nội dung của tin nhắn mới
-     * @param messageType: phân loại nội dung mới
+     * Create Time: 2018-06-08
+     * Update Time: 2018-06-30
+     * @param viewModel: entity của tin nhắn gửi lêni
      * @param outResult: dùng để nhận một số lỗi trả về
      */
-    public boolean editInfoByOwner(String id, Long memberId, String messageValue, ChatMessageTypeEnum messageType, IsoResponseEntity outResult) {
-        log.debug("Request to edit ChatMessages : {}", memberId);
+    public EditMessageVM editContentByMember(HttpServletRequest request, EditMessageVM viewModel, IsoResponseEntity outResult) {
+        log.debug("Request to edit ChatMessages : {}", viewModel);
 
-        boolean isNotFound = true;
-        boolean blResult = false;
-        ChatMessagesEntity dbInfo = chatMessagesRepository.findOne(id);
-        if(dbInfo != null && dbInfo.getId() != null)
+        //Lấy thông tin tài khoản người thao tác
+        Long fromUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, viewModel.getActionUserName(), "");
+        if(fromUserId > 0) {
+            List<ChatMessagesEntity> dbSourceList = chatMessagesRepository.findAllByMessageId(viewModel.getMsgId());
+            if (dbSourceList != null && dbSourceList.size() > 0) {
+                for (ChatMessagesEntity msgItem : dbSourceList) {
+                    msgItem.setMessageType(viewModel.getMsgType());
+                    msgItem.setMessageValue(viewModel.getMessage());
+
+                    msgItem.setLastModifiedBy(viewModel.getActionUserName());
+                    msgItem.setLastModifiedTime(new Date().getTime());
+
+                    chatMessagesRepository.save(msgItem);
+                }
+            } else {
+                outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                                     //notfound
+                outResult.setMessage("chatmessages_editbyowner_notfound");
+                outResult.setException("The message info is not found!");
+            }
+        }
+        else
         {
-            if(dbInfo.getSenderId().equals(memberId)) {
-                Long lngNowValue = new Date().getTime();
-                //Kiểm tra và thực hiện đánh dấu sửa bản ghi
-                List<extMessageReceiverEntity> dbReceiverLists = dbInfo.getReceiverLists();
-                if (dbReceiverLists != null && dbReceiverLists.size() > 0) {
-                    for (extMessageReceiverEntity msgItem : dbReceiverLists) {
-                        if (msgItem.getReceiverId().equals(memberId)) {
-                            isNotFound = false;
-                            msgItem.setStatus(MessageReceiverStatusEnum.EDIT);
-                            msgItem.setUpdateUnixTime(lngNowValue);
-                            break;
+            outResult.setError(ResponseErrorCode.REJECTED.getValue());                                    //rejected
+            outResult.setMessage("chatmessages_editbyowner_rejected");
+            outResult.setException("Request to update this message is rejected!");
+        }
+
+        return viewModel;
+    }
+
+    /**
+     * Người tạo thực hiện sửa tin nhắn (05/06/2018).
+     * (Hàm bổ sung)
+     * Create Time: 2018-06-08
+     * Update Time: 2018-06-30
+     * @param viewModel: entity của tin nhắn gửi lêni
+     * @param outResult: dùng để nhận một số lỗi trả về
+     */
+    public UpdateMessageVM updateStatusByMember(HttpServletRequest request, UpdateMessageVM viewModel, IsoResponseEntity outResult) {
+        log.debug("Request to update ChatMessages : {}", viewModel);
+
+        //Lấy thông tin tài khoản người thao tác
+        Long fromUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, viewModel.getActionUserName(), "");
+        if(fromUserId > 0) {
+            List<ChatMessagesEntity> dbSourceList = chatMessagesRepository.findAllByMessageId(viewModel.getMsgId());
+            if (dbSourceList != null && dbSourceList.size() > 0) {
+                for (ChatMessagesEntity msgItem : dbSourceList) {
+                    ChatMessageStatusEnum newStatus = viewModel.getMsgStatus();
+                    if(newStatus != ChatMessageStatusEnum.UNKNOW) {
+                        msgItem.setMessageStatus(viewModel.getMsgStatus());
+
+                        if (!viewModel.getChangeTime().isEmpty()) {
+                            if(newStatus != ChatMessageStatusEnum.RECEIVED) {
+                                msgItem.setSendTime(viewModel.getChangeTime());
+                            }
+                            else if(newStatus != ChatMessageStatusEnum.READED)
+                            {
+                                msgItem.setReadTime(viewModel.getChangeTime());
+                            }
                         }
                     }
 
-                    //Trường hợp tồn tại
-                    if (!isNotFound) {
-                        blResult = true;
+                    msgItem.setLastModifiedBy(viewModel.getActionUserName());
+                    msgItem.setLastModifiedTime(new Date().getTime());
+                    chatMessagesRepository.save(msgItem);
+                }
+            } else {
+                outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                               //notfound
+                outResult.setMessage("chatmessages_updateinfo_notfound");
+                outResult.setException("The message info is not found!");
+            }
+        }
+        else
+        {
+            outResult.setError(ResponseErrorCode.REJECTED.getValue());                                    //rejected
+            outResult.setMessage("chatmessages_updateinfo_rejected");
+            outResult.setException("Request to update this message is rejected!");
+        }
 
-                        //Sửa nội dung chính
-                        dbInfo.setLastModifiedUnixTime(lngNowValue);
-                        dbInfo.setMessageValue(messageValue);
-                        dbInfo.setMessageType(messageType);
+        return viewModel;
+    }
 
-                        //Người sửa, ngày sửa (log-history)
-                        dbInfo.setLastModifiedBy(memberId.toString());
-                        dbInfo.setLastModifiedDate(Calendar.getInstance().toInstant());
+    /**
+     * Thành viên thực hiện lệnh xóa tin nhắn.
+     * (Hàm bổ sung)
+     * Create Time: 2018-06-05
+     * Update Time: 2018-06-30
+     * @param messageId: id của tin nhắn
+     * @param actionUsername: username của thành viên thực hiện xóa
+     */
+    public boolean deleteByMember(HttpServletRequest request, boolean allowDeleteAll, String messageId, String actionUsername, String outErrorType, IsoResponseEntity outResult) {
+        log.debug("Request to delete ChatMessages : {}", messageId);
 
-                        chatMessagesRepository.save(dbInfo);
+        boolean blResult = false;
+        //Lấy thông tin tài khoản người thao tác
+        Long fromUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, actionUsername, "");
+        if(fromUserId > 0) {
+            List<ChatMessagesEntity> dbSourceList = chatMessagesRepository.findAllByMessageId(messageId);
+            if (dbSourceList != null && dbSourceList.size() > 0) {
+                for (ChatMessagesEntity msgItem : dbSourceList)
+                {
+                    if(allowDeleteAll) {
+                        if(msgItem.getFromUserName().equals(actionUsername)) {
+                            blResult = true;
+                            chatMessagesRepository.delete(msgItem.getSeqId());
+                        }
+                    }
+                    else
+                    {
+                        if (msgItem.getToUserName().equals(actionUsername)) {
+                            blResult = true;
+                            chatMessagesRepository.delete(msgItem.getSeqId());
+                            break;
+                        }
                     }
                 }
             }
-            else
-            {
-                //Trả về lỗi không có quyền hiệu chỉnh
-                outResult.setError(ResponseErrorCode.DENIED.getValue());                                 //denied
-                outResult.setMessage("chatmessages_denied_error");
-                outResult.setException("Request to edit the message is rejected!");
+
+            //Return more value
+            if (!blResult) {
+                outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                                //notfound
+                outResult.setMessage((outErrorType + "_notfound"));
+                outResult.setException("The message info is not found!");
             }
         }
-
-        //Trả về lỗi không tìm thấy thông tin
-        if(isNotFound && outResult.getError() == ResponseErrorCode.SUCCESSFULL.getValue()) {
-            outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                                     //notfound
-            outResult.setMessage("chatmessages_notfound_error");
-            outResult.setException("The record is not found!");
+        else
+        {
+            outResult.setError(ResponseErrorCode.REJECTED.getValue());                                    //rejected
+            outResult.setMessage((outErrorType + "_rejected"));
+            outResult.setException("Request to update this message is rejected!");
         }
 
         return blResult;
     }
 
     /**
-     * Lấy danh sách tin nhắn theo từng người nhận (05/06/2018).
+     * Thành viên thực hiện lệnh thích tin nhắn.
      * (Hàm bổ sung)
-     * @param subAmount: số ngày cần lấy
-     * @param receiverId: id của người nhận
-     * @return the entity
+     * Create Time: 2018-07-02
+     * Update Time: 2018-07-02
+     * @param messageId: id của tin nhắn
+     * @param actionUsername: username của thành viên thực hiện thích
      */
-    @Transactional(readOnly = true)
-    public List<ChatMessagesEntity> findAllByReportDayAndReceiverId(int subAmount, Long receiverId) {
-        log.debug("Request to get ChatMessages (findAllByReportDayAndReceiverId) : {}-{}", subAmount, receiverId);
+    public Long likeByMember(HttpServletRequest request, String messageId, String actionUsername, IsoResponseEntity outResult) {
+        log.debug("Request to like ChatMessages : {}", messageId);
 
-        //Điều chỉnh dữ liệu cho hợp lệ
-        if(subAmount < 0)
-            subAmount = 0;
+        Long intLikeCount = 0L;
+        boolean blResult = false;
+        //Lấy thông tin tài khoản người thao tác
+        Long fromUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, actionUsername, "");
+        if(fromUserId > 0) {
+            List<ChatMessagesEntity> dbSourceList = chatMessagesRepository.findAllByMessageId(messageId);
+            if (dbSourceList != null && dbSourceList.size() > 0) {
+                for (ChatMessagesEntity msgItem : dbSourceList)
+                {
+                    Long curLikeCount = msgItem.getLikeCount();
+                    msgItem.setLikeCount((curLikeCount + 1));
+                    chatMessagesRepository.save(msgItem);
+                    blResult = true;
 
-        int reportDayNeed = DataTypeHelper.SubDateTimeAndConvertToReportDay((subAmount + 1), Calendar.DATE);
-        List<ChatMessagesEntity> dbList = new ArrayList<>();
-        if(receiverId > 0) {
-            Sort sortBy = new Sort(Sort.Direction.DESC, "lastModifiedUnixTime");
-            dbList = chatMessagesRepository.findAllByReportDayAndReceiverId(reportDayNeed, receiverId, sortBy);
+                    intLikeCount += (curLikeCount + 1);
+                }
+            }
+
+            //Return more value
+            if (!blResult) {
+                outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                                //notfound
+                outResult.setMessage("chatmessages_likebymember_notfound");
+                outResult.setException("The message info is not found!");
+            }
         }
-        return dbList;
+        else
+        {
+            outResult.setError(ResponseErrorCode.REJECTED.getValue());                                    //rejected
+            outResult.setMessage("chatmessages_likebymember_rejected");
+            outResult.setException("Request to update this message is rejected!");
+        }
+
+        return intLikeCount;
+    }
+
+    /**
+     * Thành viên thực hiện lệnh thích tin nhắn.
+     * (Hàm bổ sung)
+     * Create Time: 2018-07-02
+     * Update Time: 2018-07-02
+     * @param messageId: id của tin nhắn
+     * @param actionUsername: username của thành viên thực hiện thích
+     */
+    public Long dislikeByMember(HttpServletRequest request, String messageId, String actionUsername, IsoResponseEntity outResult) {
+        log.debug("Request to unlike ChatMessages : {}", messageId);
+
+        Long intLikeCount = 0L;
+        boolean blResult = false;
+        //Lấy thông tin tài khoản người thao tác
+        Long fromUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, actionUsername, "");
+        if(fromUserId > 0) {
+            List<ChatMessagesEntity> dbSourceList = chatMessagesRepository.findAllByMessageId(messageId);
+            if (dbSourceList != null && dbSourceList.size() > 0) {
+                for (ChatMessagesEntity msgItem : dbSourceList)
+                {
+                    blResult = true;
+
+                    Long curLikeCount = msgItem.getLikeCount();
+                    if(curLikeCount > 0) {
+                        msgItem.setLikeCount((curLikeCount - 1));
+                        chatMessagesRepository.save(msgItem);
+
+                        intLikeCount += (curLikeCount - 1);
+                    }
+                }
+            }
+
+            //Return more value
+            if (!blResult) {
+                outResult.setError(ResponseErrorCode.NOTFOUND.getValue());                                //notfound
+                outResult.setMessage("chatmessages_dislikebymember_notfound");
+                outResult.setException("The message info is not found!");
+            }
+        }
+        else
+        {
+            outResult.setError(ResponseErrorCode.REJECTED.getValue());                                    //rejected
+            outResult.setMessage("chatmessages_dislikebymember_rejected");
+            outResult.setException("Request to update this message is rejected!");
+        }
+
+        return intLikeCount;
     }
 
     /**
      * Lấy danh sách tin nhắn theo từng người nhận (05/06/2018).
      * (Hàm bổ sung)
+     * Create Time: 2018-06-05
+     * Update Time: 2018-06-30
+     * @param lastRequestTime: thời gian gần nhất đã lấy
      * @param receiverId: id của người nhận
      * @return the entity
      */
     @Transactional(readOnly = true)
-    public List<ChatMessagesEntity> findAllByReceiverIdAndOrderByLastModifiedDesc(Long receiverId) {
-        log.debug("Request to get ChatMessages (findAllByReceiverIdAndOrderByLastModifiedDesc) : {}", receiverId);
-        List<ChatMessagesEntity> dbList = new ArrayList<>();
+    public OutputMessageVM findAllByReportDayAndReceiverId(Long lastRequestTime, Long receiverId) {
+        log.debug("Request to get ChatMessages (findAllByReportDayAndReceiverId) : {}-{}", lastRequestTime, receiverId);
+        OutputMessageVM responseEntity = new OutputMessageVM();
+        //Điều chỉnh dữ liệu cho hợp lệ
+        if(lastRequestTime < 0)
+            lastRequestTime = 0L;
+
         if(receiverId > 0) {
-            Sort sortBy = new Sort(Sort.Direction.DESC, "lastModifiedUnixTime");
-            dbList = chatMessagesRepository.findAllByReceiverIdAndOrderByLastModifiedDesc(receiverId, sortBy);
+            Sort sortBy = new Sort(Sort.Direction.ASC, "lastModifiedTime");
+            List<ChatMessagesEntity> dbSourceList  = chatMessagesRepository.findAllByCreatedTimeAfterAndToUserIdAndOrderByLastModified(lastRequestTime, receiverId, sortBy);
+            if(dbSourceList != null && dbSourceList.size() > 0)
+            {
+                lastRequestTime = dbSourceList.get(dbSourceList.size() - 1).getCreatedTime();
+                responseEntity.setLastRequestTime(lastRequestTime);
+                responseEntity.setMessagesList(dbSourceList);
+            }
         }
-        return dbList;
+        return responseEntity;
+    }
+
+    /**
+     * Lấy danh sách tin nhắn theo từng người nhận (05/06/2018).
+     * (Hàm bổ sung)
+     * Create Time: 2018-06-05
+     * Update Time: 2018-06-30
+     * @param receiverId: id của người nhận
+     * @return the entity
+     */
+    @Transactional(readOnly = true)
+    public OutputMessageVM findAllByReceiverIdAndOrderByLastModifiedDesc(Long receiverId) {
+        log.debug("Request to get ChatMessages (findAllByReceiverIdAndOrderByLastModifiedDesc) : {}", receiverId);
+        OutputMessageVM responseEntity = new OutputMessageVM();
+        if(receiverId > 0) {
+            Sort sortBy = new Sort(Sort.Direction.ASC, "lastModifiedTime");
+            List<ChatMessagesEntity> dbSourceList  = chatMessagesRepository.findAllByToUserIdAndOrderByLastModified(receiverId, sortBy);
+            if(dbSourceList != null && dbSourceList.size() > 0)
+            {
+                Long lastRequestTime = dbSourceList.get(dbSourceList.size() - 1).getCreatedTime();
+                responseEntity.setLastRequestTime(lastRequestTime);
+                responseEntity.setMessagesList(dbSourceList);
+            }
+        }
+        return responseEntity;
     }
 }

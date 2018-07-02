@@ -15,6 +15,13 @@ public class GetContactListVM {
         super();
     }
 
+    public GetContactListVM(GetContactListVM getContactListVM)
+    {
+        this.listFriends = getContactListVM.getListFriends();
+        this.listGroups = getContactListVM.getListGroups();
+        this.listDeviceContacts = getContactListVM.getListDeviceContacts();
+    }
+
     public GetContactListVM(List<FriendInfoVM> listFriends, List<GroupInfoVM> listGroups, List<DeviceContactInfoVM> listDeviceContacts)
     {
         this.listFriends = listFriends;

@@ -4,6 +4,7 @@ import com.hdmon.chatservice.config.ApplicationProperties;
 import com.hdmon.chatservice.domain.ContactsEntity;
 import com.hdmon.chatservice.domain.IsoResponseEntity;
 import com.hdmon.chatservice.domain.enumeration.FriendStatusEnum;
+import com.hdmon.chatservice.domain.enumeration.UserFindTypeEnum;
 import com.hdmon.chatservice.domain.extents.extContactGroupEntity;
 import com.hdmon.chatservice.domain.extents.extFriendContactEntity;
 import com.hdmon.chatservice.repository.ContactsRepository;
@@ -138,7 +139,7 @@ public class ContactsService {
         {
             ContactsEntity dbOwnerInfo = contactsRepository.findOneByOwnerUsername(ownerUsername);
             log.info("dbOwnerInfo: {}", dbOwnerInfo);
-            if(dbOwnerInfo == null || dbOwnerInfo.getId().isEmpty())
+            if(dbOwnerInfo == null || dbOwnerInfo.getOwnerUsername().isEmpty())
             {
                 //Trường hợp không tồn tại thì tiến hành tạo mới
                 CreateNewFriendInfo(request, ownerUsername);
@@ -189,8 +190,7 @@ public class ContactsService {
         if(!ownerUsername.isEmpty())
         {
             ContactsEntity dbOwnerInfo = contactsRepository.findOneByOwnerUsername(ownerUsername);
-            log.info("dbOwnerInfo: {}-{}", ownerUsername, dbOwnerInfo);
-            if(dbOwnerInfo == null || dbOwnerInfo.getId().isEmpty())
+            if(dbOwnerInfo == null || dbOwnerInfo.getOwnerUsername().isEmpty())
             {
                 //Trường hợp không tồn tại thì tiến hành tạo mới
                 CreateNewFriendInfo(request, ownerUsername);
@@ -231,7 +231,6 @@ public class ContactsService {
         }
 
         GetContactListVM responseItem = new GetContactListVM(friendList, groupList, deviceContactList);
-        log.info("responseItem: {}", responseItem);
         return responseItem;
     }
 
@@ -322,7 +321,7 @@ public class ContactsService {
         boolean blItemExists = false;
         List<extFriendContactEntity> friendLists = new ArrayList<>();
         ContactsEntity dbRequireInfo = contactsRepository.findOneByOwnerUsername(viewModel.getOwnerUsername());
-        if(dbRequireInfo != null && dbRequireInfo.getId() != null)
+        if(dbRequireInfo != null && dbRequireInfo.getOwnerUsername() != null)
         {
             friendLists = dbRequireInfo.getFriendLists();
             if(friendLists != null && friendLists.size() > 0) {
@@ -344,7 +343,7 @@ public class ContactsService {
         if(!blItemExists)
         {
             outputEntity.setError(ResponseErrorCode.NOTFOUND.getValue());
-            outputEntity.setMessage("friends_info_notfound");
+            outputEntity.setMessage("contacts_deniedaddfriends_info_notfound");
             outputEntity.setException("The friend info is notfound!");
         }
 
@@ -363,7 +362,7 @@ public class ContactsService {
         boolean blItemExists = false;
         List<extFriendContactEntity> friendLists = new ArrayList<>();
         ContactsEntity dbRequireInfo = contactsRepository.findOneByOwnerUsername(viewModel.getOwnerUsername());
-        if(dbRequireInfo != null && dbRequireInfo.getId() != null)
+        if(dbRequireInfo != null && dbRequireInfo.getOwnerUsername() != null)
         {
             friendLists = dbRequireInfo.getFriendLists();
             if(friendLists != null && friendLists.size() > 0) {
@@ -385,7 +384,7 @@ public class ContactsService {
         if(!blItemExists)
         {
             outputEntity.setError(ResponseErrorCode.NOTFOUND.getValue());
-            outputEntity.setMessage("friends_info_notfound");
+            outputEntity.setMessage("contacts_blockfriends_notfound");
             outputEntity.setException("The friend info is notfound!");
         }
 
@@ -404,7 +403,7 @@ public class ContactsService {
         boolean blItemExists = false;
         List<extFriendContactEntity> actionFriendLists = new ArrayList<>();
         ContactsEntity dbActionInfo = contactsRepository.findOneByOwnerUsername(viewModel.getOwnerUsername());
-        if(dbActionInfo != null && dbActionInfo.getId() != null)
+        if(dbActionInfo != null && dbActionInfo.getOwnerUsername() != null)
         {
             actionFriendLists = dbActionInfo.getFriendLists();
             if(actionFriendLists != null && actionFriendLists.size() > 0) {
@@ -422,7 +421,7 @@ public class ContactsService {
 
                 //Cập nhật cho bạn bè
                 ContactsEntity dbReferInfo = contactsRepository.findOneByOwnerUsername(viewModel.getFriendUsername());
-                if(dbReferInfo != null && dbReferInfo.getId() != null) {
+                if(dbReferInfo != null && dbReferInfo.getOwnerUsername() != null) {
                     List<extFriendContactEntity> referFriendLists1 = dbReferInfo.getFriendLists();
                     if (referFriendLists1 != null && referFriendLists1.size() > 0) {
                         for (extFriendContactEntity exists : referFriendLists1) {
@@ -444,7 +443,7 @@ public class ContactsService {
         if(!blItemExists)
         {
             outputEntity.setError(ResponseErrorCode.NOTFOUND.getValue());
-            outputEntity.setMessage("friends_info_notfound");
+            outputEntity.setMessage("contacts_deletefriends_info_notfound");
             outputEntity.setException("The friend info is notfound!");
         }
 
@@ -463,7 +462,7 @@ public class ContactsService {
         boolean blItemExists = false;
         List<extFriendContactEntity> friendLists = new ArrayList<>();
         ContactsEntity dbRequireInfo = contactsRepository.findOneByOwnerUsername(viewModel.getOwnerUsername());
-        if(dbRequireInfo != null && dbRequireInfo.getId() != null)
+        if(dbRequireInfo != null && dbRequireInfo.getOwnerUsername() != null)
         {
             friendLists = dbRequireInfo.getFriendLists();
             if(friendLists != null && friendLists.size() > 0) {
@@ -489,7 +488,7 @@ public class ContactsService {
         if(!blItemExists)
         {
             outputEntity.setError(ResponseErrorCode.NOTFOUND.getValue());
-            outputEntity.setMessage("friends_info_notfound");
+            outputEntity.setMessage("contacts_updateinfo_notfound");
             outputEntity.setException("The friend info is notfound!");
         }
 
@@ -509,7 +508,7 @@ public class ContactsService {
         Integer intInSystem = 0;
         FriendStatusEnum statusEnum = FriendStatusEnum.UNKNOW;
         ContactsEntity dbInfo = contactsRepository.findOneByOwnerUsername(viewModel.getOwnerUsername());
-        if(dbInfo != null && dbInfo.getId() != null) {
+        if(dbInfo != null && dbInfo.getOwnerUsername() != null) {
             boolean isExists = false;
             List<extFriendContactEntity> friendExists = dbInfo.getFriendLists();
             if(friendExists != null && friendExists.size() > 0)
@@ -526,7 +525,7 @@ public class ContactsService {
             //insert if it is not exists
             if(!isExists)
             {
-                Long friendUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, 3, viewModel.getFriendUsername(), viewModel.getFriendMobile());
+                Long friendUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.BOTH, viewModel.getFriendUsername(), viewModel.getFriendMobile());
                 if(friendUserId > 0) {
                     intInSystem = 1;
                     statusEnum = FriendStatusEnum.FOLLOW;
@@ -550,7 +549,7 @@ public class ContactsService {
             }
             else {
                 outputEntity.setError(ResponseErrorCode.EXISTS.getValue());
-                outputEntity.setMessage("friends_username_exists");
+                outputEntity.setMessage("contacts_addcontact_username_exists");
                 outputEntity.setException("This person already exists in list!");
                 return new ArrayList<>();
             }
@@ -558,7 +557,7 @@ public class ContactsService {
         else
         {
             //Trường hợp không tồn tại thì tiến hành tạo mới
-            Long friendUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, 3, viewModel.getFriendUsername(), viewModel.getFriendMobile());
+            Long friendUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.BOTH, viewModel.getFriendUsername(), viewModel.getFriendMobile());
             if(friendUserId > 0) {
                 intInSystem = 1;
                 statusEnum = FriendStatusEnum.FOLLOW;
@@ -597,7 +596,7 @@ public class ContactsService {
     {
         List<extFriendContactEntity> requireMemberLists = new ArrayList<>();
         ContactsEntity dbRequireInfo = contactsRepository.findOneByOwnerUsername(viewModel.getOwnerUsername());
-        if(dbRequireInfo != null && dbRequireInfo.getId() != null)
+        if(dbRequireInfo != null && dbRequireInfo.getOwnerUsername() != null)
         {
             boolean isExists = false;
             requireMemberLists = dbRequireInfo.getFriendLists();
@@ -629,12 +628,12 @@ public class ContactsService {
             else {
                 if(isOwnerRequest) {
                     outputEntity.setError(ResponseErrorCode.NOTFOUND.getValue());
-                    outputEntity.setMessage("friends_list_notfound");
+                    outputEntity.setMessage("contacts_requireaddfriends_notfound");
                     outputEntity.setException("The friend list is not found!");
                 }
                 else
                 {
-                    Long friendUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, 1, viewModel.getFriendUsername(), "");
+                    Long friendUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, viewModel.getFriendUsername(), "");
                     if(friendUserId > 0) {
                         extFriendContactEntity memberItem = new extFriendContactEntity();
                         memberItem.setUserId(friendUserId);
@@ -650,7 +649,7 @@ public class ContactsService {
                     else
                     {
                         outputEntity.setError(ResponseErrorCode.NOTFOUND.getValue());
-                        outputEntity.setMessage("friends_info_notfound");
+                        outputEntity.setMessage("contacts_requireaddfriends_notfound");
                         outputEntity.setException("The friend info is not found!");
                     }
                 }
@@ -660,13 +659,13 @@ public class ContactsService {
         {
             if(isOwnerRequest) {
                 outputEntity.setError(ResponseErrorCode.NOTFOUND.getValue());
-                outputEntity.setMessage("friends_info_notfound");
+                outputEntity.setMessage("contacts_requireaddfriends_notfound");
                 outputEntity.setException("The friend info is notfound!");
             }
             else
             {
                 //Trường hợp không tồn tại thì tiến hành tạo mới
-                Long friendUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, 1, viewModel.getFriendUsername(), "");
+                Long friendUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, viewModel.getFriendUsername(), "");
                 if(friendUserId > 0) {
                     List<extFriendContactEntity> memberLists = new ArrayList<>();
                     extFriendContactEntity memberItem = new extFriendContactEntity();
@@ -699,7 +698,7 @@ public class ContactsService {
         boolean blItemExists = false;
         List<extFriendContactEntity> requireFriendLists = new ArrayList<>();
         ContactsEntity dbRequireInfo = contactsRepository.findOneByOwnerUsername(viewModel.getOwnerUsername());
-        if(dbRequireInfo != null && dbRequireInfo.getId() != null)
+        if(dbRequireInfo != null && dbRequireInfo.getOwnerUsername() != null)
         {
             requireFriendLists = dbRequireInfo.getFriendLists();
             for (extFriendContactEntity exists : requireFriendLists) {
@@ -730,7 +729,7 @@ public class ContactsService {
         if(!blItemExists)
         {
             outputEntity.setError(ResponseErrorCode.NOTFOUND.getValue());
-            outputEntity.setMessage("friends_info_notfound");
+            outputEntity.setMessage("contacts_acceptaddfriends_notfound");
             outputEntity.setException("The friend info is notfound!");
         }
 
@@ -744,7 +743,7 @@ public class ContactsService {
      */
     private void CreateNewFriendInfo(HttpServletRequest request, String ownerUsername)
     {
-        Long lngOwnerId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, 1, ownerUsername, "");
+        Long lngOwnerId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, ownerUsername, "");
         if(lngOwnerId > 0) {
             ContactsEntity dbOwnerInfo = new ContactsEntity();
             dbOwnerInfo.setOwnerUserid(lngOwnerId);

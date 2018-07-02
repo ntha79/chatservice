@@ -20,6 +20,7 @@ public class RequireAddFriendsVM {
 
     public RequireAddFriendsVM() {
         // Empty public constructor used by Jackson.
+        super();
     }
 
     public String getOwnerUsername() {

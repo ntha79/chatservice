@@ -10,18 +10,15 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * A GroupMemberStatistics.
+ * A ChatGroupStatistics.
  */
-@Document(collection = "group_member_statistics")
-public class GroupMemberStatisticsEntity implements Serializable {
+@Document(collection = "chat_group_statistics")
+public class ChatGroupStatisticsEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    private String id;
-
-    @Field("seq_id")
-    private String seqId = UUID.randomUUID().toString();
+    private String seqId;
 
     @Field("day_count")
     private Integer dayCount;
@@ -45,21 +42,8 @@ public class GroupMemberStatisticsEntity implements Serializable {
     private CheckStatusEnum status = CheckStatusEnum.NOTCHECK;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getSeqId() {
         return seqId;
-    }
-
-    public GroupMemberStatisticsEntity seqId(String seqId) {
-        this.seqId = seqId;
-        return this;
     }
 
     public void setSeqId(String seqId) {
@@ -70,7 +54,7 @@ public class GroupMemberStatisticsEntity implements Serializable {
         return dayCount;
     }
 
-    public GroupMemberStatisticsEntity dayCount(Integer dayCount) {
+    public ChatGroupStatisticsEntity dayCount(Integer dayCount) {
         this.dayCount = dayCount;
         return this;
     }
@@ -83,7 +67,7 @@ public class GroupMemberStatisticsEntity implements Serializable {
         return monthCount;
     }
 
-    public GroupMemberStatisticsEntity monthCount(Integer monthCount) {
+    public ChatGroupStatisticsEntity monthCount(Integer monthCount) {
         this.monthCount = monthCount;
         return this;
     }
@@ -96,7 +80,7 @@ public class GroupMemberStatisticsEntity implements Serializable {
         return yearCount;
     }
 
-    public GroupMemberStatisticsEntity yearCount(Integer yearCount) {
+    public ChatGroupStatisticsEntity yearCount(Integer yearCount) {
         this.yearCount = yearCount;
         return this;
     }
@@ -109,7 +93,7 @@ public class GroupMemberStatisticsEntity implements Serializable {
         return inDay;
     }
 
-    public GroupMemberStatisticsEntity inDay(Integer inDay) {
+    public ChatGroupStatisticsEntity inDay(Integer inDay) {
         this.inDay = inDay;
         return this;
     }
@@ -122,7 +106,7 @@ public class GroupMemberStatisticsEntity implements Serializable {
         return inMonth;
     }
 
-    public GroupMemberStatisticsEntity inMonth(Integer inMonth) {
+    public ChatGroupStatisticsEntity inMonth(Integer inMonth) {
         this.inMonth = inMonth;
         return this;
     }
@@ -135,7 +119,7 @@ public class GroupMemberStatisticsEntity implements Serializable {
         return inYear;
     }
 
-    public GroupMemberStatisticsEntity inYear(Integer inYear) {
+    public ChatGroupStatisticsEntity inYear(Integer inYear) {
         this.inYear = inYear;
         return this;
     }
@@ -148,7 +132,7 @@ public class GroupMemberStatisticsEntity implements Serializable {
         return status;
     }
 
-    public GroupMemberStatisticsEntity status(CheckStatusEnum status) {
+    public ChatGroupStatisticsEntity status(CheckStatusEnum status) {
         this.status = status;
         return this;
     }
@@ -166,23 +150,22 @@ public class GroupMemberStatisticsEntity implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        GroupMemberStatisticsEntity groupMemberStatistics = (GroupMemberStatisticsEntity) o;
-        if (groupMemberStatistics.getId() == null || getId() == null) {
+        ChatGroupStatisticsEntity groupMemberStatistics = (ChatGroupStatisticsEntity) o;
+        if (groupMemberStatistics.getSeqId() == null || getSeqId() == null) {
             return false;
         }
-        return Objects.equals(getId(), groupMemberStatistics.getId());
+        return Objects.equals(getSeqId(), groupMemberStatistics.getSeqId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hashCode(getSeqId());
     }
 
     @Override
     public String toString() {
-        return "GroupMemberStatisticsEntity{" +
-            "id=" + getId() +
-            ", seqId='" + getSeqId() + "'" +
+        return "ChatGroupStatisticsEntity{" +
+            "seqId=" + getSeqId() +
             ", dayCount=" + getDayCount() +
             ", monthCount=" + getMonthCount() +
             ", yearCount=" + getYearCount() +

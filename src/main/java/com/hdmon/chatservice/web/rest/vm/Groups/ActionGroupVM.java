@@ -1,9 +1,5 @@
 package com.hdmon.chatservice.web.rest.vm.Groups;
 
-import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
-import com.hdmon.chatservice.web.rest.vm.GroupMembersVM;
-import com.hdmon.chatservice.web.rest.vm.MembersVM;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,31 +7,47 @@ import java.util.List;
  * Created by UserName on 6/9/2018.
  */
 public class ActionGroupVM {
-    private Long ownerId;
+    private String actionUsername;
     private String groupId;
     private List<MembersActionGroupVM> listMembers = new ArrayList<>();
 
-
     public ActionGroupVM(ActionGroupVM actionGroupVM) {
-        this.ownerId = actionGroupVM.getOwnerId();
+        this.actionUsername = actionGroupVM.getActionUsername();
         this.groupId = actionGroupVM.getGroupId();
         this.listMembers = actionGroupVM.getListMembers();
     }
 
+    public ActionGroupVM(String actionUsername, String groupId, List<MembersActionGroupVM> listMembers) {
+        this.actionUsername = actionUsername;
+        this.groupId = groupId;
+        this.listMembers = listMembers;
+    }
+
     public ActionGroupVM() {
         // Empty public constructor used by Jackson.
+        super();
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public String getActionUsername() {
+        return actionUsername;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public ActionGroupVM actionUsername(String actionUsername) {
+        this.actionUsername = actionUsername;
+        return this;
+    }
+
+    public void setActionUsername(String actionUsername) {
+        this.actionUsername = actionUsername;
     }
 
     public String getGroupId() {
         return groupId;
+    }
+
+    public ActionGroupVM groupId(String groupId) {
+        this.groupId = groupId;
+        return this;
     }
 
     public void setGroupId(String groupId) {
@@ -46,6 +58,11 @@ public class ActionGroupVM {
         return listMembers;
     }
 
+    public ActionGroupVM listMembers(List<MembersActionGroupVM> listMembers) {
+        this.listMembers = listMembers;
+        return this;
+    }
+
     public void setListMembers(List<MembersActionGroupVM> listMembers) {
         this.listMembers = listMembers;
     }
@@ -53,7 +70,7 @@ public class ActionGroupVM {
     @Override
     public String toString() {
         return "ActionGroupVM{" +
-            "OwnerId='" + getOwnerId() + '\'' +
+            "ActionUsername='" + getActionUsername() + '\'' +
             ", GroupId='" + getGroupId() + '\'' +
             ", ListMembers='" + getListMembers() + '\'' +
             '}';

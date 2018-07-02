@@ -1,7 +1,5 @@
 package com.hdmon.chatservice.web.rest.vm.Contacts;
 
-import com.hdmon.chatservice.domain.enumeration.HasAppEnum;
-
 /**
  * Created by UserName on 6/9/2018.
  * For Rest API: /friends/addfriends

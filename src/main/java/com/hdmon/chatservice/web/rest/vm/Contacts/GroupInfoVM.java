@@ -14,6 +14,14 @@ public class GroupInfoVM {
         super();
     }
 
+    public GroupInfoVM(GroupInfoVM groupInfoVM)
+    {
+        this.groupId = groupInfoVM.getGroupId();
+        this.groupName = groupInfoVM.getGroupName();
+        this.memberCount = groupInfoVM.getMemberCount();
+        this.imageUrl = groupInfoVM.getImageUrl();
+    }
+
     public GroupInfoVM(String groupId, String groupName, Integer memberCount, String imageUrl)
     {
         this.groupId = groupId;

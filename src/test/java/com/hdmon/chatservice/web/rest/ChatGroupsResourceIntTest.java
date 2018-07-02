@@ -6,7 +6,7 @@ import com.hdmon.chatservice.domain.ChatGroupsEntity;
 import com.hdmon.chatservice.domain.enumeration.GroupMemberStatusEnum;
 import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
 import com.hdmon.chatservice.domain.extents.extGroupMemberEntity;
-import com.hdmon.chatservice.repository.GroupMemberStatisticsRepository;
+import com.hdmon.chatservice.repository.ChatGroupStatisticsRepository;
 import com.hdmon.chatservice.repository.ChatGroupsRepository;
 import com.hdmon.chatservice.service.ChatGroupsService;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {ChatserviceApp.class, SecurityBeanOverrideConfiguration.class})
-public class GroupMembersResourceIntTest {
+public class ChatGroupsResourceIntTest {
 
     private static final String DEFAULT_SEQ_ID = "AAAAAAAAAA";
     private static final String UPDATED_SEQ_ID = "BBBBBBBBBB";
@@ -192,10 +192,10 @@ public class GroupMembersResourceIntTest {
         int databaseSizeBeforeCreate = chatGroupsRepository.findAll().size();
 
         // Create the ChatGroups with an existing ID
-        chatGroups.setId("existing_id");
+        chatGroups.setGroupId("existing_id");
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restGroupMembersMockMvc.perform(post("/api/chat-groups")
+        restGroupMembersMockMvc.perform(post("/api/chatgroups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(chatGroups)))
             .andExpect(status().isBadRequest());
@@ -211,10 +211,10 @@ public class GroupMembersResourceIntTest {
         chatGroupsRepository.save(chatGroups);
 
         // Get all the chatGroupsList
-        restGroupMembersMockMvc.perform(get("/api/chat-groups?sort=id,desc"))
+        restGroupMembersMockMvc.perform(get("/api/chatgroups?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(chatGroups.getId())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(chatGroups.getGroupId())))
             .andExpect(jsonPath("$.[*].seqId").value(hasItem(DEFAULT_SEQ_ID.toString())))
             .andExpect(jsonPath("$.[*].groupType").value(hasItem(DEFAULT_GROUP_TYPE.toString())))
             .andExpect(jsonPath("$.[*].groupName").value(hasItem(DEFAULT_GROUP_NAME.toString())))
@@ -242,10 +242,10 @@ public class GroupMembersResourceIntTest {
         chatGroupsRepository.save(chatGroups);
 
         // Get the chatGroups
-        restGroupMembersMockMvc.perform(get("/api/chat-groups/{id}", chatGroups.getId()))
+        restGroupMembersMockMvc.perform(get("/api/chatgroups/{id}", chatGroups.getGroupId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(chatGroups.getId()))
+            .andExpect(jsonPath("$.id").value(chatGroups.getGroupId()))
             .andExpect(jsonPath("$.seqId").value(DEFAULT_SEQ_ID.toString()))
             .andExpect(jsonPath("$.groupType").value(DEFAULT_GROUP_TYPE.toString()))
             .andExpect(jsonPath("$.groupName").value(DEFAULT_GROUP_NAME.toString()))
@@ -270,7 +270,7 @@ public class GroupMembersResourceIntTest {
     @Test
     public void getNonExistingGroupMembers() throws Exception {
         // Get the groupMembers
-        restGroupMembersMockMvc.perform(get("/api/chat-groups/{id}", Long.MAX_VALUE))
+        restGroupMembersMockMvc.perform(get("/api/chatgroups/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
     }
 
@@ -281,7 +281,7 @@ public class GroupMembersResourceIntTest {
         int databaseSizeBeforeUpdate = chatGroupsRepository.findAll().size();
 
         // Update the ChatGroups
-        ChatGroupsEntity updatedGroupMembers = chatGroupsRepository.findOne(chatGroups.getId());
+        ChatGroupsEntity updatedGroupMembers = chatGroupsRepository.findOne(chatGroups.getGroupId());
         updatedGroupMembers
             .groupType(UPDATED_GROUP_TYPE)
             .groupName(UPDATED_GROUP_NAME)
@@ -295,7 +295,7 @@ public class GroupMembersResourceIntTest {
             .lastModifiedTime(UPDATED_LAST_MODIFIED_UNIX_TIME)
             .reportDay(UPDATED_REPORT_DAY);
 
-        restGroupMembersMockMvc.perform(put("/api/chat-groups")
+        restGroupMembersMockMvc.perform(put("/api/chatgroups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(updatedGroupMembers)))
             .andExpect(status().isOk());
@@ -326,7 +326,7 @@ public class GroupMembersResourceIntTest {
         // Create the ChatGroups
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restGroupMembersMockMvc.perform(put("/api/chat-groups")
+        restGroupMembersMockMvc.perform(put("/api/chatgroups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(chatGroups)))
             .andExpect(status().isCreated());
@@ -343,7 +343,7 @@ public class GroupMembersResourceIntTest {
         int databaseSizeBeforeDelete = chatGroupsRepository.findAll().size();
 
         // Get the chatGroups
-        restGroupMembersMockMvc.perform(delete("/api/chat-groups/{id}", chatGroups.getId())
+        restGroupMembersMockMvc.perform(delete("/api/chatgroups/{id}", chatGroups.getGroupId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
@@ -356,13 +356,13 @@ public class GroupMembersResourceIntTest {
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(ChatGroupsEntity.class);
         ChatGroupsEntity chatGroups1 = new ChatGroupsEntity();
-        chatGroups1.setId("id1");
+        chatGroups1.setGroupId("id1");
         ChatGroupsEntity chatGroups2 = new ChatGroupsEntity();
-        chatGroups2.setId(chatGroups1.getId());
+        chatGroups2.setGroupId(chatGroups1.getGroupId());
         assertThat(chatGroups1).isEqualTo(chatGroups2);
-        chatGroups2.setId("id2");
+        chatGroups2.setGroupId("id2");
         assertThat(chatGroups1).isNotEqualTo(chatGroups2);
-        chatGroups1.setId(null);
+        chatGroups1.setGroupId(null);
         assertThat(chatGroups1).isNotEqualTo(chatGroups2);
     }
 }

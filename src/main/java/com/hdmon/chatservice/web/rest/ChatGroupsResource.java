@@ -1,24 +1,18 @@
 package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.hdmon.chatservice.domain.FanpagesEntity;
 import com.hdmon.chatservice.domain.ChatGroupsEntity;
 
 import com.hdmon.chatservice.domain.IsoResponseEntity;
+import com.hdmon.chatservice.domain.extents.extContactGroupEntity;
 import com.hdmon.chatservice.domain.extents.extGroupMemberEntity;
-import com.hdmon.chatservice.repository.ChatGroupsRepository;
 import com.hdmon.chatservice.service.ChatGroupsService;
 import com.hdmon.chatservice.web.rest.errors.BadRequestAlertException;
 import com.hdmon.chatservice.web.rest.errors.ResponseErrorCode;
 import com.hdmon.chatservice.web.rest.util.BusinessUtil;
 import com.hdmon.chatservice.web.rest.util.HeaderUtil;
 import com.hdmon.chatservice.web.rest.util.PaginationUtil;
-import com.hdmon.chatservice.web.rest.vm.ChatMessagesVM;
-import com.hdmon.chatservice.web.rest.vm.FanpagesVM;
-import com.hdmon.chatservice.web.rest.vm.GroupMembersVM;
 import com.hdmon.chatservice.web.rest.vm.Groups.*;
-import com.hdmon.chatservice.web.rest.vm.MembersVM;
-import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -34,7 +28,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing GroupMembers.
@@ -64,12 +57,12 @@ public class ChatGroupsResource {
     @Timed
     public ResponseEntity<ChatGroupsEntity> createGroupMembers(@RequestBody ChatGroupsEntity groupMembers) throws URISyntaxException {
         log.debug("REST request to save ChatGroups : {}", groupMembers);
-        if (groupMembers.getId() != null) {
+        if (groupMembers.getGroupId() != null) {
             throw new BadRequestAlertException("A new chatGroups cannot already have an ID", ENTITY_NAME, "idexists");
         }
         ChatGroupsEntity result = chatGroupsService.save(groupMembers);
-        return ResponseEntity.created(new URI("/api/chatgroups/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
+        return ResponseEntity.created(new URI("/api/chatgroups/" + result.getGroupId()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getGroupId()))
             .body(result);
     }
 
@@ -86,12 +79,12 @@ public class ChatGroupsResource {
     @Timed
     public ResponseEntity<ChatGroupsEntity> updateGroupMembers(@RequestBody ChatGroupsEntity groupMembers) throws URISyntaxException {
         log.debug("REST request to update ChatGroups : {}", groupMembers);
-        if (groupMembers.getId() == null) {
+        if (groupMembers.getGroupId() == null) {
             return createGroupMembers(groupMembers);
         }
         ChatGroupsEntity result = chatGroupsService.save(groupMembers);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, groupMembers.getId()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, groupMembers.getGroupId()))
             .body(result);
     }
 
@@ -132,7 +125,6 @@ public class ChatGroupsResource {
      *
      * @param viewModel the chatGroups to create
      * @return the ResponseEntity with status 200 (Created) and with body the new chatGroups, or with status 400 (Bad Request) if the chatGroups has already an ID
-     * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/chatgroups/create")
     @Timed
@@ -146,20 +138,20 @@ public class ChatGroupsResource {
             if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
                 if (viewModel.getOwnerUsername().isEmpty() || viewModel.getGroupName().isEmpty() || viewModel.getGroupType() == null) {
                     responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                    responseEntity.setMessage("chatgroups_createnew_invalid");
+                    responseEntity.setMessage("chatgroups_create_invalid");
                     responseEntity.setException("The fields OwnerUsername, GroupName, GroupType are not allowed NULL!");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_createnew_invalid", "The fields OwnerUsername, GroupName, GroupType are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_create_invalid", "The fields OwnerUsername, GroupName, GroupType are not allowed NULL!");
                 } else {
                     ChatGroupsEntity dbResult = chatGroupsService.create(request, viewModel, responseEntity);
-                    if (dbResult != null && dbResult.getId() != null) {
+                    if (dbResult != null && dbResult.getGroupId() != null) {
                         responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
                         responseEntity.setData(dbResult);
-                        responseEntity.setMessage("chatgroups_successfull");
-                        httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, dbResult.getId());
+                        responseEntity.setMessage("chatgroups_create_successfull");
+                        httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, dbResult.getGroupId());
                     } else {
                         responseEntity.setError(ResponseErrorCode.CREATEFAIL.getValue());                 //Create fail
-                        responseEntity.setMessage("chatgroups_createnew_fail");
-                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_createnew_fail", "Create group fail, please try again!");
+                        responseEntity.setMessage("chatgroups_create_fail");
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_create_fail", "Create group fail, please try again!");
                     }
                 }
             }
@@ -198,28 +190,34 @@ public class ChatGroupsResource {
         HttpHeaders httpHeaders;
 
         try {
-            if(viewModel.getGroupId() == null || viewModel.getGroupName().isEmpty() || viewModel.getOwnerUsername() == null) {
-                responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                responseEntity.setMessage("chatgroups_update_invalid");
-                responseEntity.setException("The fields GroupId, GroupName, OwnerUsername are not allowed NULL!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_update_invalid", "The fields GroupId, GroupName, OwnerUsername are not allowed NULL!");
+            if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
+                if (viewModel.getGroupId() == null || viewModel.getGroupName().isEmpty() || viewModel.getOwnerUsername() == null) {
+                    responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
+                    responseEntity.setMessage("chatgroups_update_invalid");
+                    responseEntity.setException("The fields GroupId, GroupName, OwnerUsername are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_update_invalid", "The fields GroupId, GroupName, OwnerUsername are not allowed NULL!");
+                } else {
+                    ChatGroupsEntity dbResult = chatGroupsService.update(viewModel, responseEntity);
+                    if (dbResult != null && dbResult.getGroupId() != null) {
+                        responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
+                        responseEntity.setData(dbResult);
+                        responseEntity.setMessage("chatgroups_update_successfull");
+                        httpHeaders = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, dbResult.getGroupId());
+                    } else if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
+                        responseEntity.setError(ResponseErrorCode.UPDATEFAIL.getValue());                 //Update fail
+                        responseEntity.setMessage("chatgroups_update_fail");
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_update_fail", "Update groupmembers fail, please try again!");
+                    } else {
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
+                    }
+                }
             }
-            else {
-                ChatGroupsEntity dbResult = chatGroupsService.update(viewModel, responseEntity);
-                if (dbResult != null && dbResult.getId() != null) {
-                    responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
-                    responseEntity.setData(dbResult);
-                    responseEntity.setMessage("chatgroups_update_successfull");
-                    httpHeaders = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, dbResult.getId());
-                } else if(responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
-                    responseEntity.setError(ResponseErrorCode.UPDATEFAIL.getValue());                 //Update fail
-                    responseEntity.setMessage("chatgroups_update_fail");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_update_fail", "Update groupmembers fail, please try again!");
-                }
-                else
-                {
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
-                }
+            else
+            {
+                responseEntity.setError(ResponseErrorCode.DENIED.getValue());
+                responseEntity.setMessage("chatgroups_denied");
+                responseEntity.setException("You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
@@ -235,7 +233,7 @@ public class ChatGroupsResource {
     }
 
     /**
-     * POST  /groupmembers/delete : update info for chatGroups item.
+     * POST  /chatgroups/delete : delete chatGroups item.
      *
      * @param viewModel the chatGroups of the chatGroups to delete
      * @return the Id of group with status 200 (OK)
@@ -243,42 +241,47 @@ public class ChatGroupsResource {
     @PostMapping("/chatgroups/delete")
     @Timed
     public ResponseEntity<IsoResponseEntity> deleteGroupMembers(@RequestBody DeleteGroupVM viewModel) {
-        log.debug("REST request to delete GroupMembers by member: {}", viewModel);
+        log.debug("REST request to delete ChatGroups by member: {}", viewModel);
 
         IsoResponseEntity responseEntity = new IsoResponseEntity();
         HttpHeaders httpHeaders;
 
         try {
-            Boolean blDelete = chatGroupsService.delete(viewModel, responseEntity);
-            if(blDelete) {
-                responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
-                responseEntity.setData(viewModel.getGroupId());
-                responseEntity.setMessage("groupmembers_successfull");
+            if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
+                Boolean blDelete = chatGroupsService.delete(viewModel, responseEntity);
+                if (blDelete) {
+                    responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
+                    responseEntity.setData(true);
+                    responseEntity.setMessage("chatgroups_delete_successfull");
 
-                httpHeaders = HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, viewModel.getGroupId());
+                    httpHeaders = HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, viewModel.getGroupId());
+                } else {
+                    if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
+                        responseEntity.setError(ResponseErrorCode.DELETEFAIL.getValue());                         //UpdateFailt
+                        responseEntity.setData(viewModel.getGroupId());
+                        responseEntity.setMessage("chatgroups_delete_fail");
+
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_delete_fail", "Delete chatgroups failed!");
+                    } else {
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
+                    }
+                }
             }
             else
             {
-                if(responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue())
-                {
-                    responseEntity.setError(ResponseErrorCode.UPDATEFAIL.getValue());                         //UpdateFailt
-                    responseEntity.setData(viewModel.getGroupId());
-                    responseEntity.setMessage("groupmembers_delete_fail");
-
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_delete_fail", "Delete groupmembers failed!");
-                }
-                else   {
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
-                }
+                responseEntity.setError(ResponseErrorCode.DENIED.getValue());
+                responseEntity.setMessage("chatgroups_denied");
+                responseEntity.setException("You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("groupmembers_system_error");
+            responseEntity.setMessage("chatgroups_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -289,39 +292,44 @@ public class ChatGroupsResource {
      *
      * @param viewModel the info to create
      * @return the ResponseEntity with status 200 (OK) and with body the new chatGroups, or with status 400 (Bad Request) if the chatGroups has already an ID
-     * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/chatgroups/appendmembers")
     @Timed
-    public ResponseEntity<IsoResponseEntity> appendMembersToGroup(@RequestBody ActionGroupVM viewModel) {
-        log.debug("REST request to appendmembers into GroupMembers: {}", viewModel);
+    public ResponseEntity<IsoResponseEntity> appendMembersToGroup(HttpServletRequest request, HttpServletResponse response, @RequestBody ActionGroupVM viewModel) {
+        log.debug("REST request to appendmembers into ChatGroups: {}", viewModel);
 
-        IsoResponseEntity responseEntity = new IsoResponseEntity();
+        IsoResponseEntity<List<extGroupMemberEntity>> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
 
         try {
-            if(viewModel.getGroupId() == null || viewModel.getListMembers() == null || viewModel.getListMembers().size() <= 0) {
-                responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                responseEntity.setMessage("groupmembers_appendmembers_invalid");
-                responseEntity.setException("The fields GroupId, Listmembers are not allowed NULL!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_appendmembers_invalid", "The fields GroupId, Listmembers are not allowed NULL!");
+            if(BusinessUtil.checkAuthenticationValid(viewModel.getActionUsername())) {
+                if (viewModel.getGroupId() == null || viewModel.getListMembers() == null || viewModel.getListMembers().size() <= 0) {
+                    responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
+                    responseEntity.setMessage("chatgroups_appendmembers_invalid");
+                    responseEntity.setException("The fields GroupId, Listmembers are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_appendmembers_invalid", "The fields GroupId, Listmembers are not allowed NULL!");
+                } else {
+                    List<extGroupMemberEntity> dbResults = chatGroupsService.appendMembers(request, viewModel, responseEntity);
+                    if (dbResults != null && dbResults.size() > 0) {
+                        responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
+                        responseEntity.setData(dbResults);
+                        responseEntity.setMessage("chatgroups_appendmembers_successfull");
+                        httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(dbResults.size()));
+                    } else if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
+                        responseEntity.setError(ResponseErrorCode.APPENDMEMBERFAIL.getValue());                 //Append fail
+                        responseEntity.setMessage("chatgroups_appendmembers_fail");
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_appendmembers_fail", "Append members to this group fail, please try again!");
+                    } else {
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
+                    }
+                }
             }
-            else {
-                List<extGroupMemberEntity> dbResults = chatGroupsService.appendMembers(viewModel, responseEntity);
-                if (dbResults != null && dbResults.size() > 0) {
-                    responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
-                    responseEntity.setData(dbResults);
-                    responseEntity.setMessage("groupmembers_successfull");
-                    httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(dbResults.size()));
-                } else if(responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()){
-                    responseEntity.setError(ResponseErrorCode.APPENDMEMBER.getValue());                 //Append fail
-                    responseEntity.setMessage("groupmembers_appendmembers_fail");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_appendmembers_fail", "Append members to this group fail, please try again!");
-                }
-                else
-                {
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
-                }
+            else
+            {
+                responseEntity.setError(ResponseErrorCode.DENIED.getValue());
+                responseEntity.setMessage("chatgroups_denied");
+                responseEntity.setException("You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
@@ -341,48 +349,53 @@ public class ChatGroupsResource {
      *
      * @param viewModel the info to create
      * @return the ResponseEntity with status 200 (OK) and with body the new chatGroups, or with status 400 (Bad Request) if the chatGroups has already an ID
-     * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/chatgroups/removemembers")
     @Timed
     public ResponseEntity<IsoResponseEntity> removeMembersInGroup(@RequestBody ActionGroupVM viewModel) {
-        log.debug("REST request to removemembers in GroupMembers: {}", viewModel);
+        log.debug("REST request to removemembers in ChatGroups: {}", viewModel);
 
-        IsoResponseEntity responseEntity = new IsoResponseEntity();
+        IsoResponseEntity<List<extGroupMemberEntity>> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
 
         try {
-            if(viewModel.getGroupId() == null || viewModel.getOwnerId() == null || viewModel.getListMembers().size() <= 0) {
-                responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                responseEntity.setMessage("groupmembers_removemembers_invalid");
-                responseEntity.setException("The fields GroupId, OwnerId, ListMembers are not allowed NULL!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_removemembers_invalid", "The fields GroupId, OwnerId, ListMembers are not allowed NULL!");
+            if(BusinessUtil.checkAuthenticationValid(viewModel.getActionUsername())) {
+                if (viewModel.getGroupId() == null || viewModel.getActionUsername() == null || viewModel.getListMembers().size() <= 0) {
+                    responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
+                    responseEntity.setMessage("chatgroups_removemembers_invalid");
+                    responseEntity.setException("The fields GroupId, ActionUsername, ListMembers are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_removemembers_invalid", "The fields GroupId, ActionUsername, ListMembers are not allowed NULL!");
+                } else {
+                    List<extGroupMemberEntity> dbResults = chatGroupsService.removeMembers(viewModel, responseEntity);
+                    if (dbResults != null && dbResults.size() > 0) {
+                        responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
+                        responseEntity.setData(dbResults);
+                        responseEntity.setMessage("chatgroups_removemembers_successfull");
+                        httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(dbResults.size()));
+                    } else if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
+                        responseEntity.setError(ResponseErrorCode.REMOVEMEMBERFAIL.getValue());                 //Append fail
+                        responseEntity.setMessage("chatgroups_removemembers_fail");
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_removemembers_fail", "Remove members to this group fail, please try again!");
+                    } else {
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
+                    }
+                }
             }
-            else {
-                List<extGroupMemberEntity> dbResults = chatGroupsService.removeMembers(viewModel, responseEntity);
-                if (dbResults != null && dbResults.size() > 0) {
-                    responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
-                    responseEntity.setData(dbResults);
-                    responseEntity.setMessage("groupmembers_successfull");
-                    httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(dbResults.size()));
-                } else if(responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()){
-                    responseEntity.setError(ResponseErrorCode.APPENDMEMBER.getValue());                 //Append fail
-                    responseEntity.setMessage("groupmembers_removemembers_fail");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_removemembers_fail", "Remove members to this group fail, please try again!");
-                }
-                else
-                {
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
-                }
+            else
+            {
+                responseEntity.setError(ResponseErrorCode.DENIED.getValue());
+                responseEntity.setMessage("chatgroups_denied");
+                responseEntity.setException("You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("groupmembers_system_error");
+            responseEntity.setMessage("chatgroups_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "appendmembers_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -393,48 +406,53 @@ public class ChatGroupsResource {
      *
      * @param viewModel the info to leave
      * @return the ResponseEntity with status 200 (OK) and with body the new chatGroups, or with status 400 (Bad Request) if the chatGroups has already an ID
-     * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PostMapping("/chatgroups/memberLeave")
+    @PostMapping("/chatgroups/memberleave")
     @Timed
     public ResponseEntity<IsoResponseEntity> memberLeaveGroup(@RequestBody MembersLeaveGroupVM viewModel) {
-        log.debug("REST request to memberLeave on GroupMembers: {}", viewModel);
+        log.debug("REST request to memberLeave on ChatGroups: {}", viewModel);
 
         IsoResponseEntity responseEntity = new IsoResponseEntity();
         HttpHeaders httpHeaders;
 
         try {
-            if(viewModel.getGroupId() == null || viewModel.getMemberId() == null) {
-                responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                responseEntity.setMessage("groupmembers_memberLeave_invalid");
-                responseEntity.setException("The fields GroupId, MemberId are not allowed NULL!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_memberLeave_invalid", "The fields GroupId, MemberId are not allowed NULL!");
+            if(BusinessUtil.checkAuthenticationValid(viewModel.getActionUsername())) {
+                if (viewModel.getGroupId() == null || viewModel.getActionUsername() == null) {
+                    responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
+                    responseEntity.setMessage("chatgroups_memberLeave_invalid");
+                    responseEntity.setException("The fields GroupId, ActionUsername are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_memberLeave_invalid", "The fields GroupId, ActionUsername are not allowed NULL!");
+                } else {
+                    boolean dbResult = chatGroupsService.memberLeave(viewModel, responseEntity);
+                    if (dbResult) {
+                        responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
+                        responseEntity.setData(dbResult);
+                        responseEntity.setMessage("chatgroups_memberLeave_successfull");
+                        httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(dbResult));
+                    } else if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
+                        responseEntity.setError(ResponseErrorCode.MEMBERLEAVEFAIL.getValue());                 //Leave fail
+                        responseEntity.setMessage("chatgroups_memberLeave_fail");
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_memberLeave_fail", "Members leave this group fail, please try again!");
+                    } else {
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
+                    }
+                }
             }
-            else {
-                boolean dbResult = chatGroupsService.memberLeave(viewModel, responseEntity);
-                if (dbResult) {
-                    responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
-                    responseEntity.setData(dbResult);
-                    responseEntity.setMessage("groupmembers_successfull");
-                    httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(dbResult));
-                } else if(responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()){
-                    responseEntity.setError(ResponseErrorCode.APPENDMEMBER.getValue());                 //Leave fail
-                    responseEntity.setMessage("groupmembers_memberLeave_fail");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_memberLeave_fail", "Members leave this group fail, please try again!");
-                }
-                else
-                {
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
-                }
+            else
+            {
+                responseEntity.setError(ResponseErrorCode.DENIED.getValue());
+                responseEntity.setMessage("chatgroups_denied");
+                responseEntity.setException("You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("groupmembers_system_error");
+            responseEntity.setMessage("chatgroups_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "appendmembers_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -449,9 +467,9 @@ public class ChatGroupsResource {
     @GetMapping("/chatgroups/getinfo/{groupId}")
     @Timed
     public ResponseEntity<IsoResponseEntity> getGroupMembersInfo(@PathVariable String groupId) {
-        log.debug("REST request to get GroupMembers : {}", groupId);
+        log.debug("REST request to get ChatGroups : {}", groupId);
 
-        IsoResponseEntity responseEntity = new IsoResponseEntity();
+        IsoResponseEntity<ChatGroupsEntity> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
 
         try {
@@ -460,26 +478,135 @@ public class ChatGroupsResource {
 
                 responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                 responseEntity.setData(dbResults);
-                responseEntity.setMessage("groupmembers_successfull");
+                responseEntity.setMessage("chatgroups_getinfo_successfull");
 
-                String urlRequest = String.format("/groupmembers/getInfo/%s", groupId);
+                String urlRequest = String.format("/chatgroups/getInfo/%s", groupId);
                 httpHeaders = HeaderUtil.createAlert(ENTITY_NAME, urlRequest);
             }
             else
             {
                 responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                responseEntity.setMessage("invalid_data");
+                responseEntity.setMessage("chatgroups_getinfo_invalid");
                 responseEntity.setException("The fields GroupId are not allowed NULL!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_invalid_data", "The fields GroupId are not allowed NULL!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_getinfo_invalid", "The fields GroupId are not allowed NULL!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("groupmembers_system_error");
+            responseEntity.setMessage("chatgroups_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "groupmembers_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_system_error", ex.getMessage());
+        }
+
+        return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
+    }
+
+    /**
+     * Đồng ý tham gia vào nhóm chat
+     *
+     * @param viewModel: json chứa thông tin gửi lên
+     * @return danh sách nhóm sau khi thực hiện
+     */
+    @PostMapping("/chatgroups/acceptjoingroup")
+    @Timed
+    public ResponseEntity<IsoResponseEntity> acceptJoinChatGroups(HttpServletRequest request, HttpServletResponse response, @RequestBody MembersLeaveGroupVM viewModel) throws URISyntaxException {
+        log.debug("REST request to accept join in chatgroups : {}", viewModel);
+
+        IsoResponseEntity<List<extContactGroupEntity>> responseEntity = new IsoResponseEntity<>();
+        HttpHeaders httpHeaders;
+
+        try {
+            if(BusinessUtil.checkAuthenticationValid(viewModel.getActionUsername())) {
+                if (viewModel.getGroupId() == null || viewModel.getActionUsername() == null) {
+                    responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
+                    responseEntity.setMessage("chatgroups_acceptjoingroup_invalid");
+                    responseEntity.setException("The fields GroupId, ActionUsername are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_invalid_data", "The fields GroupId, ActionUsername are not allowed NULL!");
+                } else {
+                    List<extContactGroupEntity> dbResults = chatGroupsService.acceptJoinChatGroups(request, viewModel, responseEntity);
+                    int memberCount = dbResults.size();
+                    httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));
+                    if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
+                        responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
+                        responseEntity.setData(dbResults);
+                        responseEntity.setMessage("chatgroups_acceptjoingroup_successfull");
+                    }
+                }
+            }
+            else
+            {
+                responseEntity.setError(ResponseErrorCode.DENIED.getValue());
+                responseEntity.setMessage("chatgroups_denied");
+                responseEntity.setException("You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_denied", "You are not authorized to perform this action!");
+            }
+        }
+        catch (Exception ex)
+        {
+            responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
+            responseEntity.setMessage("chatgroups_system_error");
+            responseEntity.setException(ex.getMessage());
+
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_system_error", ex.getMessage());
+        }
+
+        return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
+    }
+
+    /**
+     * Đồng ý tham gia vào nhóm chat
+     *
+     * @param viewModel: json chứa thông tin gửi lên
+     * @return danh sách nhóm sau khi thực hiện
+     */
+    @PostMapping("/chatgroups/deniedjoingroup")
+    @Timed
+    public ResponseEntity<IsoResponseEntity> deniedJoinChatGroups(HttpServletRequest request, HttpServletResponse response, @RequestBody MembersLeaveGroupVM viewModel) throws URISyntaxException {
+        log.debug("REST request to denied join in chatgroups : {}", viewModel);
+
+        IsoResponseEntity responseEntity = new IsoResponseEntity();
+        HttpHeaders httpHeaders;
+
+        try {
+            if(BusinessUtil.checkAuthenticationValid(viewModel.getActionUsername())) {
+                if (viewModel.getGroupId() == null || viewModel.getActionUsername() == null) {
+                    responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
+                    responseEntity.setMessage("chatgroups_deniedjoingroup_invalid");
+                    responseEntity.setException("The fields GroupId, ActionUsername are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_invalid_data", "The fields GroupId, ActionUsername are not allowed NULL!");
+                } else {
+                    boolean dbResult = chatGroupsService.memberLeave(viewModel, responseEntity);
+                    if (dbResult) {
+                        responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());                 //Success
+                        responseEntity.setData(dbResult);
+                        responseEntity.setMessage("chatgroups_deniedjoingroup_successfull");
+                        httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(dbResult));
+                    } else if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
+                        responseEntity.setError(ResponseErrorCode.MEMBERLEAVEFAIL.getValue());                 //Leave fail
+                        responseEntity.setMessage("chatgroups_deniedjoingroup_fail");
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_deniedjoingroup_fail", "Members leave this group fail, please try again!");
+                    } else {
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
+                    }
+                }
+            }
+            else
+            {
+                responseEntity.setError(ResponseErrorCode.DENIED.getValue());
+                responseEntity.setMessage("chatgroups_denied");
+                responseEntity.setException("You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_denied", "You are not authorized to perform this action!");
+            }
+        }
+        catch (Exception ex)
+        {
+            responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
+            responseEntity.setMessage("chatgroups_system_error");
+            responseEntity.setException(ex.getMessage());
+
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);

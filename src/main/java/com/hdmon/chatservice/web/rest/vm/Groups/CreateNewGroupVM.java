@@ -2,9 +2,6 @@ package com.hdmon.chatservice.web.rest.vm.Groups;
 
 import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by UserName on 6/9/2018.
  */
@@ -43,6 +40,7 @@ public class CreateNewGroupVM {
 
     public CreateNewGroupVM() {
         // Empty public constructor used by Jackson.
+        super();
     }
 
     public String getOwnerUsername() {

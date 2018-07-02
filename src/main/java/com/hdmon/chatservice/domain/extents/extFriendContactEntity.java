@@ -1,7 +1,6 @@
 package com.hdmon.chatservice.domain.extents;
 
 import com.hdmon.chatservice.domain.enumeration.FriendStatusEnum;
-import com.hdmon.chatservice.domain.enumeration.HasAppEnum;
 
 import java.io.Serializable;
 import java.util.Date;

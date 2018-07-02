@@ -1,9 +1,8 @@
-package com.hdmon.chatservice.web.rest.vm;
+package com.hdmon.chatservice.web.rest.vm.Messages;
 
 import com.hdmon.chatservice.domain.enumeration.ChatMessageTypeEnum;
 import com.hdmon.chatservice.domain.enumeration.ReceiverTypeEnum;
 import com.hdmon.chatservice.domain.extents.extMessageReceiverEntity;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 

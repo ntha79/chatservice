@@ -18,7 +18,7 @@ import java.util.List;
 public interface ContactsRepository extends MongoRepository<ContactsEntity, String> {
     ContactsEntity findOneByOwnerUsername(String ownerUsername);
 
-    ContactsEntity findOneByOwnerId(Long ownerUserid);
+    ContactsEntity findOneByOwnerUserid(Long ownerUserid);
 
     @Query(value="{'ownerUsername': {'$eq': ?0}, 'friendLists.username': {'$in': ?1}}")
     List<ContactsEntity> findAllByFriendUserNameAndOrderByFriendUserNameAsc(String ownerUsername, String friendUsername, Sort sort);

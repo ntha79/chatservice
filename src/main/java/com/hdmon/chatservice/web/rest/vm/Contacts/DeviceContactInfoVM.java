@@ -17,6 +17,15 @@ public class DeviceContactInfoVM {
         super();
     }
 
+    public DeviceContactInfoVM(DeviceContactInfoVM deviceContactInfoVM)
+    {
+        this.fullname = deviceContactInfoVM.getFullname();
+        this.mobile = deviceContactInfoVM.getMobile();
+        this.email = deviceContactInfoVM.getEmail();
+        this.company = deviceContactInfoVM.getCompany();
+        this.imageUrl = deviceContactInfoVM.getImageUrl();
+    }
+
     public DeviceContactInfoVM(String fullname, String mobile, String email, String company, String imageUrl)
     {
         this.fullname = fullname;

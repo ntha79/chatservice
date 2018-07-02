@@ -14,9 +14,11 @@ import java.util.List;
 @SuppressWarnings("unused")
 @Repository
 public interface ChatMessagesRepository extends MongoRepository<ChatMessagesEntity, String> {
-    @Query(value="{'reportDay': {'$gt': ?0},'receiverLists.receiverId': ?1}")
-    List<ChatMessagesEntity> findAllByReportDayAndReceiverId(int reportDay, Long receiverId, Sort sort);
+    List<ChatMessagesEntity> findAllByMessageId(String messageId);
 
-    @Query(value="{'receiverLists.receiverId': ?0}")
-    List<ChatMessagesEntity> findAllByReceiverIdAndOrderByLastModifiedDesc(Long receiverId, Sort sort);
+    @Query(value="{'createdTime': {'$gt': ?0},'toUserId': ?1}")
+    List<ChatMessagesEntity> findAllByCreatedTimeAfterAndToUserIdAndOrderByLastModified(Long createdTime, Long receiverId, Sort sort);
+
+    @Query(value="{'toUserId': ?0}")
+    List<ChatMessagesEntity> findAllByToUserIdAndOrderByLastModified(Long receiverId, Sort sort);
 }

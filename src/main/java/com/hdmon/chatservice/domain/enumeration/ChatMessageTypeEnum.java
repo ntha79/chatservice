@@ -4,5 +4,5 @@ package com.hdmon.chatservice.domain.enumeration;
  * The ChatMessageType enumeration.
  */
 public enum ChatMessageTypeEnum {
-    TEXT, FILE, QRCODE
+    TEXT, FILE, QRCODE, EDIT
 }

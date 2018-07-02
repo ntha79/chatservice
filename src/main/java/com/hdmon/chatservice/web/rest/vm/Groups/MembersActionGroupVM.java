@@ -4,28 +4,38 @@ package com.hdmon.chatservice.web.rest.vm.Groups;
  * Created by UserName on 6/7/2018.
  */
 public class MembersActionGroupVM {
-    private Long memberId;
+    private String memberUsername;
 
     public MembersActionGroupVM(MembersActionGroupVM membersVM) {
-        this.memberId = membersVM.getMemberId();
+        this.memberUsername = membersVM.getMemberUsername();
+    }
+
+    public MembersActionGroupVM(String memberUsername) {
+        this.memberUsername = memberUsername;
     }
 
     public MembersActionGroupVM() {
         // Empty public constructor used by Jackson.
+        super();
     }
 
-    public Long getMemberId() {
-        return memberId;
+    public String getMemberUsername() {
+        return memberUsername;
     }
 
-    public void setMemberId(Long memberId) {
-        this.memberId = memberId;
+    public MembersActionGroupVM memberUsername(String memberUsername) {
+        this.memberUsername = memberUsername;
+        return this;
+    }
+
+    public void setMemberUsername(String memberUsername) {
+        this.memberUsername = memberUsername;
     }
 
     @Override
     public String toString() {
         return "MembersActionGroupVM{" +
-            "MemberId='" + getMemberId() + '\'' +
+            "MemberUsername='" + getMemberUsername() + '\'' +
             '}';
     }
 }

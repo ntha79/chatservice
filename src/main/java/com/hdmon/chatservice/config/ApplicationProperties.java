@@ -1,6 +1,7 @@
 package com.hdmon.chatservice.config;
 
 import io.github.jhipster.config.JHipsterProperties;
+import io.swagger.models.auth.In;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -43,6 +44,7 @@ public class ApplicationProperties {
     public static class ChatService {
         private Integer chatgroupMaxMember = 5000;
         private Integer chatgroupSecretMaxMember = 5;
+        private Integer chatmessageMaxSecondToAction = 300;
 
         public ChatService() {
         }
@@ -61,6 +63,14 @@ public class ApplicationProperties {
 
         public void setChatgroupSecretMaxMember(Integer chatgroupSecretMaxMember) {
             this.chatgroupSecretMaxMember = chatgroupSecretMaxMember;
+        }
+
+        public Integer getChatmessageMaxSecondToAction() {
+            return chatmessageMaxSecondToAction;
+        }
+
+        public void setChatmessageMaxSecondToAction(Integer chatmessageMaxSecondToAction) {
+            this.chatmessageMaxSecondToAction = chatmessageMaxSecondToAction;
         }
     }
 }

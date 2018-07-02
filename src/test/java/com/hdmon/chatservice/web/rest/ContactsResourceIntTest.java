@@ -154,7 +154,7 @@ public class ContactsResourceIntTest {
         int databaseSizeBeforeCreate = contactsRepository.findAll().size();
 
         // Create the Friends with an existing ID
-        contacts.setId("existing_id");
+        contacts.setOwnerUsername("existing_id");
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restContactsMockMvc.perform(post("/api/friends")
@@ -176,7 +176,7 @@ public class ContactsResourceIntTest {
         restContactsMockMvc.perform(get("/api/friends?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(contacts.getId())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(contacts.getOwnerUsername())))
             .andExpect(jsonPath("$.[*].ownerUsername").value(hasItem(DEFAULT_OWNER_USERNAME)))
             .andExpect(jsonPath("$.[*].friendLists").value(hasItem(DEFAULT_FRIEND_LISTS.toString())))
             .andExpect(jsonPath("$.[*].friendCount").value(hasItem(DEFAULT_FRIEND_COUNT)))
@@ -195,10 +195,10 @@ public class ContactsResourceIntTest {
         contactsRepository.save(contacts);
 
         // Get the contacts
-        restContactsMockMvc.perform(get("/api/friends/{id}", contacts.getId()))
+        restContactsMockMvc.perform(get("/api/friends/{id}", contacts.getOwnerUsername()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(contacts.getId()))
+            .andExpect(jsonPath("$.id").value(contacts.getOwnerUsername()))
             .andExpect(jsonPath("$.seqId").value(DEFAULT_SEQ_ID.toString()))
             .andExpect(jsonPath("$.ownerUsername").value(DEFAULT_OWNER_USERNAME))
             .andExpect(jsonPath("$.ownerLogin").value(DEFAULT_OWNER_LOGIN.toString()))
@@ -227,7 +227,7 @@ public class ContactsResourceIntTest {
         int databaseSizeBeforeUpdate = contactsRepository.findAll().size();
 
         // Update the contacts
-        ContactsEntity updatedContacts = contactsRepository.findOne(contacts.getId());
+        ContactsEntity updatedContacts = contactsRepository.findOne(contacts.getOwnerUsername());
         updatedContacts
             .ownerUsername(UPDATED_OWNER_USERNAME)
             .friendLists(UPDATED_FRIEND_LISTS)
@@ -275,7 +275,7 @@ public class ContactsResourceIntTest {
         int databaseSizeBeforeDelete = contactsRepository.findAll().size();
 
         // Get the contacts
-        restContactsMockMvc.perform(delete("/api/friends/{id}", contacts.getId())
+        restContactsMockMvc.perform(delete("/api/friends/{id}", contacts.getOwnerUsername())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
@@ -288,13 +288,13 @@ public class ContactsResourceIntTest {
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(ContactsEntity.class);
         ContactsEntity contacts1 = new ContactsEntity();
-        contacts1.setId("id1");
+        contacts1.setOwnerUsername("id1");
         ContactsEntity contacts2 = new ContactsEntity();
-        contacts2.setId(contacts1.getId());
+        contacts2.setOwnerUsername(contacts1.getOwnerUsername());
         assertThat(contacts1).isEqualTo(contacts2);
-        contacts2.setId("id2");
+        contacts2.setOwnerUsername("id2");
         assertThat(contacts1).isNotEqualTo(contacts2);
-        contacts1.setId(null);
+        contacts1.setOwnerUsername(null);
         assertThat(contacts1).isNotEqualTo(contacts2);
     }
 }

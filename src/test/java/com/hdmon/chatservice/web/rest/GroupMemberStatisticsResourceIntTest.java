@@ -2,9 +2,9 @@ package com.hdmon.chatservice.web.rest;
 
 import com.hdmon.chatservice.ChatserviceApp;
 import com.hdmon.chatservice.config.SecurityBeanOverrideConfiguration;
-import com.hdmon.chatservice.domain.GroupMemberStatisticsEntity;
+import com.hdmon.chatservice.domain.ChatGroupStatisticsEntity;
 import com.hdmon.chatservice.domain.enumeration.CheckStatusEnum;
-import com.hdmon.chatservice.repository.GroupMemberStatisticsRepository;
+import com.hdmon.chatservice.repository.ChatGroupStatisticsRepository;
 import com.hdmon.chatservice.web.rest.errors.ExceptionTranslator;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,9 +28,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Test class for the GroupMemberStatisticsResource REST controller.
+ * Test class for the ChatGroupStatisticsResource REST controller.
  *
- * @see GroupMemberStatisticsResource
+ * @see ChatGroupStatisticsResource
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {ChatserviceApp.class, SecurityBeanOverrideConfiguration.class})
@@ -61,7 +61,7 @@ public class GroupMemberStatisticsResourceIntTest {
     private static final CheckStatusEnum UPDATED_STATUS = CheckStatusEnum.CHECKED;
 
     @Autowired
-    private GroupMemberStatisticsRepository groupMemberStatisticsRepository;
+    private ChatGroupStatisticsRepository chatGroupStatisticsRepository;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -74,13 +74,13 @@ public class GroupMemberStatisticsResourceIntTest {
 
     private MockMvc restGroupMemberStatisticsMockMvc;
 
-    private GroupMemberStatisticsEntity groupMemberStatistics;
+    private ChatGroupStatisticsEntity chatGroupStatistics;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final GroupMemberStatisticsResource groupMemberStatisticsResource = new GroupMemberStatisticsResource(groupMemberStatisticsRepository);
-        this.restGroupMemberStatisticsMockMvc = MockMvcBuilders.standaloneSetup(groupMemberStatisticsResource)
+        final ChatGroupStatisticsResource chatGroupStatisticsResource = new ChatGroupStatisticsResource(chatGroupStatisticsRepository);
+        this.restGroupMemberStatisticsMockMvc = MockMvcBuilders.standaloneSetup(chatGroupStatisticsResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setConversionService(createFormattingConversionService())
@@ -93,9 +93,8 @@ public class GroupMemberStatisticsResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static GroupMemberStatisticsEntity createEntity() {
-        GroupMemberStatisticsEntity groupMemberStatistics = new GroupMemberStatisticsEntity()
-            .seqId(DEFAULT_SEQ_ID)
+    public static ChatGroupStatisticsEntity createEntity() {
+        ChatGroupStatisticsEntity chatGroupStatistics = new ChatGroupStatisticsEntity()
             .dayCount(DEFAULT_DAY_COUNT)
             .monthCount(DEFAULT_MONTH_COUNT)
             .yearCount(DEFAULT_YEAR_COUNT)
@@ -103,30 +102,30 @@ public class GroupMemberStatisticsResourceIntTest {
             .inMonth(DEFAULT_IN_MONTH)
             .inYear(DEFAULT_IN_YEAR)
             .status(DEFAULT_STATUS);
-        return groupMemberStatistics;
+        return chatGroupStatistics;
     }
 
     @Before
     public void initTest() {
-        groupMemberStatisticsRepository.deleteAll();
-        groupMemberStatistics = createEntity();
+        chatGroupStatisticsRepository.deleteAll();
+        chatGroupStatistics = createEntity();
     }
 
     @Test
     public void createGroupMemberStatistics() throws Exception {
-        int databaseSizeBeforeCreate = groupMemberStatisticsRepository.findAll().size();
+        int databaseSizeBeforeCreate = chatGroupStatisticsRepository.findAll().size();
 
-        // Create the GroupMemberStatistics
-        restGroupMemberStatisticsMockMvc.perform(post("/api/group-member-statistics")
+        // Create the ChatGroupStatistics
+        restGroupMemberStatisticsMockMvc.perform(post("/api/chatgroupstatistics")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(groupMemberStatistics)))
+            .content(TestUtil.convertObjectToJsonBytes(chatGroupStatistics)))
             .andExpect(status().isCreated());
 
-        // Validate the GroupMemberStatistics in the database
-        List<GroupMemberStatisticsEntity> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
+        // Validate the ChatGroupStatistics in the database
+        List<ChatGroupStatisticsEntity> groupMemberStatisticsList = chatGroupStatisticsRepository.findAll();
         assertThat(groupMemberStatisticsList).hasSize(databaseSizeBeforeCreate + 1);
-        GroupMemberStatisticsEntity testGroupMemberStatistics = groupMemberStatisticsList.get(groupMemberStatisticsList.size() - 1);
-        assertThat(testGroupMemberStatistics.getSeqId()).isEqualTo(DEFAULT_SEQ_ID);
+        ChatGroupStatisticsEntity testGroupMemberStatistics = groupMemberStatisticsList.get(groupMemberStatisticsList.size() - 1);
+        //assertThat(testGroupMemberStatistics.getSeqId()).isEqualTo(DEFAULT_SEQ_ID);
         assertThat(testGroupMemberStatistics.getDayCount()).isEqualTo(DEFAULT_DAY_COUNT);
         assertThat(testGroupMemberStatistics.getMonthCount()).isEqualTo(DEFAULT_MONTH_COUNT);
         assertThat(testGroupMemberStatistics.getYearCount()).isEqualTo(DEFAULT_YEAR_COUNT);
@@ -138,32 +137,32 @@ public class GroupMemberStatisticsResourceIntTest {
 
     @Test
     public void createGroupMemberStatisticsWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = groupMemberStatisticsRepository.findAll().size();
+        int databaseSizeBeforeCreate = chatGroupStatisticsRepository.findAll().size();
 
-        // Create the GroupMemberStatistics with an existing ID
-        groupMemberStatistics.setId("existing_id");
+        // Create the ChatGroupStatistics with an existing ID
+        chatGroupStatistics.setSeqId("existing_id");
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restGroupMemberStatisticsMockMvc.perform(post("/api/group-member-statistics")
+        restGroupMemberStatisticsMockMvc.perform(post("/api/chatgroupstatistics")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(groupMemberStatistics)))
+            .content(TestUtil.convertObjectToJsonBytes(chatGroupStatistics)))
             .andExpect(status().isBadRequest());
 
-        // Validate the GroupMemberStatistics in the database
-        List<GroupMemberStatisticsEntity> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
+        // Validate the ChatGroupStatistics in the database
+        List<ChatGroupStatisticsEntity> groupMemberStatisticsList = chatGroupStatisticsRepository.findAll();
         assertThat(groupMemberStatisticsList).hasSize(databaseSizeBeforeCreate);
     }
 
     @Test
     public void getAllGroupMemberStatistics() throws Exception {
         // Initialize the database
-        groupMemberStatisticsRepository.save(groupMemberStatistics);
+        chatGroupStatisticsRepository.save(chatGroupStatistics);
 
-        // Get all the groupMemberStatisticsList
-        restGroupMemberStatisticsMockMvc.perform(get("/api/group-member-statistics?sort=id,desc"))
+        // Get all the ChatGroupStatistics
+        restGroupMemberStatisticsMockMvc.perform(get("/api/chatgroupstatistics?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(groupMemberStatistics.getId())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(chatGroupStatistics.getSeqId())))
             .andExpect(jsonPath("$.[*].seqId").value(hasItem(DEFAULT_SEQ_ID.toString())))
             .andExpect(jsonPath("$.[*].dayCount").value(hasItem(DEFAULT_DAY_COUNT)))
             .andExpect(jsonPath("$.[*].monthCount").value(hasItem(DEFAULT_MONTH_COUNT)))
@@ -177,13 +176,13 @@ public class GroupMemberStatisticsResourceIntTest {
     @Test
     public void getGroupMemberStatistics() throws Exception {
         // Initialize the database
-        groupMemberStatisticsRepository.save(groupMemberStatistics);
+        chatGroupStatisticsRepository.save(chatGroupStatistics);
 
-        // Get the groupMemberStatistics
-        restGroupMemberStatisticsMockMvc.perform(get("/api/group-member-statistics/{id}", groupMemberStatistics.getId()))
+        // Get the ChatGroupStatistics
+        restGroupMemberStatisticsMockMvc.perform(get("/api/chatgroupstatistics/{id}", chatGroupStatistics.getSeqId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(groupMemberStatistics.getId()))
+            .andExpect(jsonPath("$.id").value(chatGroupStatistics.getSeqId()))
             .andExpect(jsonPath("$.seqId").value(DEFAULT_SEQ_ID.toString()))
             .andExpect(jsonPath("$.dayCount").value(DEFAULT_DAY_COUNT))
             .andExpect(jsonPath("$.monthCount").value(DEFAULT_MONTH_COUNT))
@@ -196,21 +195,21 @@ public class GroupMemberStatisticsResourceIntTest {
 
     @Test
     public void getNonExistingGroupMemberStatistics() throws Exception {
-        // Get the groupMemberStatistics
-        restGroupMemberStatisticsMockMvc.perform(get("/api/group-member-statistics/{id}", Long.MAX_VALUE))
+        // Get the ChatGroupStatistics
+        restGroupMemberStatisticsMockMvc.perform(get("/api/chatgroupstatistics/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
     }
 
     @Test
     public void updateGroupMemberStatistics() throws Exception {
         // Initialize the database
-        groupMemberStatisticsRepository.save(groupMemberStatistics);
-        int databaseSizeBeforeUpdate = groupMemberStatisticsRepository.findAll().size();
+        chatGroupStatisticsRepository.save(chatGroupStatistics);
+        int databaseSizeBeforeUpdate = chatGroupStatisticsRepository.findAll().size();
 
-        // Update the groupMemberStatistics
-        GroupMemberStatisticsEntity updatedGroupMemberStatistics = groupMemberStatisticsRepository.findOne(groupMemberStatistics.getId());
+        // Update the ChatGroupStatistics
+        ChatGroupStatisticsEntity updatedGroupMemberStatistics = chatGroupStatisticsRepository.findOne(chatGroupStatistics.getSeqId());
         updatedGroupMemberStatistics
-            .seqId(UPDATED_SEQ_ID)
+            //.seqId(UPDATED_SEQ_ID)
             .dayCount(UPDATED_DAY_COUNT)
             .monthCount(UPDATED_MONTH_COUNT)
             .yearCount(UPDATED_YEAR_COUNT)
@@ -219,16 +218,16 @@ public class GroupMemberStatisticsResourceIntTest {
             .inYear(UPDATED_IN_YEAR)
             .status(UPDATED_STATUS);
 
-        restGroupMemberStatisticsMockMvc.perform(put("/api/group-member-statistics")
+        restGroupMemberStatisticsMockMvc.perform(put("/api/chatgroupstatistics")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(updatedGroupMemberStatistics)))
             .andExpect(status().isOk());
 
-        // Validate the GroupMemberStatistics in the database
-        List<GroupMemberStatisticsEntity> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
+        // Validate the ChatGroupStatistics in the database
+        List<ChatGroupStatisticsEntity> groupMemberStatisticsList = chatGroupStatisticsRepository.findAll();
         assertThat(groupMemberStatisticsList).hasSize(databaseSizeBeforeUpdate);
-        GroupMemberStatisticsEntity testGroupMemberStatistics = groupMemberStatisticsList.get(groupMemberStatisticsList.size() - 1);
-        assertThat(testGroupMemberStatistics.getSeqId()).isEqualTo(UPDATED_SEQ_ID);
+        ChatGroupStatisticsEntity testGroupMemberStatistics = groupMemberStatisticsList.get(groupMemberStatisticsList.size() - 1);
+        //assertThat(testGroupMemberStatistics.getSeqId()).isEqualTo(UPDATED_SEQ_ID);
         assertThat(testGroupMemberStatistics.getDayCount()).isEqualTo(UPDATED_DAY_COUNT);
         assertThat(testGroupMemberStatistics.getMonthCount()).isEqualTo(UPDATED_MONTH_COUNT);
         assertThat(testGroupMemberStatistics.getYearCount()).isEqualTo(UPDATED_YEAR_COUNT);
@@ -240,48 +239,48 @@ public class GroupMemberStatisticsResourceIntTest {
 
     @Test
     public void updateNonExistingGroupMemberStatistics() throws Exception {
-        int databaseSizeBeforeUpdate = groupMemberStatisticsRepository.findAll().size();
+        int databaseSizeBeforeUpdate = chatGroupStatisticsRepository.findAll().size();
 
-        // Create the GroupMemberStatistics
+        // Create the ChatGroupStatistics
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restGroupMemberStatisticsMockMvc.perform(put("/api/group-member-statistics")
+        restGroupMemberStatisticsMockMvc.perform(put("/api/chatgroupstatistics")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(groupMemberStatistics)))
+            .content(TestUtil.convertObjectToJsonBytes(chatGroupStatistics)))
             .andExpect(status().isCreated());
 
-        // Validate the GroupMemberStatistics in the database
-        List<GroupMemberStatisticsEntity> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
+        // Validate the ChatGroupStatistics in the database
+        List<ChatGroupStatisticsEntity> groupMemberStatisticsList = chatGroupStatisticsRepository.findAll();
         assertThat(groupMemberStatisticsList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
     @Test
     public void deleteGroupMemberStatistics() throws Exception {
         // Initialize the database
-        groupMemberStatisticsRepository.save(groupMemberStatistics);
-        int databaseSizeBeforeDelete = groupMemberStatisticsRepository.findAll().size();
+        chatGroupStatisticsRepository.save(chatGroupStatistics);
+        int databaseSizeBeforeDelete = chatGroupStatisticsRepository.findAll().size();
 
-        // Get the groupMemberStatistics
-        restGroupMemberStatisticsMockMvc.perform(delete("/api/group-member-statistics/{id}", groupMemberStatistics.getId())
+        // Get the ChatGroupStatistics
+        restGroupMemberStatisticsMockMvc.perform(delete("/api/chatgroupstatistics/{id}", chatGroupStatistics.getSeqId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<GroupMemberStatisticsEntity> groupMemberStatisticsList = groupMemberStatisticsRepository.findAll();
+        List<ChatGroupStatisticsEntity> groupMemberStatisticsList = chatGroupStatisticsRepository.findAll();
         assertThat(groupMemberStatisticsList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(GroupMemberStatisticsEntity.class);
-        GroupMemberStatisticsEntity groupMemberStatistics1 = new GroupMemberStatisticsEntity();
-        groupMemberStatistics1.setId("id1");
-        GroupMemberStatisticsEntity groupMemberStatistics2 = new GroupMemberStatisticsEntity();
-        groupMemberStatistics2.setId(groupMemberStatistics1.getId());
-        assertThat(groupMemberStatistics1).isEqualTo(groupMemberStatistics2);
-        groupMemberStatistics2.setId("id2");
-        assertThat(groupMemberStatistics1).isNotEqualTo(groupMemberStatistics2);
-        groupMemberStatistics1.setId(null);
-        assertThat(groupMemberStatistics1).isNotEqualTo(groupMemberStatistics2);
+        TestUtil.equalsVerifier(ChatGroupStatisticsEntity.class);
+        ChatGroupStatisticsEntity chatGroupStatistics1 = new ChatGroupStatisticsEntity();
+        chatGroupStatistics1.setSeqId("id1");
+        ChatGroupStatisticsEntity chatGroupStatistics2 = new ChatGroupStatisticsEntity();
+        chatGroupStatistics2.setSeqId(chatGroupStatistics1.getSeqId());
+        assertThat(chatGroupStatistics1).isEqualTo(chatGroupStatistics2);
+        chatGroupStatistics2.setSeqId("id2");
+        assertThat(chatGroupStatistics1).isNotEqualTo(chatGroupStatistics2);
+        chatGroupStatistics1.setSeqId(null);
+        assertThat(chatGroupStatistics1).isNotEqualTo(chatGroupStatistics2);
     }
 }

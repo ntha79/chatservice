@@ -1,8 +1,5 @@
 package com.hdmon.chatservice.web.rest.vm.Groups;
 
-import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
-import com.hdmon.chatservice.web.rest.vm.GroupMembersVM;
-
 /**
  * Created by UserName on 6/9/2018.
  */
@@ -26,8 +23,19 @@ public class UpdateGroupVM {
         this.groupSumary = updateGroupVM.getGroupSumary();
     }
 
+    public UpdateGroupVM(String ownerUsername, String groupId, String groupName, String groupIcon, String groupBackground, String groupSlogan, String groupSumary) {
+        this.ownerUsername = ownerUsername;
+        this.groupId = groupId;
+        this.groupName = groupName;
+        this.groupIcon = groupIcon;
+        this.groupBackground = groupBackground;
+        this.groupSlogan = groupSlogan;
+        this.groupSumary = groupSumary;
+    }
+
     public UpdateGroupVM() {
         // Empty public constructor used by Jackson.
+        super();
     }
 
     public String getOwnerUsername() {

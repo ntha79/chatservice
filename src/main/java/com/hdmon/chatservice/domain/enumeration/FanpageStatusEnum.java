@@ -1,8 +1,8 @@
 package com.hdmon.chatservice.domain.enumeration;
 
 /**
- * The FanpageStatus enumeration.
+ * Created by UserName on 7/2/2018.
  */
-public enum FanpageStatusEnum {
-    ACTIVE, REPORT, DELETED
+public enum  FanpageStatusEnum {
+    ACTIVE, UNACTIVE, REPORT
 }

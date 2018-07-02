@@ -1,12 +1,9 @@
 package com.hdmon.chatservice.service.util;
 
-import com.hazelcast.com.eclipsesource.json.Json;
-import com.hazelcast.com.eclipsesource.json.JsonValue;
-import com.hdmon.chatservice.config.ApplicationProperties;
 import com.hdmon.chatservice.domain.IsoResponseEntity;
+import com.hdmon.chatservice.domain.enumeration.UserFindTypeEnum;
 import com.hdmon.chatservice.service.dto.User;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -98,14 +95,14 @@ public class UserHelper {
      * Update Time:  2018-06-28
      * @return the list friends entity
      */
-    public static Long execCheckUserExistsInSystem(HttpServletRequest request, String gatewayUrl, Integer findType, String username, String mobile)
+    public static Long execCheckUserExistsInSystem(HttpServletRequest request, String gatewayUrl, UserFindTypeEnum findType, String username, String mobile)
     {
         Long lngResult = 0L;
         try {
             User userInfo = null;
-            if (findType == 1) {
+            if (findType == UserFindTypeEnum.USERNAME) {
                 userInfo = getUserInfoFromUaaByUsername(request, gatewayUrl, username);
-            } else if (findType == 2) {
+            } else if (findType == UserFindTypeEnum.MOBILE) {
                 userInfo = getUserInfoFromUaaByMobile(request, gatewayUrl, mobile);
             } else {
                 userInfo = getUserInfoFromUaaByUsername(request, gatewayUrl, username);

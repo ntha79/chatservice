@@ -13,12 +13,13 @@ public class extGroupMemberEntity implements Serializable {
     private GroupMemberStatusEnum memberStatus;
     private Instant joinTime;
     private Instant leaveTime;
+    private String actionNote;
 
     public extGroupMemberEntity(){
         super();
     }
 
-    public extGroupMemberEntity(long memberId, String memberUsername, GroupMemberRoleEnum memberRole, GroupMemberStatusEnum memberStatus, Instant joinTime, Instant leaveTime)
+    public extGroupMemberEntity(long memberId, String memberUsername, GroupMemberRoleEnum memberRole, GroupMemberStatusEnum memberStatus, Instant joinTime, Instant leaveTime, String actionNote)
     {
         this.memberId = memberId;
         this.memberUsername = memberUsername;
@@ -26,6 +27,7 @@ public class extGroupMemberEntity implements Serializable {
         this.memberStatus = memberStatus;
         this.joinTime = joinTime;
         this.leaveTime = leaveTime;
+        this.actionNote = actionNote;
     }
 
     public Long getMemberId() {
@@ -86,6 +88,14 @@ public class extGroupMemberEntity implements Serializable {
         this.leaveTime = leaveTime;
     }
 
+    public String getActionNote() {
+        return actionNote;
+    }
+
+    public void setActionNote(String actionNote) {
+        this.actionNote = actionNote;
+    }
+
     @Override
     public String toString() {
         return "extGroupMemberEntity{"
@@ -95,6 +105,7 @@ public class extGroupMemberEntity implements Serializable {
             + "MemberStatus=" + getMemberStatus() + ","
             + "JoinTime=" + getJoinTime() + ","
             + "LeaveTime=" + getLeaveTime() + ","
+            + "ActionNote=" + getActionNote() + ","
             + "}";
     }
 }

@@ -9,7 +9,7 @@ import java.io.Serializable;
  */
 public class IsoResponseEntity<T> implements Serializable {
     private int error = ResponseErrorCode.UNKNOW_ERROR.getValue();         //no action
-    private T data = null;                                            //no action
+    private T data = null;                                                 //no action
     private String message = "";                                           //no action
     private String exception = "";                                         //no action
 

@@ -1,8 +1,6 @@
 package com.hdmon.chatservice.domain;
 
-import com.hdmon.chatservice.domain.enumeration.ChatMessageTypeEnum;
-import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
-import com.hdmon.chatservice.domain.enumeration.ReceiverTypeEnum;
+import com.hdmon.chatservice.domain.enumeration.*;
 import com.hdmon.chatservice.domain.extents.extMessageReceiverEntity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,12 +16,12 @@ import java.util.UUID;
  * A ChatMessages.
  */
 @Document(collection = "chat_messages")
-public class ChatMessagesEntity extends AbstractAuditingEntity implements Serializable {
+public class ChatMessagesEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    private String id;
+    private String seqId;
 
     @Field("message_id")
     private String messageId = UUID.randomUUID().toString();
@@ -40,43 +38,61 @@ public class ChatMessagesEntity extends AbstractAuditingEntity implements Serial
     @Field("message_type")
     private ChatMessageTypeEnum messageType;
 
-    @Field("sender_id")
-    private Long senderId;
+    @Field("message_status")
+    private ChatMessageStatusEnum messageStatus;
 
-    @Field("sender_login")
-    private String senderLogin;
+    @Field("owner_user_name")
+    private String ownerUserName;
 
-    @Field("receiver_lists")
-    private List<extMessageReceiverEntity> receiverLists;
+    @Field("from_user_id")
+    private Long fromUserId;
 
-    @Field("receiver_type")
-    private ReceiverTypeEnum receiverType;
+    @Field("from_user_name")
+    private String fromUserName;
 
-    @Field("receiver_text")
-    private String receiverText;
+    @Field("from_full_name")
+    private String fromFullName;
 
-    @Field("created_unix_time")
-    private Long createdUnixTime = new Date().getTime();
+    @Field("to_user_id")
+    private Long toUserId;
 
-    @Field("last_modified_unix_time")
-    private Long lastModifiedUnixTime = new Date().getTime();
+    @Field("to_user_name")
+    private String toUserName;
+
+    @Field("send_time")
+    private String sendTime;
+
+    @Field("read_time")
+    private String readTime;
+
+    @Field("created_time")
+    private Long createdTime = new Date().getTime();
+
+    @Field("last_modified_by")
+    private String lastModifiedBy;
+
+    @Field("last_modified_time")
+    private Long lastModifiedTime = new Date().getTime();
+
+    @Field("max_second_to_action")
+    private Integer maxSecondToAction = 300;
 
     @Field("report_day")
     private Integer reportDay;
 
-    @Field("max_time_to_action")
-    private Integer maxTimeToAction = 300;
-
     @Field("refer_message_id")
     private String referMessageId;
 
+    @Field("like_count")
+    private Long likeCount  = 0L;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public String getId() {
-        return id;
+    public String getSeqId() {
+        return seqId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setSeqId(String seqId) {
+        this.seqId = seqId;
     }
 
     public String getMessageId() {
@@ -144,95 +160,161 @@ public class ChatMessagesEntity extends AbstractAuditingEntity implements Serial
         this.messageType = messageType;
     }
 
-    public Long getSenderId() {
-        return senderId;
+
+    public ChatMessageStatusEnum getMessageStatus() {
+        return messageStatus;
     }
 
-    public ChatMessagesEntity senderId(Long senderId) {
-        this.senderId = senderId;
+    public ChatMessagesEntity messageStatus(ChatMessageStatusEnum messageStatus) {
+        this.messageStatus = messageStatus;
         return this;
     }
 
-    public void setSenderId(Long senderId) {
-        this.senderId = senderId;
+    public void setMessageStatus(ChatMessageStatusEnum messageStatus) {
+        this.messageStatus = messageStatus;
     }
 
-    public String getSenderLogin() {
-        return senderLogin;
+    public String getOwnerUserName() {
+        return ownerUserName;
     }
 
-    public ChatMessagesEntity senderLogin(String senderLogin) {
-        this.senderLogin = senderLogin;
+    public ChatMessagesEntity ownerUserName(String ownerUserName) {
+        this.ownerUserName = ownerUserName;
         return this;
     }
 
-    public void setSenderLogin(String senderLogin) {
-        this.senderLogin = senderLogin;
+    public void setOwnerUserName(String ownerUserName) {
+        this.ownerUserName = ownerUserName;
     }
 
-    public List<extMessageReceiverEntity> getReceiverLists() {
-        return receiverLists;
+    public Long getFromUserId() {
+        return fromUserId;
     }
 
-    public ChatMessagesEntity receiverLists(List<extMessageReceiverEntity> receiverLists) {
-        this.receiverLists = receiverLists;
+    public ChatMessagesEntity fromUserId(Long fromUserId) {
+        this.fromUserId = fromUserId;
         return this;
     }
 
-    public void setReceiverLists(List<extMessageReceiverEntity> receiverLists) {
-        this.receiverLists = receiverLists;
+    public void setFromUserId(Long fromUserId) {
+        this.fromUserId = fromUserId;
     }
 
-    public ReceiverTypeEnum getReceiverType() {
-        return receiverType;
+    public String getFromUserName() {
+        return fromUserName;
     }
 
-    public ChatMessagesEntity receiverType(ReceiverTypeEnum receiverType) {
-        this.receiverType = receiverType;
+    public ChatMessagesEntity fromUserName(String fromUserName) {
+        this.fromUserName = fromUserName;
         return this;
     }
 
-    public void setReceiverType(ReceiverTypeEnum receiverType) {
-        this.receiverType = receiverType;
+    public void setFromUserName(String fromUserName) {
+        this.fromUserName = fromUserName;
     }
 
-    public String getReceiverText() {
-        return receiverText;
+    public String getFromFullName() {
+        return fromFullName;
     }
 
-    public ChatMessagesEntity receiverText(String receiverText) {
-        this.receiverText = receiverText;
+    public ChatMessagesEntity fromFullName(String fromFullName) {
+        this.fromFullName = fromFullName;
         return this;
     }
 
-    public void setReceiverText(String receiverText) {
-        this.receiverText = receiverText;
+    public void setFromFullName(String fromFullName) {
+        this.fromFullName = fromFullName;
     }
 
-    public Long getCreatedUnixTime() {
-        return createdUnixTime;
+    public String getToUserName() {
+        return toUserName;
     }
 
-    public ChatMessagesEntity createdUnixTime(Long createdUnixTime) {
-        this.createdUnixTime = createdUnixTime;
+    public ChatMessagesEntity toUserName(String toUserName) {
+        this.toUserName = toUserName;
         return this;
     }
 
-    public void setCreatedUnixTime(Long createdUnixTime) {
-        this.createdUnixTime = createdUnixTime;
+    public void setToUserName(String toUserName) {
+        this.toUserName = toUserName;
     }
 
-    public Long getLastModifiedUnixTime() {
-        return lastModifiedUnixTime;
+    public Long getToUserId() {
+        return toUserId;
     }
 
-    public ChatMessagesEntity lastModifiedUnixTime(Long lastModifiedUnixTime) {
-        this.lastModifiedUnixTime = lastModifiedUnixTime;
+    public ChatMessagesEntity toUserId(Long toUserId) {
+        this.toUserId = toUserId;
         return this;
     }
 
-    public void setLastModifiedUnixTime(Long lastModifiedUnixTime) {
-        this.lastModifiedUnixTime = lastModifiedUnixTime;
+    public void setToUserId(Long toUserId) {
+        this.toUserId = toUserId;
+    }
+
+    public String getSendTime() {
+        return sendTime;
+    }
+
+    public ChatMessagesEntity sendTime(String sendTime) {
+        this.sendTime = sendTime;
+        return this;
+    }
+
+    public void setSendTime(String sendTime) {
+        this.sendTime = sendTime;
+    }
+
+    public String getReadTime() {
+        return readTime;
+    }
+
+    public ChatMessagesEntity readTime(String readTime) {
+        this.readTime = readTime;
+        return this;
+    }
+
+    public void setReadTime(String readTime) {
+        this.readTime = readTime;
+    }
+
+    public Long getCreatedTime() {
+        return createdTime;
+    }
+
+    public ChatMessagesEntity createdTime(Long createdTime) {
+        this.createdTime = createdTime;
+        return this;
+    }
+
+    public void setCreatedTime(Long createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public ChatMessagesEntity lastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+        return this;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public Long getLastModifiedTime() {
+        return lastModifiedTime;
+    }
+
+    public ChatMessagesEntity lastModifiedTime(Long lastModifiedTime) {
+        this.lastModifiedTime = lastModifiedTime;
+        return this;
+    }
+
+    public void setLastModifiedTime(Long lastModifiedTime) {
+        this.lastModifiedTime = lastModifiedTime;
     }
 
     public Integer getReportDay() {
@@ -248,17 +330,17 @@ public class ChatMessagesEntity extends AbstractAuditingEntity implements Serial
         this.reportDay = reportDay;
     }
 
-    public Integer getMaxTimeToAction() {
-        return maxTimeToAction;
+    public Integer getMaxSecondToAction() {
+        return maxSecondToAction;
     }
 
-    public ChatMessagesEntity maxTimeToAction(Integer maxTimeToAction) {
-        this.maxTimeToAction = maxTimeToAction;
+    public ChatMessagesEntity maxSecondToAction(Integer maxSecondToAction) {
+        this.maxSecondToAction = maxSecondToAction;
         return this;
     }
 
-    public void setMaxTimeToAction(Integer maxTimeToAction) {
-        this.maxTimeToAction = maxTimeToAction;
+    public void setMaxSecondToAction(Integer maxSecondToAction) {
+        this.maxSecondToAction = maxSecondToAction;
     }
 
     public String getReferMessageId() {
@@ -273,6 +355,20 @@ public class ChatMessagesEntity extends AbstractAuditingEntity implements Serial
     public void setReferMessageId(String referMessageId) {
         this.referMessageId = referMessageId;
     }
+
+    public Long getLikeCount() {
+        return likeCount;
+    }
+
+    public ChatMessagesEntity likeCount(Long likeCount) {
+        this.likeCount = likeCount;
+        return this;
+    }
+
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -284,40 +380,42 @@ public class ChatMessagesEntity extends AbstractAuditingEntity implements Serial
             return false;
         }
         ChatMessagesEntity chatMessages = (ChatMessagesEntity) o;
-        if (chatMessages.getId() == null || getId() == null) {
+        if (chatMessages.getSeqId() == null || getSeqId() == null) {
             return false;
         }
-        return Objects.equals(getId(), chatMessages.getId());
+        return Objects.equals(getSeqId(), chatMessages.getSeqId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hashCode(getSeqId());
     }
 
     @Override
     public String toString() {
         return "ChatMessagesEntity{" +
-            "id=" + getId() +
-            ", messageId='" + getMessageId() + "'" +
-            ", groupChatId='" + getGroupChatId() + "'" +
-            ", groupType='" + getGroupType() + "'" +
-            ", messageValue='" + getMessageValue() + "'" +
-            ", messageType='" + getMessageType() + "'" +
-            ", senderId=" + getSenderId() +
-            ", senderLogin='" + getSenderLogin() + "'" +
-            ", receiverLists='" + getReceiverLists() + "'" +
-            ", receiverType='" + getReceiverType() + "'" +
-            ", receiverText='" + getReceiverText() + "'" +
-            ", createdBy='" + getCreatedBy() + "'" +
-            ", createdDate='" + getCreatedDate() + "'" +
-            ", createdUnixTime=" + getCreatedUnixTime() +
-            ", lastModifiedBy='" + getLastModifiedBy() + "'" +
-            ", lastModifiedDate='" + getLastModifiedDate() + "'" +
-            ", lastModifiedUnixTime=" + getLastModifiedUnixTime() +
-            ", reportDay=" + getReportDay() +
-            ", maxTimeToAction=" + getMaxTimeToAction() +
-            ", referMessageId=" + getReferMessageId() +
+            "SeqId=" + getSeqId() +
+            ", MessageId='" + getMessageId() + "'" +
+            ", GroupChatId='" + getGroupChatId() + "'" +
+            ", GroupType='" + getGroupType() + "'" +
+            ", MessageValue='" + getMessageValue() + "'" +
+            ", MessageType='" + getMessageType() + "'" +
+            ", MessageStatus='" + getMessageStatus() + "'" +
+            ", OwnerUserName=" + getOwnerUserName() +
+            ", FromUserId=" + getFromUserId() +
+            ", FromUserName=" + getFromUserName() +
+            ", FromFullName='" + getFromFullName() + "'" +
+            ", ToUserName='" + getToUserName() + "'" +
+            ", ToUserId='" + getToUserId() + "'" +
+            ", SendTime='" + getSendTime() + "'" +
+            ", ReadTime='" + getReadTime() + "'" +
+            ", CreatedTime='" + getCreatedTime() + "'" +
+            ", LastModifiedBy='" + getLastModifiedBy() + "'" +
+            ", LastModifiedTime=" + getLastModifiedTime() +
+            ", MaxSecondToAction='" + getMaxSecondToAction() + "'" +
+            ", ReferMessageId='" + getReferMessageId() + "'" +
+            ", ReportDay=" + getReportDay() +
+            ", LikeCount=" + getLikeCount() +
             "}";
     }
 }

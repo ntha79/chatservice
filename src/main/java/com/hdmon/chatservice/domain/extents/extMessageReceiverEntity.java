@@ -1,13 +1,10 @@
 package com.hdmon.chatservice.domain.extents;
 
-import com.hdmon.chatservice.domain.enumeration.MessageReceiverStatusEnum;
-
 import java.util.Date;
 
 public class extMessageReceiverEntity {
     private Long receiverId;
     private String receiverLogin;
-    private MessageReceiverStatusEnum status = MessageReceiverStatusEnum.NEW;
     private Long updateUnixTime = new Date().getTime();
 
     public extMessageReceiverEntity()
@@ -15,11 +12,10 @@ public class extMessageReceiverEntity {
         super();
     }
 
-    public extMessageReceiverEntity(Long receiverId, String receiverLogin, MessageReceiverStatusEnum status, Long updateUnixTime)
+    public extMessageReceiverEntity(Long receiverId, String receiverLogin, Long updateUnixTime)
     {
         this.receiverId = receiverId;
         this.receiverLogin = receiverLogin;
-        this.status = status;
         this.updateUnixTime = updateUnixTime;
     }
 
@@ -39,14 +35,6 @@ public class extMessageReceiverEntity {
         this.receiverLogin = receiverLogin;
     }
 
-    public MessageReceiverStatusEnum getStatus() {
-        return status;
-    }
-
-    public void setStatus(MessageReceiverStatusEnum status) {
-        this.status = status;
-    }
-
     public Long getUpdateUnixTime() {
         return updateUnixTime;
     }
@@ -60,7 +48,6 @@ public class extMessageReceiverEntity {
         return "extMessageReceiverEntity{"
             + "ReceiverId=" + getReceiverId() + ","
             + "ReceiverLogin=" + getReceiverLogin() + ","
-            + "Status=" + getStatus() + ","
             + "UpdateUnixTime=" + getUpdateUnixTime() + ","
             + "}";
     }

@@ -1,34 +1,47 @@
 package com.hdmon.chatservice.web.rest.vm.Groups;
 
-import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
-
 /**
  * Created by UserName on 6/9/2018.
  */
 public class DeleteGroupVM {
-    private Long ownerId;
-
+    private String ownerUsername;
     private String groupId;
 
     public DeleteGroupVM(DeleteGroupVM updateGroupVM) {
-        this.ownerId = updateGroupVM.getOwnerId();
+        this.ownerUsername = updateGroupVM.getOwnerUsername();
         this.groupId = updateGroupVM.getGroupId();
+    }
+
+    public DeleteGroupVM(String ownerUsername, String groupId) {
+        this.ownerUsername = ownerUsername;
+        this.groupId = groupId;
     }
 
     public DeleteGroupVM() {
         // Empty public constructor used by Jackson.
+        super();
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public String getOwnerUsername() {
+        return ownerUsername;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public DeleteGroupVM ownerUsername(String ownerUsername) {
+        this.ownerUsername = ownerUsername;
+        return this;
+    }
+
+    public void setOwnerUsername(String ownerUsername) {
+        this.ownerUsername = ownerUsername;
     }
 
     public String getGroupId() {
         return groupId;
+    }
+
+    public DeleteGroupVM groupId(String groupId) {
+        this.groupId = groupId;
+        return this;
     }
 
     public void setGroupId(String groupId) {
@@ -38,7 +51,7 @@ public class DeleteGroupVM {
     @Override
     public String toString() {
         return "DeleteGroupVM{" +
-            "OwnerId='" + getOwnerId() + '\'' +
+            "OwnerUsername='" + getOwnerUsername() + '\'' +
             ", GroupId='" + getGroupId() + '\'' +
             '}';
     }

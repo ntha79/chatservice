@@ -22,7 +22,8 @@ public class ChatGroupsEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    private String id;
+    @Field("group_id")
+    private String groupId;
 
     @Field("group_type")
     private GroupTypeEnum groupType;
@@ -70,12 +71,12 @@ public class ChatGroupsEntity implements Serializable {
     private Integer reportDay;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public String getId() {
-        return id;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
     public GroupTypeEnum getGroupType() {
@@ -283,36 +284,36 @@ public class ChatGroupsEntity implements Serializable {
             return false;
         }
         ChatGroupsEntity groupMembers = (ChatGroupsEntity) o;
-        if (groupMembers.getId() == null || getId() == null) {
+        if (groupMembers.getGroupId() == null || getGroupId() == null) {
             return false;
         }
-        return Objects.equals(getId(), groupMembers.getId());
+        return Objects.equals(getGroupId(), groupMembers.getGroupId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hashCode(getGroupId());
     }
 
     @Override
     public String toString() {
         return "ChatGroupsEntity{" +
-            "id=" + getId() +
-            ", groupType='" + getGroupType() + "'" +
-            ", groupName='" + getGroupName() + "'" +
-            ", groupIcon='" + getGroupIcon() + "'" +
-            ", groupBackground='" + getGroupBackground() + "'" +
-            ", groupSlogan='" + getGroupSlogan() + "'" +
-            ", groupSumary='" + getGroupSumary() + "'" +
-            ", groupStatus=" + getGroupStatus() +
-            ", memberLists='" + getMemberLists() + "'" +
-            ", maxMember=" + getMaxMember() +
-            ", createdById=" + getCreatedById() +
-            ", createdBy='" + getCreatedBy() + "'" +
-            ", createdTime='" + getCreatedTime() + "'" +
-            ", lastModifiedBy='" + getLastModifiedBy() + "'" +
-            ", lastModifiedTime='" + getLastModifiedTime() + "'" +
-            ", reportDay=" + getReportDay() +
+            "GroupId=" + getGroupId() +
+            ", GroupType='" + getGroupType() + "'" +
+            ", GroupName='" + getGroupName() + "'" +
+            ", GroupIcon='" + getGroupIcon() + "'" +
+            ", GroupBackground='" + getGroupBackground() + "'" +
+            ", GroupSlogan='" + getGroupSlogan() + "'" +
+            ", GroupSumary='" + getGroupSumary() + "'" +
+            ", GroupStatus=" + getGroupStatus() +
+            ", MemberLists='" + getMemberLists() + "'" +
+            ", mMaxMember=" + getMaxMember() +
+            ", CreatedById=" + getCreatedById() +
+            ", CreatedBy='" + getCreatedBy() + "'" +
+            ", CreatedTime='" + getCreatedTime() + "'" +
+            ", LastModifiedBy='" + getLastModifiedBy() + "'" +
+            ", LastModifiedTime='" + getLastModifiedTime() + "'" +
+            ", ReportDay=" + getReportDay() +
             "}";
     }
 }

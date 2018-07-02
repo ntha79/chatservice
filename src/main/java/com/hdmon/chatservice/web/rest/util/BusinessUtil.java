@@ -25,7 +25,6 @@ public class BusinessUtil {
     {
         boolean blResult = true;
         Optional<String> curUsername = SecurityUtils.getCurrentUserLogin();
-        log.info("Du lieu gi day {}", curUsername.get());
         if(!actionUsername.equals(curUsername.get()))
             blResult = false;
 

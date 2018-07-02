@@ -55,13 +55,13 @@ public class ContactsResource {
     @PostMapping("/contacts")
     @Timed
     public ResponseEntity<ContactsEntity> createFriends(@RequestBody ContactsEntity friends) throws URISyntaxException {
-        log.debug("REST request to save Friends : {}", friends);
-        if (friends.getId() != null) {
-            throw new BadRequestAlertException("A new friends cannot already have an ID", ENTITY_NAME, "idexists");
+        log.debug("REST request to save Contacts : {}", friends);
+        if (friends.getOwnerUsername() == null) {
+            throw new BadRequestAlertException("A new contacts can not have an ID Null", ENTITY_NAME, "empty");
         }
         ContactsEntity result = friendsService.save(friends);
-        return ResponseEntity.created(new URI("/api/friends/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
+        return ResponseEntity.created(new URI("/api/contacts/" + result.getOwnerUsername()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getOwnerUsername()))
             .body(result);
     }
 
@@ -78,12 +78,14 @@ public class ContactsResource {
     @Timed
     public ResponseEntity<ContactsEntity> updateFriends(@RequestBody ContactsEntity friends) throws URISyntaxException {
         log.debug("REST request to update Friends : {}", friends);
+        /*
         if (friends.getId() == null) {
             return createFriends(friends);
         }
+        */
         ContactsEntity result = friendsService.save(friends);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, friends.getId()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, friends.getOwnerUsername()))
             .body(result);
     }
 
@@ -96,9 +98,9 @@ public class ContactsResource {
     @GetMapping("/contacts")
     @Timed
     public ResponseEntity<List<ContactsEntity>> getAllContacts(Pageable pageable) {
-        log.debug("REST request to get a page of Friends");
+        log.debug("REST request to get a page of Contacts");
         Page<ContactsEntity> page = friendsService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/friends");
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/contacts");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
@@ -111,7 +113,7 @@ public class ContactsResource {
     @GetMapping("/contacts/{id}")
     @Timed
     public ResponseEntity<ContactsEntity> getContacts(@PathVariable String id) {
-        log.debug("REST request to get Friends : {}", id);
+        log.debug("REST request to get Contacts : {}", id);
         ContactsEntity friends = friendsService.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(friends));
     }
@@ -125,7 +127,7 @@ public class ContactsResource {
     @DeleteMapping("/contacts/{id}")
     @Timed
     public ResponseEntity<Void> deleteContacts(@PathVariable String id) {
-        log.debug("REST request to delete Friends : {}", id);
+        log.debug("REST request to delete Contacts : {}", id);
         friendsService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id)).build();
     }
@@ -142,7 +144,7 @@ public class ContactsResource {
     @GetMapping("/contacts/getfriendlistbyowner/{ownerUsername}")
     @Timed
     public ResponseEntity<IsoResponseEntity> getFriendlistByOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String ownerUsername) {
-        log.debug("REST request to get info of Friends : {}", ownerUsername);
+        log.debug("REST request to get info of Contacts : {}", ownerUsername);
 
         IsoResponseEntity<List<extFriendContactEntity>> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
@@ -153,7 +155,7 @@ public class ContactsResource {
 
                 responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                 responseEntity.setData(dbResults);
-                responseEntity.setMessage("friends_successfull");
+                responseEntity.setMessage("contacts_getfriendlistbyowner_successfull");
 
                 String urlRequest = String.format("/contacts/getfriendlistbyowner/%s", ownerUsername);
                 httpHeaders = HeaderUtil.createAlert(ENTITY_NAME, urlRequest);
@@ -161,18 +163,18 @@ public class ContactsResource {
             else
             {
                 responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                responseEntity.setMessage("invalid_data");
+                responseEntity.setMessage("contacts_getfriendlistbyowner_invalid");
                 responseEntity.setException("OwnerId cannot not null!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_invalid_data", "OwnerUsername cannot not null!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_getfriendlistbyowner_invalid", "OwnerUsername cannot not null!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("friends_system_error");
+            responseEntity.setMessage("contacts_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -187,7 +189,7 @@ public class ContactsResource {
     @GetMapping("/contacts/getchatlistbyowner/{ownerUsername}")
     @Timed
     public ResponseEntity<IsoResponseEntity> getChatlistByOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String ownerUsername) {
-        log.debug("REST request to get info of Friends : {}", ownerUsername);
+        log.debug("REST request to get info of Contacts : {}", ownerUsername);
 
         IsoResponseEntity<GetChatListVM> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
@@ -198,7 +200,7 @@ public class ContactsResource {
 
                 responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                 responseEntity.setData(dbResults);
-                responseEntity.setMessage("friends_successfull");
+                responseEntity.setMessage("contacts_getchatlistbyowner_successfull");
 
                 String urlRequest = String.format("/contacts/getchatlistbyowner/%s", ownerUsername);
                 httpHeaders = HeaderUtil.createAlert(ENTITY_NAME, urlRequest);
@@ -208,16 +210,16 @@ public class ContactsResource {
                 responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
                 responseEntity.setMessage("invalid_data");
                 responseEntity.setException("OwnerId cannot not null!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_invalid_data", "OwnerUsername cannot not null!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_getchatlistbyowner_invalid", "OwnerUsername cannot not null!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("friends_system_error");
+            responseEntity.setMessage("contacts_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -232,7 +234,7 @@ public class ContactsResource {
     @GetMapping("/contacts/getcontactlistbyowner/{ownerUsername}")
     @Timed
     public ResponseEntity<IsoResponseEntity> getContactlistByOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String ownerUsername) {
-        log.debug("REST request to get info of Friends : {}", ownerUsername);
+        log.debug("REST request to get info of Contacts : {}", ownerUsername);
 
         IsoResponseEntity<GetContactListVM> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
@@ -243,7 +245,7 @@ public class ContactsResource {
 
                 responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                 responseEntity.setData(dbResults);
-                responseEntity.setMessage("friends_successfull");
+                responseEntity.setMessage("contacts_getcontactlistbyowner_successfull");
 
                 String urlRequest = String.format("/contacts/getcontactlistbyowner/%s", ownerUsername);
                 httpHeaders = HeaderUtil.createAlert(ENTITY_NAME, urlRequest);
@@ -251,18 +253,18 @@ public class ContactsResource {
             else
             {
                 responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                responseEntity.setMessage("invalid_data");
+                responseEntity.setMessage("contacts_getcontactlistbyowner_invalid");
                 responseEntity.setException("OwnerId cannot not null!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_invalid_data", "OwnerUsername cannot not null!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_getcontactlistbyowner_invalid", "OwnerUsername cannot not null!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("friends_system_error");
+            responseEntity.setMessage("contacts_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -278,7 +280,7 @@ public class ContactsResource {
     @PostMapping("/contacts/requireaddfriends")
     @Timed
     public ResponseEntity<IsoResponseEntity> requireAddFriends(HttpServletRequest request, HttpServletResponse response, @RequestBody RequireAddFriendsVM viewModel) throws URISyntaxException {
-        log.debug("REST request to send add friend in Friends : {}", viewModel);
+        log.debug("REST request to send add friend in Contacts : {}", viewModel);
 
         IsoResponseEntity<List<extFriendContactEntity>> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
@@ -287,9 +289,9 @@ public class ContactsResource {
             if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
                 if (viewModel.getOwnerUsername() == null || viewModel.getFriendUsername() == null) {
                     responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                    responseEntity.setMessage("friends_invalid_data");
+                    responseEntity.setMessage("contacts_requireaddfriends_invalid");
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_invalid_data", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_requireaddfriends_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
                     List<extFriendContactEntity> dbResults = friendsService.requireAddFriends(request, viewModel, responseEntity);
                     int memberCount = dbResults.size();
@@ -297,25 +299,25 @@ public class ContactsResource {
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
                         responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                         responseEntity.setData(dbResults);
-                        responseEntity.setMessage("successfull");
+                        responseEntity.setMessage("contacts_requireaddfriends_successfull");
                     }
                 }
             }
             else
             {
                 responseEntity.setError(ResponseErrorCode.DENIED.getValue());
-                responseEntity.setMessage("friends_denied");
+                responseEntity.setMessage("contacts_denied");
                 responseEntity.setException("You are not authorized to perform this action!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_denied", "You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("friends_system_error");
+            responseEntity.setMessage("contacts_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -331,7 +333,7 @@ public class ContactsResource {
     @PostMapping("/contacts/acceptaddfriends")
     @Timed
     public ResponseEntity<IsoResponseEntity> acceptAddFriends(HttpServletRequest request, HttpServletResponse response, @RequestBody ResponseAddFriendsVM viewModel) throws URISyntaxException {
-        log.debug("REST request to accept friend in Friends : {}", viewModel);
+        log.debug("REST request to accept friend in Contacts : {}", viewModel);
 
         IsoResponseEntity<List<extFriendContactEntity>> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
@@ -340,9 +342,9 @@ public class ContactsResource {
             if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
                 if (viewModel.getOwnerUsername() == null || viewModel.getFriendUsername() == null) {
                     responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                    responseEntity.setMessage("friends_invalid_data");
+                    responseEntity.setMessage("contacts_acceptaddfriends_invalid");
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_invalid_data", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_acceptaddfriends_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
                     List<extFriendContactEntity> dbResults = friendsService.acceptAddFriends(request, viewModel, responseEntity);
                     int memberCount = dbResults.size();
@@ -350,25 +352,25 @@ public class ContactsResource {
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
                         responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                         responseEntity.setData(dbResults);
-                        responseEntity.setMessage("friends_successfull");
+                        responseEntity.setMessage("contacts_acceptaddfriends_successfull");
                     }
                 }
             }
             else
             {
                 responseEntity.setError(ResponseErrorCode.DENIED.getValue());
-                responseEntity.setMessage("friends_denied");
+                responseEntity.setMessage("contacts_denied");
                 responseEntity.setException("You are not authorized to perform this action!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_denied", "You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("friends_system_error");
+            responseEntity.setMessage("contacts_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -393,7 +395,7 @@ public class ContactsResource {
             if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
                 if (viewModel.getOwnerUsername() == null || viewModel.getFriendUsername() == null) {
                     responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                    responseEntity.setMessage("friends_invalid_data");
+                    responseEntity.setMessage("contacts_deniedaddfriends_invalid");
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
                     httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_invalid_data", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
@@ -403,25 +405,25 @@ public class ContactsResource {
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
                         responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                         responseEntity.setData(dbResults);
-                        responseEntity.setMessage("friends_successfull");
+                        responseEntity.setMessage("contacts_deniedaddfriends_successfull");
                     }
                 }
             }
             else
             {
                 responseEntity.setError(ResponseErrorCode.DENIED.getValue());
-                responseEntity.setMessage("friends_denied");
+                responseEntity.setMessage("contacts_denied");
                 responseEntity.setException("You are not authorized to perform this action!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_denied", "You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("friends_system_error");
+            responseEntity.setMessage("contacts_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -437,7 +439,7 @@ public class ContactsResource {
     @PostMapping("/contacts/blockfriends")
     @Timed
     public ResponseEntity<IsoResponseEntity> blockFriends(@RequestBody ResponseAddFriendsVM viewModel) throws URISyntaxException {
-        log.debug("REST request to block friend in Friends : {}", viewModel);
+        log.debug("REST request to block friend in Contacts : {}", viewModel);
 
         IsoResponseEntity<List<extFriendContactEntity>> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
@@ -446,9 +448,9 @@ public class ContactsResource {
             if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
                 if (viewModel.getOwnerUsername() == null || viewModel.getFriendUsername() == null) {
                     responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                    responseEntity.setMessage("friends_invalid_data");
+                    responseEntity.setMessage("contacts_blockfriends_invalid_data");
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_invalid_data", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_blockfriends_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
                     List<extFriendContactEntity> dbResults = friendsService.blockFriends(viewModel, responseEntity);
                     int memberCount = dbResults.size();
@@ -456,25 +458,25 @@ public class ContactsResource {
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
                         responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                         responseEntity.setData(dbResults);
-                        responseEntity.setMessage("friends_successfull");
+                        responseEntity.setMessage("contacts_blockfriends_successfull");
                     }
                 }
             }
             else
             {
                 responseEntity.setError(ResponseErrorCode.DENIED.getValue());
-                responseEntity.setMessage("friends_denied");
+                responseEntity.setMessage("contacts_denied");
                 responseEntity.setException("You are not authorized to perform this action!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_denied", "You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("friends_system_error");
+            responseEntity.setMessage("contacts_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -499,9 +501,9 @@ public class ContactsResource {
             if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
                 if (viewModel.getOwnerUsername() == null || viewModel.getFriendUsername() == null) {
                     responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                    responseEntity.setMessage("friends_invalid_data");
+                    responseEntity.setMessage("contacts_deletefriends_invalid");
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_invalid_data", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_deletefriends_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
                     List<extFriendContactEntity> dbResults = friendsService.deleteFriends(viewModel, responseEntity);
                     int memberCount = dbResults.size();
@@ -509,25 +511,25 @@ public class ContactsResource {
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
                         responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                         responseEntity.setData(dbResults);
-                        responseEntity.setMessage("friends_successfull");
+                        responseEntity.setMessage("contacts_deletefriends_successfull");
                     }
                 }
             }
             else
             {
                 responseEntity.setError(ResponseErrorCode.DENIED.getValue());
-                responseEntity.setMessage("friends_denied");
+                responseEntity.setMessage("contacts_denied");
                 responseEntity.setException("You are not authorized to perform this action!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_denied", "You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("friends_system_error");
+            responseEntity.setMessage("contacts_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -543,7 +545,7 @@ public class ContactsResource {
     @PostMapping("/contacts/updateinfo")
     @Timed
     public ResponseEntity<IsoResponseEntity> updateFriendInfo(@RequestBody UpdateContactVM viewModel) throws URISyntaxException {
-        log.debug("REST request to update friend in Friends : {}", viewModel);
+        log.debug("REST request to update friend in Contacts : {}", viewModel);
 
         IsoResponseEntity<List<extFriendContactEntity>> responseEntity = new IsoResponseEntity<>();
         HttpHeaders httpHeaders;
@@ -552,9 +554,9 @@ public class ContactsResource {
             if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
                 if (viewModel.getOwnerUsername() == null || viewModel.getFriendUsername() == null || viewModel.getOwnerUsername().isEmpty()) {
                     responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                    responseEntity.setMessage("friends_invalid_data");
+                    responseEntity.setMessage("contacts_updateinfo_invalid");
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_invalid_data", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_updateinfo_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
                     List<extFriendContactEntity> dbResults = friendsService.updateFriendInfo(viewModel, responseEntity);
                     int memberCount = dbResults.size();
@@ -562,25 +564,25 @@ public class ContactsResource {
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
                         responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                         responseEntity.setData(dbResults);
-                        responseEntity.setMessage("friends_successfull");
+                        responseEntity.setMessage("contacts_updateinfo_successfull");
                     }
                 }
             }
             else
             {
                 responseEntity.setError(ResponseErrorCode.DENIED.getValue());
-                responseEntity.setMessage("friends_denied");
+                responseEntity.setMessage("contacts_denied");
                 responseEntity.setException("You are not authorized to perform this action!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_denied", "You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("friends_system_error");
+            responseEntity.setMessage("contacts_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
@@ -605,9 +607,9 @@ public class ContactsResource {
             if(BusinessUtil.checkAuthenticationValid(viewModel.getOwnerUsername())) {
                 if (viewModel.getOwnerUsername() == null || viewModel.getFriendUsername() == null || viewModel.getOwnerUsername().isEmpty()) {
                     responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
-                    responseEntity.setMessage("friends_invalid_data");
+                    responseEntity.setMessage("contacts_addcontact_invalid");
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
-                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_invalid_data", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
+                    httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_addcontact_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
                     List<extFriendContactEntity> dbResults = friendsService.addContact(request, viewModel, responseEntity);
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
@@ -615,7 +617,7 @@ public class ContactsResource {
                         httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));
                         responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                         responseEntity.setData(dbResults);
-                        responseEntity.setMessage("friends_successfull");
+                        responseEntity.setMessage("contacts_addcontact_successfull");
                     } else {
                         httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(0));
                     }
@@ -624,18 +626,18 @@ public class ContactsResource {
             else
             {
                 responseEntity.setError(ResponseErrorCode.DENIED.getValue());
-                responseEntity.setMessage("friends_denied");
+                responseEntity.setMessage("contacts_denied");
                 responseEntity.setException("You are not authorized to perform this action!");
-                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_denied", "You are not authorized to perform this action!");
+                httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_denied", "You are not authorized to perform this action!");
             }
         }
         catch (Exception ex)
         {
             responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("friends_system_error");
+            responseEntity.setMessage("contacts_system_error");
             responseEntity.setException(ex.getMessage());
 
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_system_error", ex.getMessage());
+            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_system_error", ex.getMessage());
         }
 
         return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);

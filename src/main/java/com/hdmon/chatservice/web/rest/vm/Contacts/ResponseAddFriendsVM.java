@@ -21,6 +21,7 @@ public class ResponseAddFriendsVM {
 
     public ResponseAddFriendsVM() {
         // Empty public constructor used by Jackson.
+        super();
     }
 
     public String getOwnerUsername() {
