@@ -32,7 +32,7 @@
         },
         {
             "fieldName": "status",
-            "fieldType": "CheckStatus",
+            "fieldType": "CheckStatusEnum",
             "fieldValues": "NOTCHECK,CHECKED"
         }
     ],

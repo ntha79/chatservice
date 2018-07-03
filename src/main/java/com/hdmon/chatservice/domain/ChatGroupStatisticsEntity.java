@@ -18,6 +18,7 @@ public class ChatGroupStatisticsEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @Field("seq_id")
     private String seqId;
 
     @Field("day_count")

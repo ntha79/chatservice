@@ -18,10 +18,8 @@ public class ChatMessageStatisticsEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    private String id;
-
     @Field("seq_id")
-    private String seqId = UUID.randomUUID().toString();
+    private String seqId;
 
     @Field("day_count")
     private Integer dayCount;
@@ -45,21 +43,12 @@ public class ChatMessageStatisticsEntity implements Serializable {
     private CheckStatusEnum status = CheckStatusEnum.NOTCHECK;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getSeqId() {
         return seqId;
     }
 
-    public ChatMessageStatisticsEntity seqId(String seqId) {
+    public void setSeqId(String seqId) {
         this.seqId = seqId;
-        return this;
     }
 
     public Integer getDayCount() {
@@ -163,29 +152,28 @@ public class ChatMessageStatisticsEntity implements Serializable {
             return false;
         }
         ChatMessageStatisticsEntity ChatMessageStatisticsEntity = (ChatMessageStatisticsEntity) o;
-        if (ChatMessageStatisticsEntity.getId() == null || getId() == null) {
+        if (ChatMessageStatisticsEntity.getSeqId() == null || getSeqId() == null) {
             return false;
         }
-        return Objects.equals(getId(), ChatMessageStatisticsEntity.getId());
+        return Objects.equals(getSeqId(), ChatMessageStatisticsEntity.getSeqId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hashCode(getSeqId());
     }
 
     @Override
     public String toString() {
         return "ChatMessageStatisticsEntity{" +
-            "id=" + getId() +
-            "seqId=" + getSeqId() +
-            ", dayCount=" + getDayCount() +
-            ", monthCount=" + getMonthCount() +
-            ", yearCount=" + getYearCount() +
-            ", inDay=" + getInDay() +
-            ", inMonth=" + getInMonth() +
-            ", inYear=" + getInYear() +
-            ", status='" + getStatus() + "'" +
+            "SeqId=" + getSeqId() +
+            ", DayCount=" + getDayCount() +
+            ", MonthCount=" + getMonthCount() +
+            ", YearCount=" + getYearCount() +
+            ", InDay=" + getInDay() +
+            ", InMonth=" + getInMonth() +
+            ", InYear=" + getInYear() +
+            ", Status='" + getStatus() + "'" +
             "}";
     }
 }

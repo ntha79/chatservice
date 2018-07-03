@@ -139,7 +139,7 @@ public class ChatMessageStatisticsResourceIntTest {
         int databaseSizeBeforeCreate = chatMessageStatisticsRepository.findAll().size();
 
         // Create the ChatMessageStatistics with an existing ID
-        chatMessageStatistics.setId("existing_id");
+        chatMessageStatistics.setSeqId("existing_id");
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restChatMessageStatisticsMockMvc.perform(post("/api/chat-message-statistics")
@@ -161,7 +161,7 @@ public class ChatMessageStatisticsResourceIntTest {
         restChatMessageStatisticsMockMvc.perform(get("/api/chat-message-statistics?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(chatMessageStatistics.getId())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(chatMessageStatistics.getSeqId())))
             .andExpect(jsonPath("$.[*].seqId").value(hasItem(DEFAULT_SEQ_ID.toString())))
             .andExpect(jsonPath("$.[*].dayCount").value(hasItem(DEFAULT_DAY_COUNT)))
             .andExpect(jsonPath("$.[*].monthCount").value(hasItem(DEFAULT_MONTH_COUNT)))
@@ -178,10 +178,10 @@ public class ChatMessageStatisticsResourceIntTest {
         chatMessageStatisticsRepository.save(chatMessageStatistics);
 
         // Get the chatMessageStatistics
-        restChatMessageStatisticsMockMvc.perform(get("/api/chat-message-statistics/{id}", chatMessageStatistics.getId()))
+        restChatMessageStatisticsMockMvc.perform(get("/api/chat-message-statistics/{id}", chatMessageStatistics.getSeqId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(chatMessageStatistics.getId()))
+            .andExpect(jsonPath("$.id").value(chatMessageStatistics.getSeqId()))
             .andExpect(jsonPath("$.seqId").value(DEFAULT_SEQ_ID.toString()))
             .andExpect(jsonPath("$.dayCount").value(DEFAULT_DAY_COUNT))
             .andExpect(jsonPath("$.monthCount").value(DEFAULT_MONTH_COUNT))
@@ -206,7 +206,7 @@ public class ChatMessageStatisticsResourceIntTest {
         int databaseSizeBeforeUpdate = chatMessageStatisticsRepository.findAll().size();
 
         // Update the chatMessageStatistics
-        ChatMessageStatisticsEntity updatedChatMessageStatistics = chatMessageStatisticsRepository.findOne(chatMessageStatistics.getId());
+        ChatMessageStatisticsEntity updatedChatMessageStatistics = chatMessageStatisticsRepository.findOne(chatMessageStatistics.getSeqId());
         updatedChatMessageStatistics
             .dayCount(UPDATED_DAY_COUNT)
             .monthCount(UPDATED_MONTH_COUNT)
@@ -258,7 +258,7 @@ public class ChatMessageStatisticsResourceIntTest {
         int databaseSizeBeforeDelete = chatMessageStatisticsRepository.findAll().size();
 
         // Get the chatMessageStatistics
-        restChatMessageStatisticsMockMvc.perform(delete("/api/chat-message-statistics/{id}", chatMessageStatistics.getId())
+        restChatMessageStatisticsMockMvc.perform(delete("/api/chat-message-statistics/{id}", chatMessageStatistics.getSeqId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
@@ -271,13 +271,13 @@ public class ChatMessageStatisticsResourceIntTest {
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(ChatMessageStatisticsEntity.class);
         ChatMessageStatisticsEntity chatMessageStatistics1 = new ChatMessageStatisticsEntity();
-        chatMessageStatistics1.setId("id1");
+        chatMessageStatistics1.setSeqId("id1");
         ChatMessageStatisticsEntity chatMessageStatistics2 = new ChatMessageStatisticsEntity();
-        chatMessageStatistics2.setId(chatMessageStatistics1.getId());
+        chatMessageStatistics2.setSeqId(chatMessageStatistics1.getSeqId());
         assertThat(chatMessageStatistics1).isEqualTo(chatMessageStatistics2);
-        chatMessageStatistics2.setId("id2");
+        chatMessageStatistics2.setSeqId("id2");
         assertThat(chatMessageStatistics1).isNotEqualTo(chatMessageStatistics2);
-        chatMessageStatistics1.setId(null);
+        chatMessageStatistics1.setSeqId(null);
         assertThat(chatMessageStatistics1).isNotEqualTo(chatMessageStatistics2);
     }
 }

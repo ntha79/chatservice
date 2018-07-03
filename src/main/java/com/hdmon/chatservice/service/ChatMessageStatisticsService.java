@@ -41,7 +41,7 @@ public class ChatMessageStatisticsService {
         log.debug("Request to save ChatMessageStatistics : {}-{}-{}", inDay, inMonth, inYear);
 
         ChatMessageStatisticsEntity dbInfo = chatMessageStatisticsRepository.findByInDayEqualsAndInMonthEqualsAndInYearEquals(inDay, inMonth, inYear);
-        if(dbInfo != null && dbInfo.getId() != null)
+        if(dbInfo != null && dbInfo.getSeqId() != null)
         {
             dbInfo.setDayCount(dbInfo.getDayCount() + 1);
             dbInfo.setMonthCount(dbInfo.getMonthCount() + 1);

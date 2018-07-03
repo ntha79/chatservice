@@ -8,8 +8,8 @@
         },
         {
             "fieldName": "groupType",
-            "fieldType": "GroupType",
-            "fieldValues": "PUBLIC,FANPAGE,SECRET,NORMAL"
+            "fieldType": "GroupTypeEnum",
+            "fieldValues": "PUBLIC,FANPAGE,SECRET,PEERTOPEER"
         },
         {
             "fieldName": "groupName",
@@ -19,21 +19,22 @@
             "fieldName": "groupIcon",
             "fieldType": "String"
         },
+		{
+            "fieldName": "groupBackground",
+            "fieldType": "String"
+        },
         {
             "fieldName": "groupSlogan",
             "fieldType": "String"
         },
+		{
+            "fieldName": "groupSumary",
+            "fieldType": "String"
+        },
         {
             "fieldName": "groupStatus",
-            "fieldType": "Integer"
-        },
-        {
-            "fieldName": "ownerId",
-            "fieldType": "Long"
-        },
-        {
-            "fieldName": "ownerLogin",
-            "fieldType": "String"
+            "fieldType": "GroupMemberStatusEnum",
+			"fieldValues": "INVITING,NORMAL,BLOCKED,DELETED"
         },
         {
             "fieldName": "memberLists",
@@ -44,19 +45,15 @@
             "fieldType": "Integer"
         },
         {
-            "fieldName": "memberCount",
-            "fieldType": "Integer"
+            "fieldName": "createdById",
+            "fieldType": "Long"
         },
         {
             "fieldName": "createdBy",
             "fieldType": "String"
         },
         {
-            "fieldName": "createdDate",
-            "fieldType": "Instant"
-        },
-        {
-            "fieldName": "createdUnixTime",
+            "fieldName": "createdTime",
             "fieldType": "Long"
         },
         {
@@ -64,15 +61,7 @@
             "fieldType": "String"
         },
         {
-            "fieldName": "lastModifiedDate",
-            "fieldType": "Instant"
-        },
-        {
-            "fieldName": "lastModifiedUnixTime",
-            "fieldType": "Long"
-        },
-        {
-            "fieldName": "lastChatUnixTime",
+            "fieldName": "lastModifiedTime",
             "fieldType": "Long"
         },
         {
@@ -81,7 +70,7 @@
         }
     ],
     "changelogDate": "20180604034445",
-    "entityTableName": "group_members",
+    "entityTableName": "chat_groups",
     "dto": "no",
     "pagination": "pagination",
     "service": "no",

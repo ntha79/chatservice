@@ -3,6 +3,10 @@
     "relationships": [],
     "fields": [
         {
+            "fieldName": "seqId",
+            "fieldType": "String"
+        },
+		{
             "fieldName": "messageId",
             "fieldType": "String"
         },
@@ -12,8 +16,8 @@
         },
         {
             "fieldName": "groupType",
-            "fieldType": "GroupType",
-            "fieldValues": "PUBLIC,FANPAGE,SECRET,NORMAL"
+            "fieldType": "GroupTypeEnum",
+            "fieldValues": "PUBLIC,FANPAGE,SECRET,PEERTOPEER"
         },
         {
             "fieldName": "messageValue",
@@ -21,40 +25,52 @@
         },
         {
             "fieldName": "messageType",
-            "fieldType": "ChatMessageType",
-            "fieldValues": "TEXT,FILE,QRCODE"
+            "fieldType": "ChatMessageTypeEnum",
+            "fieldValues": "TEXT,FILE,QRCODE,EDIT"
         },
         {
-            "fieldName": "senderId",
+            "fieldName": "messageStatus",
+            "fieldType": "ChatMessageStatusEnum",
+            "fieldValues": "UNKNOW,NOTRECEIVED,RECEIVED,UNREAD,READED,EDITED,PINING"
+        },
+        {
+            "fieldName": "ownerUserName",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "fromUserId",
             "fieldType": "Long"
         },
         {
-            "fieldName": "senderLogin",
+            "fieldName": "fromUserName",
             "fieldType": "String"
         },
         {
-            "fieldName": "receiverLists",
+            "fieldName": "fromFullName",
             "fieldType": "String"
         },
         {
-            "fieldName": "receiverType",
-            "fieldType": "ReceiverType",
-            "fieldValues": "PUBLIC,FANPAGE,FRIEND"
+            "fieldName": "toUserId",
+            "fieldType": "Long"
         },
         {
-            "fieldName": "receiverText",
+            "fieldName": "toUserName",
             "fieldType": "String"
-        },
-        {
-            "fieldName": "createdBy",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "createdDate",
-            "fieldType": "Instant"
         },
         {
             "fieldName": "createdUnixTime",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "sendTime",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "readTime",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "createdTime",
             "fieldType": "Long"
         },
         {
@@ -62,24 +78,20 @@
             "fieldType": "String"
         },
         {
-            "fieldName": "lastModifiedDate",
-            "fieldType": "Instant"
+            "fieldName": "lastModifiedTime",
+            "fieldType": "Long"
         },
         {
-            "fieldName": "lastModifiedUnixTime",
-            "fieldType": "Long"
+            "fieldName": "maxSecondToAction",
+            "fieldType": "Integer"
         },
         {
             "fieldName": "reportDay",
             "fieldType": "Integer"
         },
         {
-            "fieldName": "maxTimeToAction",
+            "fieldName": "likeCount",
             "fieldType": "Integer"
-        },
-        {
-            "fieldName": "referMessageId",
-            "fieldType": "Long"
         }
     ],
     "changelogDate": "20180601100057",

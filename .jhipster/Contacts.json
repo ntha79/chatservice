@@ -3,47 +3,27 @@
     "relationships": [],
     "fields": [
         {
-            "fieldName": "seqId",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "ownerId",
+            "fieldName": "ownerUserid",
             "fieldType": "Long"
         },
         {
-            "fieldName": "ownerLogin",
+            "fieldName": "ownerUsername",
             "fieldType": "String"
         },
         {
-            "fieldName": "contactLists",
+            "fieldName": "friendLists",
             "fieldType": "String"
         },
         {
-            "fieldName": "contactCount",
-            "fieldType": "Integer"
-        },
-        {
-            "fieldName": "createdBy",
+            "fieldName": "groupLists",
             "fieldType": "String"
         },
         {
-            "fieldName": "createdDate",
-            "fieldType": "Instant"
-        },
-        {
-            "fieldName": "createdUnixTime",
+            "fieldName": "createdTime",
             "fieldType": "Long"
         },
         {
-            "fieldName": "lastModifiedBy",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "lastModifiedDate",
-            "fieldType": "Instant"
-        },
-        {
-            "fieldName": "lastModifiedUnixTime",
+            "fieldName": "lastModifiedTime",
             "fieldType": "Long"
         },
         {

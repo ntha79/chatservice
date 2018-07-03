@@ -32,12 +32,12 @@
         },
         {
             "fieldName": "status",
-            "fieldType": "CheckStatus",
-            "fieldValues": "NOTCHECK,CHECKED"
+            "fieldType": "CheckStatusEnum",
+            "fieldValues": "NOTCHECK, CHECKED"
         }
     ],
     "changelogDate": "20180604034446",
-    "entityTableName": "group_member_statistics",
+    "entityTableName": "chat_group_statistics",
     "dto": "no",
     "pagination": "pagination",
     "service": "no",

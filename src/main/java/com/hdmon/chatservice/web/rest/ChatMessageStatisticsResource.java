@@ -51,12 +51,12 @@ public class ChatMessageStatisticsResource {
     @Timed
     public ResponseEntity<ChatMessageStatisticsEntity> createChatMessageStatistics(@RequestBody ChatMessageStatisticsEntity chatMessageStatistics) throws URISyntaxException {
         log.debug("REST request to save ChatMessageStatistics : {}", chatMessageStatistics);
-        if (chatMessageStatistics.getId() != null) {
+        if (chatMessageStatistics.getSeqId() != null) {
             throw new BadRequestAlertException("A new chatMessageStatistics cannot already have an ID", ENTITY_NAME, "idexists");
         }
         ChatMessageStatisticsEntity result = chatMessageStatisticsRepository.save(chatMessageStatistics);
-        return ResponseEntity.created(new URI("/api/chat-message-statistics/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
+        return ResponseEntity.created(new URI("/api/chat-message-statistics/" + result.getSeqId()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getSeqId()))
             .body(result);
     }
 
@@ -73,12 +73,12 @@ public class ChatMessageStatisticsResource {
     @Timed
     public ResponseEntity<ChatMessageStatisticsEntity> updateChatMessageStatistics(@RequestBody ChatMessageStatisticsEntity chatMessageStatistics) throws URISyntaxException {
         log.debug("REST request to update ChatMessageStatistics : {}", chatMessageStatistics);
-        if (chatMessageStatistics.getId() == null) {
+        if (chatMessageStatistics.getSeqId() == null) {
             return createChatMessageStatistics(chatMessageStatistics);
         }
         ChatMessageStatisticsEntity result = chatMessageStatisticsRepository.save(chatMessageStatistics);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, chatMessageStatistics.getId()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, chatMessageStatistics.getSeqId()))
             .body(result);
     }
 
