@@ -1,0 +1,51 @@
+{
+    "fluentMethods": true,
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "deviceId",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "gmcRegId",
+            "fieldType": "String"
+        },        
+        {
+            "fieldName": "clientType",
+            "fieldType": "GcmUsersClientTypeEnum",
+            "fieldValues": "ANDROID,IOS,BLACKBERY,WINPHONE"
+        },
+		{
+            "fieldName": "ownerUserid",
+            "fieldType": "Long",            
+        },
+		{
+            "fieldName": "ownerUsername",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "status",
+            "fieldType": "GcmUsersStatusEnum",
+            "fieldValues": "ACTIVE"
+        },
+		{
+            "fieldName": "createdTime",
+            "fieldType": "Long"
+        },
+		{
+            "fieldName": "lastModifiedTime",
+            "fieldType": "Long"
+        },        
+        {
+            "fieldName": "reportDay",
+            "fieldType": "Integer"
+        }
+    ],
+    "changelogDate": "20180604034454",
+    "entityTableName": "gcm_users",
+    "dto": "no",
+    "pagination": "pagination",
+    "service": "no",
+    "jpaMetamodelFiltering": false,
+    "microserviceName": "notiservice"
+}

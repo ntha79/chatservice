@@ -11,21 +11,43 @@
             "fieldType": "String"
         },
         {
-            "fieldName": "message",
+            "fieldName": "msgTitle",
             "fieldType": "String"
         },
         {
-            "fieldName": "linkDetail",
+            "fieldName": "msgBody",
+            "fieldType": "String"
+        },
+		{
+            "fieldName": "msgLink",
             "fieldType": "String"
         },
         {
             "fieldName": "status",
-            "fieldType": "PushNotificationStatus",
+            "fieldType": "PushNotificationStatusEnum",
             "fieldValues": "INIT,SENDING,CANCEL,FINISH"
         },
+		{
+            "fieldName": "clientType",
+            "fieldType": "PushNotificationClientTypeEnum",
+            "fieldValues": "ALL,WEB,APP,ANDROID,IOS,WINPHONE,BLACKBERY"
+        },
+		{
+            "fieldName": "receiverType",
+            "fieldType": "PushNotificationReceiverTypeEnum",
+            "fieldValues": "ALL,LIST,ONE"
+        },
         {
-            "fieldName": "toMemberList",
+            "fieldName": "receiverList",
             "fieldType": "String"
+        },
+		{
+            "fieldName": "errorList",
+            "fieldType": "String"
+        },
+		{
+            "fieldName": "minuteToSend",
+            "fieldType": "Integer"
         },
         {
             "fieldName": "createdBy",
@@ -34,11 +56,7 @@
         {
             "fieldName": "createdDate",
             "fieldType": "Instant"
-        },
-        {
-            "fieldName": "createdUnixTime",
-            "fieldType": "Long"
-        },
+        },        
         {
             "fieldName": "lastModifiedBy",
             "fieldType": "String"
@@ -46,11 +64,7 @@
         {
             "fieldName": "lastModifiedDate",
             "fieldType": "Instant"
-        },
-        {
-            "fieldName": "lastModifiedUnixTime",
-            "fieldType": "Long"
-        },
+        },        
         {
             "fieldName": "reportDay",
             "fieldType": "Integer"
@@ -62,5 +76,5 @@
     "pagination": "pagination",
     "service": "no",
     "jpaMetamodelFiltering": false,
-    "microserviceName": "chatservice"
+    "microserviceName": "notiservice"
 }

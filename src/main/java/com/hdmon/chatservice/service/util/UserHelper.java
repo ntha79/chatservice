@@ -3,7 +3,7 @@ package com.hdmon.chatservice.service.util;
 import com.hdmon.chatservice.domain.IsoResponseEntity;
 import com.hdmon.chatservice.domain.enumeration.UserFindTypeEnum;
 import com.hdmon.chatservice.service.dto.User;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
