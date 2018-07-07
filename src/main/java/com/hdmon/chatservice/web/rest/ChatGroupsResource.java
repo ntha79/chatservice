@@ -13,6 +13,7 @@ import com.hdmon.chatservice.web.rest.util.BusinessUtil;
 import com.hdmon.chatservice.web.rest.util.HeaderUtil;
 import com.hdmon.chatservice.web.rest.util.PaginationUtil;
 import com.hdmon.chatservice.web.rest.vm.Groups.*;
+import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing GroupMembers.
@@ -49,18 +51,19 @@ public class ChatGroupsResource {
     /**
      * POST  /chatgroups : Create a new chatGroups.
      *
-     * @param groupMembers the chatGroups to create
+     * @param chatGroups the chatGroups to create
      * @return the ResponseEntity with status 201 (Created) and with body the new chatGroups, or with status 400 (Bad Request) if the chatGroups has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/chatgroups")
     @Timed
-    public ResponseEntity<ChatGroupsEntity> createGroupMembers(@RequestBody ChatGroupsEntity groupMembers) throws URISyntaxException {
-        log.debug("REST request to save ChatGroups : {}", groupMembers);
-        if (groupMembers.getGroupId() != null) {
-            throw new BadRequestAlertException("A new chatGroups cannot already have an ID", ENTITY_NAME, "idexists");
+    public ResponseEntity<ChatGroupsEntity> createGroupMembers(@RequestBody ChatGroupsEntity chatGroups) throws URISyntaxException {
+        log.debug("REST request to save ChatGroups : {}", chatGroups);
+        if (chatGroups.getGroupId() != null) {
+            //throw new BadRequestAlertException("A new chatGroups cannot already have an ID", ENTITY_NAME, "idexists");
+            updateGroupMembers(chatGroups);
         }
-        ChatGroupsEntity result = chatGroupsService.save(groupMembers);
+        ChatGroupsEntity result = chatGroupsService.save(chatGroups);
         return ResponseEntity.created(new URI("/api/chatgroups/" + result.getGroupId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getGroupId()))
             .body(result);
@@ -69,7 +72,7 @@ public class ChatGroupsResource {
     /**
      * PUT  /chatgroups : Updates an existing chatGroups.
      *
-     * @param groupMembers the chatGroups to update
+     * @param chatGroups the chatGroups to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated chatGroups,
      * or with status 400 (Bad Request) if the chatGroups is not valid,
      * or with status 500 (Internal Server Error) if the chatGroups couldn't be updated
@@ -77,14 +80,14 @@ public class ChatGroupsResource {
      */
     @PutMapping("/chatgroups")
     @Timed
-    public ResponseEntity<ChatGroupsEntity> updateGroupMembers(@RequestBody ChatGroupsEntity groupMembers) throws URISyntaxException {
-        log.debug("REST request to update ChatGroups : {}", groupMembers);
-        if (groupMembers.getGroupId() == null) {
-            return createGroupMembers(groupMembers);
+    public ResponseEntity<ChatGroupsEntity> updateGroupMembers(@RequestBody ChatGroupsEntity chatGroups) throws URISyntaxException {
+        log.debug("REST request to update ChatGroups : {}", chatGroups);
+        if (chatGroups.getGroupId() == null) {
+            return createGroupMembers(chatGroups);
         }
-        ChatGroupsEntity result = chatGroupsService.save(groupMembers);
+        ChatGroupsEntity result = chatGroupsService.save(chatGroups);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, groupMembers.getGroupId()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, chatGroups.getGroupId()))
             .body(result);
     }
 
@@ -101,6 +104,20 @@ public class ChatGroupsResource {
         Page<ChatGroupsEntity> page = chatGroupsService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/chatgroups");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * GET  /chatgroups/:id : get the "id" chatgroups.
+     *
+     * @param id the id of the chatgroups to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the chatgroups, or with status 404 (Not Found)
+     */
+    @GetMapping("/chatgroups/{id}")
+    @Timed
+    public ResponseEntity<ChatGroupsEntity> getContacts(@PathVariable String id) {
+        log.debug("REST request to get Chatgroups : {}", id);
+        ChatGroupsEntity chatgroups = chatGroupsService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(chatgroups));
     }
 
     /**

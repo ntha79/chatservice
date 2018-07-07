@@ -15,7 +15,7 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface ContactsRepository extends MongoRepository<ContactsEntity, String> {
+public interface ContactsRepository extends MongoRepository<ContactsEntity, Long> {
     ContactsEntity findOneByOwnerUsername(String ownerUsername);
 
     ContactsEntity findOneByOwnerUserid(Long ownerUserid);

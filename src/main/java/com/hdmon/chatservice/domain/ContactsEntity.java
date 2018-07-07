@@ -19,10 +19,10 @@ public class ContactsEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Id
     @Field("owner_userid")
     private Long ownerUserid;
 
-    @Id
     @Field("owner_username")
     private String ownerUsername;
 

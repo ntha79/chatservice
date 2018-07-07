@@ -45,12 +45,12 @@ public class ContactsService {
     /**
      * Save a Contacts.
      *
-     * @param friends the entity to save
+     * @param contacts the entity to save
      * @return the persisted entity
      */
-    public ContactsEntity save(ContactsEntity friends) {
-        log.debug("Request to save Contacts : {}", friends);
-        return contactsRepository.save(friends);
+    public ContactsEntity save(ContactsEntity contacts) {
+        log.debug("Request to save Contacts : {}", contacts);
+        return contactsRepository.save(contacts);
     }
 
     /**
@@ -72,7 +72,7 @@ public class ContactsService {
      * @return the entity
      */
     @Transactional(readOnly = true)
-    public ContactsEntity findOne(String id) {
+    public ContactsEntity findOne(Long id) {
         log.debug("Request to get Contacts : {}", id);
         return contactsRepository.findOne(id);
     }
@@ -82,7 +82,7 @@ public class ContactsService {
      *
      * @param id the id of the entity
      */
-    public void delete(String id) {
+    public void delete(Long id) {
         log.debug("Request to delete Contacts : {}", id);
         contactsRepository.delete(id);
     }

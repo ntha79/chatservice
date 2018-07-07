@@ -39,10 +39,10 @@ public class ContactsResource {
 
     private static final String ENTITY_NAME = "contacts";
 
-    private final ContactsService friendsService;
+    private final ContactsService contactsService;
 
-    public ContactsResource(ContactsService friendsService) {
-        this.friendsService = friendsService;
+    public ContactsResource(ContactsService contactsService) {
+        this.contactsService = contactsService;
     }
 
     /**
@@ -54,14 +54,14 @@ public class ContactsResource {
      */
     @PostMapping("/contacts")
     @Timed
-    public ResponseEntity<ContactsEntity> createFriends(@RequestBody ContactsEntity friends) throws URISyntaxException {
+    public ResponseEntity<ContactsEntity> createContacts(@RequestBody ContactsEntity friends) throws URISyntaxException {
         log.debug("REST request to save Contacts : {}", friends);
-        if (friends.getOwnerUsername() == null) {
+        if (friends.getOwnerUserid() == null) {
             throw new BadRequestAlertException("A new contacts can not have an ID Null", ENTITY_NAME, "empty");
         }
-        ContactsEntity result = friendsService.save(friends);
-        return ResponseEntity.created(new URI("/api/contacts/" + result.getOwnerUsername()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getOwnerUsername()))
+        ContactsEntity result = contactsService.save(friends);
+        return ResponseEntity.created(new URI("/api/contacts/" + result.getOwnerUserid()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getOwnerUserid().toString()))
             .body(result);
     }
 
@@ -80,12 +80,12 @@ public class ContactsResource {
         log.debug("REST request to update Friends : {}", friends);
         /*
         if (friends.getId() == null) {
-            return createFriends(friends);
+            return createFriends(contacts);
         }
         */
-        ContactsEntity result = friendsService.save(friends);
+        ContactsEntity result = contactsService.save(friends);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, friends.getOwnerUsername()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, friends.getOwnerUserid().toString()))
             .body(result);
     }
 
@@ -99,42 +99,42 @@ public class ContactsResource {
     @Timed
     public ResponseEntity<List<ContactsEntity>> getAllContacts(Pageable pageable) {
         log.debug("REST request to get a page of Contacts");
-        Page<ContactsEntity> page = friendsService.findAll(pageable);
+        Page<ContactsEntity> page = contactsService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/contacts");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
-     * GET  /friends/:id : get the "id" contacts.
+     * GET  /contacts/:id : get the "id" contacts.
      *
      * @param id the id of the contacts to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the contacts, or with status 404 (Not Found)
      */
     @GetMapping("/contacts/{id}")
     @Timed
-    public ResponseEntity<ContactsEntity> getContacts(@PathVariable String id) {
+    public ResponseEntity<ContactsEntity> getContacts(@PathVariable Long id) {
         log.debug("REST request to get Contacts : {}", id);
-        ContactsEntity friends = friendsService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(friends));
+        ContactsEntity contacts = contactsService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(contacts));
     }
 
     /**
-     * DELETE  /friends/:id : delete the "id" contacts.
+     * DELETE  /contacts/:id : delete the "id" contacts.
      *
      * @param id the id of the contacts to delete
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping("/contacts/{id}")
     @Timed
-    public ResponseEntity<Void> deleteContacts(@PathVariable String id) {
+    public ResponseEntity<Void> deleteContacts(@PathVariable Long id) {
         log.debug("REST request to delete Contacts : {}", id);
-        friendsService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id)).build();
+        contactsService.delete(id);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 
-    /*=========================================================
-    * ================CAC HAM BO SUNG==========================
-    * =========================================================*/
+    /*==================================================================================================================
+    * ================CAC HAM BO SUNG===================================================================================
+    * ================================================================================================================*/
     /**
      * Lấy thông tin bản ghi và danh sách bạn bè của User.
      *
@@ -151,7 +151,7 @@ public class ContactsResource {
 
         try {
             if(!ownerUsername.isEmpty()) {
-                List<extFriendContactEntity> dbResults = friendsService.findOneByOwnerUsername(request, ownerUsername);
+                List<extFriendContactEntity> dbResults = contactsService.findOneByOwnerUsername(request, ownerUsername);
 
                 responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                 responseEntity.setData(dbResults);
@@ -196,7 +196,7 @@ public class ContactsResource {
 
         try {
             if(!ownerUsername.isEmpty()) {
-                GetChatListVM dbResults = friendsService.findChatListByOwnerUsername(request, ownerUsername);
+                GetChatListVM dbResults = contactsService.findChatListByOwnerUsername(request, ownerUsername);
 
                 responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                 responseEntity.setData(dbResults);
@@ -241,7 +241,7 @@ public class ContactsResource {
 
         try {
             if(!ownerUsername.isEmpty()) {
-                GetContactListVM dbResults = friendsService.findContactListByOwnerUsername(request, ownerUsername);
+                GetContactListVM dbResults = contactsService.findContactListByOwnerUsername(request, ownerUsername);
 
                 responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
                 responseEntity.setData(dbResults);
@@ -293,7 +293,7 @@ public class ContactsResource {
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
                     httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_requireaddfriends_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
-                    List<extFriendContactEntity> dbResults = friendsService.requireAddFriends(request, viewModel, responseEntity);
+                    List<extFriendContactEntity> dbResults = contactsService.requireAddFriends(request, viewModel, responseEntity);
                     int memberCount = dbResults.size();
                     httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
@@ -346,7 +346,7 @@ public class ContactsResource {
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
                     httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_acceptaddfriends_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
-                    List<extFriendContactEntity> dbResults = friendsService.acceptAddFriends(request, viewModel, responseEntity);
+                    List<extFriendContactEntity> dbResults = contactsService.acceptAddFriends(request, viewModel, responseEntity);
                     int memberCount = dbResults.size();
                     httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
@@ -399,7 +399,7 @@ public class ContactsResource {
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
                     httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "friends_invalid_data", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
-                    List<extFriendContactEntity> dbResults = friendsService.deniedAddFriends(viewModel, responseEntity);
+                    List<extFriendContactEntity> dbResults = contactsService.deniedAddFriends(viewModel, responseEntity);
                     int memberCount = dbResults.size();
                     httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
@@ -452,7 +452,7 @@ public class ContactsResource {
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
                     httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_blockfriends_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
-                    List<extFriendContactEntity> dbResults = friendsService.blockFriends(viewModel, responseEntity);
+                    List<extFriendContactEntity> dbResults = contactsService.blockFriends(viewModel, responseEntity);
                     int memberCount = dbResults.size();
                     httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
@@ -505,7 +505,7 @@ public class ContactsResource {
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
                     httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_deletefriends_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
-                    List<extFriendContactEntity> dbResults = friendsService.deleteFriends(viewModel, responseEntity);
+                    List<extFriendContactEntity> dbResults = contactsService.deleteFriends(viewModel, responseEntity);
                     int memberCount = dbResults.size();
                     httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
@@ -558,7 +558,7 @@ public class ContactsResource {
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
                     httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_updateinfo_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
-                    List<extFriendContactEntity> dbResults = friendsService.updateFriendInfo(viewModel, responseEntity);
+                    List<extFriendContactEntity> dbResults = contactsService.updateFriendInfo(viewModel, responseEntity);
                     int memberCount = dbResults.size();
                     httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
@@ -611,7 +611,7 @@ public class ContactsResource {
                     responseEntity.setException("The fields OwnerUsername, FriendUsername are not allowed NULL!");
                     httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "contacts_addcontact_invalid", "The fields OwnerUsername, FriendUsername are not allowed NULL!");
                 } else {
-                    List<extFriendContactEntity> dbResults = friendsService.addContact(request, viewModel, responseEntity);
+                    List<extFriendContactEntity> dbResults = contactsService.addContact(request, viewModel, responseEntity);
                     if (responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue()) {
                         int memberCount = dbResults.size();
                         httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(memberCount));

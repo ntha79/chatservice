@@ -2,6 +2,7 @@ package com.hdmon.chatservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.hdmon.chatservice.config.ApplicationProperties;
+import com.hdmon.chatservice.domain.ChatGroupsEntity;
 import com.hdmon.chatservice.domain.ChatMessagesEntity;
 
 import com.hdmon.chatservice.domain.IsoResponseEntity;
@@ -13,6 +14,7 @@ import com.hdmon.chatservice.web.rest.util.HeaderUtil;
 import com.hdmon.chatservice.web.rest.util.PaginationUtil;
 
 import com.hdmon.chatservice.web.rest.vm.Messages.*;
+import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -28,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing ChatMessages.
@@ -104,77 +107,36 @@ public class ChatMessagesResource {
     }
 
     /**
-     * GET  /chat-messages/:id : get the "id" chatMessages.
+     * GET  /chatmessages/:id : get the "id" chatmessages.
      *
-     * @param id the id of the chatMessages to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the chatMessages, or with status 404 (Not Found)
+     * @param id the id of the chatmessages to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the chatmessages, or with status 404 (Not Found)
      */
     @GetMapping("/chatmessages/{id}")
     @Timed
-    public ResponseEntity<IsoResponseEntity> getChatMessages(@PathVariable String id) {
+    public ResponseEntity<ChatMessagesEntity> getContacts(@PathVariable String id) {
         log.debug("REST request to get ChatMessages : {}", id);
-
-        IsoResponseEntity responseEntity = new IsoResponseEntity();
-        HttpHeaders httpHeaders;
-
-        try {
-            ChatMessagesEntity dbResults = chatMessagesService.findOne(id);
-
-            responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
-            responseEntity.setData(dbResults);
-            responseEntity.setMessage("successfull");
-
-            httpHeaders = HeaderUtil.createAlert(ENTITY_NAME, "/chatmessages");
-        }
-        catch (Exception ex)
-        {
-            responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("system_error");
-            responseEntity.setException(ex.getMessage());
-
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatmessages_info_error", ex.getMessage());
-        }
-
-        return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
-        //return ResponseUtil.wrapOrNotFound(Optional.ofNullable(chatMessages));
+        ChatMessagesEntity chatmessages = chatMessagesService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(chatmessages));
     }
 
     /**
-     * DELETE  /chat-messages/:id : delete the "id" chatMessages.
+     * DELETE  /chatmessages/:id : delete the "id" chatMessages.
      *
      * @param id the id of the chatMessages to delete
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping("/chatmessages/{id}")
     @Timed
-    public ResponseEntity<IsoResponseEntity> deleteChatMessages(@PathVariable String id) {
-        log.debug("REST request to delete ChatMessages : {}", id);
-
-        IsoResponseEntity responseEntity = new IsoResponseEntity();
-        HttpHeaders httpHeaders;
-
-        try {
-            chatMessagesService.delete(id);
-
-            responseEntity.setError(ResponseErrorCode.SUCCESSFULL.getValue());
-            responseEntity.setData(id);
-            responseEntity.setMessage("successfull");
-
-            httpHeaders = HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id);
-        }
-        catch (Exception ex)
-        {
-            responseEntity.setError(ResponseErrorCode.SYSTEM_ERROR.getValue());
-            responseEntity.setMessage("system_error");
-            responseEntity.setException(ex.getMessage());
-
-            httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chat_messages_delete_error", ex.getMessage());
-        }
-
-        return new ResponseEntity<>(responseEntity, httpHeaders, HttpStatus.OK);
-        //chatMessagesRepository.delete(id);
-        //return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id)).build();
+    public ResponseEntity<Void> deleteGroupMembers(@PathVariable String id) {
+        log.debug("REST request to delete ChatGroups : {}", id);
+        chatMessagesService.delete(id);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id)).build();
     }
+
+    /*==================================================================================================================
+    * ================CAC HAM BO SUNG===================================================================================
+    * ================================================================================================================*/
 
     /**
      * DELETE  /chatmessages/deleteonebymember : delete for chatMessage item.

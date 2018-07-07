@@ -1,7 +1,5 @@
 package com.hdmon.chatservice.config;
 
-import io.github.jhipster.config.JHipsterProperties;
-import io.swagger.models.auth.In;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

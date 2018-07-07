@@ -227,7 +227,7 @@ public class ContactsResourceIntTest {
         int databaseSizeBeforeUpdate = contactsRepository.findAll().size();
 
         // Update the contacts
-        ContactsEntity updatedContacts = contactsRepository.findOne(contacts.getOwnerUsername());
+        ContactsEntity updatedContacts = contactsRepository.findOne(contacts.getOwnerUserid());
         updatedContacts
             .ownerUsername(UPDATED_OWNER_USERNAME)
             .friendLists(UPDATED_FRIEND_LISTS)
