@@ -2,12 +2,13 @@ package com.hdmon.chatservice.web.rest.vm.Groups;
 
 import com.hdmon.chatservice.domain.enumeration.GroupTypeEnum;
 
+import java.util.List;
+
 /**
  * Created by UserName on 6/9/2018.
  */
 public class CreateNewGroupVM {
     private String ownerUsername;
-
     private String groupId;
     private GroupTypeEnum groupType;
     private String groupName;
@@ -15,6 +16,7 @@ public class CreateNewGroupVM {
     private String groupBackground = "";
     private String groupSlogan = "";
     private String groupSumary = "";
+    private List<String> memberList;
 
     public CreateNewGroupVM(CreateNewGroupVM createNewGroupVM) {
         this.ownerUsername = createNewGroupVM.getGroupIcon();
@@ -24,9 +26,10 @@ public class CreateNewGroupVM {
         this.groupBackground = createNewGroupVM.getGroupBackground();
         this.groupSlogan = createNewGroupVM.getGroupSlogan();
         this.groupSumary = createNewGroupVM.getGroupSumary();
+        this.memberList = createNewGroupVM.getMemberList();
     }
 
-    public CreateNewGroupVM(String ownerUsername, String groupId, GroupTypeEnum groupType, String groupName, String groupIcon, String groupBackground, String groupSlogan, String groupSumary)
+    public CreateNewGroupVM(String ownerUsername, String groupId, GroupTypeEnum groupType, String groupName, String groupIcon, String groupBackground, String groupSlogan, String groupSumary, List<String> memberList)
     {
         this.ownerUsername = ownerUsername;
         this.groupId = groupId;
@@ -36,6 +39,7 @@ public class CreateNewGroupVM {
         this.groupBackground = groupBackground;
         this.groupSlogan = groupSlogan;
         this.groupSumary = groupSumary;
+        this.memberList = memberList;
     }
 
     public CreateNewGroupVM() {
@@ -150,6 +154,19 @@ public class CreateNewGroupVM {
         this.groupSumary = groupSumary;
     }
 
+    public List<String> getMemberList() {
+        return memberList;
+    }
+
+    public CreateNewGroupVM memberList(List<String> memberList) {
+        this.memberList = memberList;
+        return this;
+    }
+
+    public void setMemberList(List<String> memberList) {
+        this.memberList = memberList;
+    }
+
     @Override
     public String toString() {
         return "GroupMembersVM{" +
@@ -161,6 +178,7 @@ public class CreateNewGroupVM {
             ", GroupBackground='" + getGroupBackground() + '\'' +
             ", GroupSlogan='" + getGroupSlogan() + '\'' +
             ", GroupSumary='" + getGroupSumary() + '\'' +
+            ", MemberList='" + getMemberList() + '\'' +
             '}';
     }
 }

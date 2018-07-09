@@ -52,11 +52,11 @@ public class ChatGroupsEntity implements Serializable {
     @Field("max_member")
     private Integer maxMember = 5000;
 
-    @Field("created_by_id")
-    private Long createdById;
+    @Field("owner_userid")
+    private Long ownerUserid;
 
-    @Field("created_by")
-    private String createdBy;
+    @Field("owner_username")
+    private String ownerUsername;
 
     @Field("created_time")
     private Long createdTime = new Date().getTime();
@@ -196,30 +196,30 @@ public class ChatGroupsEntity implements Serializable {
         this.maxMember = maxMember;
     }
 
-    public Long getCreatedById() {
-        return createdById;
+    public Long getOwnerUserid() {
+        return ownerUserid;
     }
 
-    public ChatGroupsEntity createdById(Long createdById) {
-        this.createdById = createdById;
+    public ChatGroupsEntity ownerUserid(Long ownerUserid) {
+        this.ownerUserid = ownerUserid;
         return this;
     }
 
-    public void setCreatedById(Long createdById) {
-        this.createdById = createdById;
+    public void setOwnerUserid(Long ownerUserid) {
+        this.ownerUserid = ownerUserid;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
+    public String getOwnerUsername() {
+        return ownerUsername;
     }
 
-    public ChatGroupsEntity createdBy(String createdBy) {
-        this.createdBy = createdBy;
+    public ChatGroupsEntity ownerUsername(String ownerUsername) {
+        this.ownerUsername = ownerUsername;
         return this;
     }
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
+    public void setOwnerUsername(String ownerUsername) {
+        this.ownerUsername = ownerUsername;
     }
 
     public Long getCreatedTime() {
@@ -308,8 +308,8 @@ public class ChatGroupsEntity implements Serializable {
             ", GroupStatus=" + getGroupStatus() +
             ", MemberLists='" + getMemberLists() + "'" +
             ", mMaxMember=" + getMaxMember() +
-            ", CreatedById=" + getCreatedById() +
-            ", CreatedBy='" + getCreatedBy() + "'" +
+            ", OwnerUserid=" + getOwnerUserid() +
+            ", OwnerUsername()='" + getOwnerUsername() + "'" +
             ", CreatedTime='" + getCreatedTime() + "'" +
             ", LastModifiedBy='" + getLastModifiedBy() + "'" +
             ", LastModifiedTime='" + getLastModifiedTime() + "'" +

@@ -165,10 +165,15 @@ public class ChatGroupsResource {
                         responseEntity.setData(dbResult);
                         responseEntity.setMessage("chatgroups_create_successfull");
                         httpHeaders = HeaderUtil.createEntityCreationAlert(ENTITY_NAME, dbResult.getGroupId());
-                    } else {
+                    }
+                    else if(responseEntity.getError() == ResponseErrorCode.UNKNOW_ERROR.getValue())
+                    {
                         responseEntity.setError(ResponseErrorCode.CREATEFAIL.getValue());                 //Create fail
                         responseEntity.setMessage("chatgroups_create_fail");
                         httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, "chatgroups_create_fail", "Create group fail, please try again!");
+                    }
+                    else {
+                        httpHeaders = HeaderUtil.createFailureAlert(ENTITY_NAME, responseEntity.getMessage(), responseEntity.getException());
                     }
                 }
             }
@@ -319,7 +324,7 @@ public class ChatGroupsResource {
         HttpHeaders httpHeaders;
 
         try {
-            if(BusinessUtil.checkAuthenticationValid(viewModel.getActionUsername())) {
+            if(BusinessUtil.checkAuthenticationValid(viewModel.getUserLogin())) {
                 if (viewModel.getGroupId() == null || viewModel.getListMembers() == null || viewModel.getListMembers().size() <= 0) {
                     responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
                     responseEntity.setMessage("chatgroups_appendmembers_invalid");
@@ -376,8 +381,8 @@ public class ChatGroupsResource {
         HttpHeaders httpHeaders;
 
         try {
-            if(BusinessUtil.checkAuthenticationValid(viewModel.getActionUsername())) {
-                if (viewModel.getGroupId() == null || viewModel.getActionUsername() == null || viewModel.getListMembers().size() <= 0) {
+            if(BusinessUtil.checkAuthenticationValid(viewModel.getUserLogin())) {
+                if (viewModel.getGroupId() == null || viewModel.getUserLogin() == null || viewModel.getListMembers().size() <= 0) {
                     responseEntity.setError(ResponseErrorCode.INVALIDDATA.getValue());
                     responseEntity.setMessage("chatgroups_removemembers_invalid");
                     responseEntity.setException("The fields GroupId, ActionUsername, ListMembers are not allowed NULL!");

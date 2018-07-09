@@ -143,7 +143,7 @@ public class ChatGroupsResourceIntTest {
             .groupIcon(DEFAULT_GROUP_ICON)
             .groupSlogan(DEFAULT_GROUP_SLOGAN)
             .groupStatus(DEFAULT_GROUP_STATUS)
-            .createdById(DEFAULT_OWNER_ID)
+            .ownerUserid(DEFAULT_OWNER_ID)
             .memberLists(DEFAULT_MEMBER_LISTS)
             .maxMember(DEFAULT_MAX_MEMBER)
             .createdTime(DEFAULT_CREATED_UNIX_TIME)
@@ -177,10 +177,10 @@ public class ChatGroupsResourceIntTest {
         assertThat(testChatGroups.getGroupIcon()).isEqualTo(DEFAULT_GROUP_ICON);
         assertThat(testChatGroups.getGroupSlogan()).isEqualTo(DEFAULT_GROUP_SLOGAN);
         assertThat(testChatGroups.getGroupStatus()).isEqualTo(DEFAULT_GROUP_STATUS);
-        assertThat(testChatGroups.getCreatedById()).isEqualTo(DEFAULT_OWNER_ID);
+        assertThat(testChatGroups.getOwnerUserid()).isEqualTo(DEFAULT_OWNER_ID);
         assertThat(testChatGroups.getMemberLists()).isEqualTo(DEFAULT_MEMBER_LISTS);
         assertThat(testChatGroups.getMaxMember()).isEqualTo(DEFAULT_MAX_MEMBER);
-        assertThat(testChatGroups.getCreatedBy()).isEqualTo(DEFAULT_CREATED_BY);
+        assertThat(testChatGroups.getOwnerUsername()).isEqualTo(DEFAULT_CREATED_BY);
         assertThat(testChatGroups.getCreatedTime()).isEqualTo(DEFAULT_CREATED_UNIX_TIME);
         assertThat(testChatGroups.getLastModifiedBy()).isEqualTo(DEFAULT_LAST_MODIFIED_BY);
         assertThat(testChatGroups.getLastModifiedTime()).isEqualTo(DEFAULT_LAST_MODIFIED_UNIX_TIME);
@@ -288,7 +288,7 @@ public class ChatGroupsResourceIntTest {
             .groupIcon(UPDATED_GROUP_ICON)
             .groupSlogan(UPDATED_GROUP_SLOGAN)
             .groupStatus(UPDATED_GROUP_STATUS)
-            .createdById(UPDATED_OWNER_ID)
+            .ownerUserid(UPDATED_OWNER_ID)
             .memberLists(UPDATED_MEMBER_LISTS)
             .maxMember(UPDATED_MAX_MEMBER)
             .createdTime(UPDATED_CREATED_UNIX_TIME)
@@ -309,10 +309,10 @@ public class ChatGroupsResourceIntTest {
         assertThat(testChatGroups.getGroupIcon()).isEqualTo(UPDATED_GROUP_ICON);
         assertThat(testChatGroups.getGroupSlogan()).isEqualTo(UPDATED_GROUP_SLOGAN);
         assertThat(testChatGroups.getGroupStatus()).isEqualTo(UPDATED_GROUP_STATUS);
-        assertThat(testChatGroups.getCreatedById()).isEqualTo(UPDATED_OWNER_ID);
+        assertThat(testChatGroups.getOwnerUserid()).isEqualTo(UPDATED_OWNER_ID);
         assertThat(testChatGroups.getMemberLists()).isEqualTo(UPDATED_MEMBER_LISTS);
         assertThat(testChatGroups.getMaxMember()).isEqualTo(UPDATED_MAX_MEMBER);
-        assertThat(testChatGroups.getCreatedBy()).isEqualTo(UPDATED_CREATED_BY);
+        assertThat(testChatGroups.getOwnerUsername()).isEqualTo(UPDATED_CREATED_BY);
         assertThat(testChatGroups.getCreatedTime()).isEqualTo(UPDATED_CREATED_UNIX_TIME);
         assertThat(testChatGroups.getLastModifiedBy()).isEqualTo(UPDATED_LAST_MODIFIED_BY);
         assertThat(testChatGroups.getLastModifiedTime()).isEqualTo(UPDATED_LAST_MODIFIED_UNIX_TIME);

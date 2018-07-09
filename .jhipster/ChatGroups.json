@@ -45,11 +45,11 @@
             "fieldType": "Integer"
         },
         {
-            "fieldName": "createdById",
+            "fieldName": "ownerUserid",
             "fieldType": "Long"
         },
         {
-            "fieldName": "createdBy",
+            "fieldName": "ownerUsername",
             "fieldType": "String"
         },
         {

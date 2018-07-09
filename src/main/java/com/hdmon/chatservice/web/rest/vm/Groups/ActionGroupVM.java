@@ -7,18 +7,18 @@ import java.util.List;
  * Created by UserName on 6/9/2018.
  */
 public class ActionGroupVM {
-    private String actionUsername;
+    private String userLogin;
     private String groupId;
     private List<MembersActionGroupVM> listMembers = new ArrayList<>();
 
     public ActionGroupVM(ActionGroupVM actionGroupVM) {
-        this.actionUsername = actionGroupVM.getActionUsername();
+        this.userLogin = actionGroupVM.getUserLogin();
         this.groupId = actionGroupVM.getGroupId();
         this.listMembers = actionGroupVM.getListMembers();
     }
 
-    public ActionGroupVM(String actionUsername, String groupId, List<MembersActionGroupVM> listMembers) {
-        this.actionUsername = actionUsername;
+    public ActionGroupVM(String userLogin, String groupId, List<MembersActionGroupVM> listMembers) {
+        this.userLogin = userLogin;
         this.groupId = groupId;
         this.listMembers = listMembers;
     }
@@ -28,17 +28,17 @@ public class ActionGroupVM {
         super();
     }
 
-    public String getActionUsername() {
-        return actionUsername;
+    public String getUserLogin() {
+        return userLogin;
     }
 
-    public ActionGroupVM actionUsername(String actionUsername) {
-        this.actionUsername = actionUsername;
+    public ActionGroupVM userLogin(String userLogin) {
+        this.userLogin = userLogin;
         return this;
     }
 
-    public void setActionUsername(String actionUsername) {
-        this.actionUsername = actionUsername;
+    public void setUserLogin(String userLogin) {
+        this.userLogin = userLogin;
     }
 
     public String getGroupId() {
@@ -70,7 +70,7 @@ public class ActionGroupVM {
     @Override
     public String toString() {
         return "ActionGroupVM{" +
-            "ActionUsername='" + getActionUsername() + '\'' +
+            "UserLogin='" + getUserLogin() + '\'' +
             ", GroupId='" + getGroupId() + '\'' +
             ", ListMembers='" + getListMembers() + '\'' +
             '}';

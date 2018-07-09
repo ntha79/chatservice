@@ -97,7 +97,7 @@ public class ChatGroupsService {
     }
 
     /**
-     * Thành viên thực hiện tạo group mới).
+     * Thành viên thực hiện tạo group mới.
      * (Hàm bổ sung)
      * Create Time: 2018-06-29
      * Update Time: 2018-06-29
@@ -112,8 +112,8 @@ public class ChatGroupsService {
         Long ownerUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, viewModel.getOwnerUsername(), "");
         if(ownerUserId > 0) {
             Integer maxMember = applicationProperties.getChatService().getChatgroupMaxMember();
-            dbSourceInfo.setCreatedById(ownerUserId);
-            dbSourceInfo.setCreatedBy(viewModel.getOwnerUsername());
+            dbSourceInfo.setOwnerUserid(ownerUserId);
+            dbSourceInfo.setOwnerUsername(viewModel.getOwnerUsername());
             dbSourceInfo.setGroupId(viewModel.getGroupId());
             dbSourceInfo.setGroupType(viewModel.getGroupType());
             dbSourceInfo.setGroupName(viewModel.getGroupName());
@@ -133,6 +133,24 @@ public class ChatGroupsService {
             memberItem.setJoinTime(Calendar.getInstance().toInstant());
             memberItem.setActionNote("Người tạo nhóm");
             inputMemberLists.add(memberItem);
+
+            //Bổ sung các thành viên khác
+            List<String> otherMemberList = viewModel.getMemberList();
+            if(otherMemberList != null && otherMemberList.size() > 0) {
+                for (String otherMemberName : otherMemberList) {
+                    Long otherOwnerUserId = UserHelper.execCheckUserExistsInSystem(request, gatewayUrl, UserFindTypeEnum.USERNAME, otherMemberName, "");
+                    if (otherOwnerUserId > 0) {
+                        extGroupMemberEntity newMemberItem = new extGroupMemberEntity();
+                        newMemberItem.setMemberId(otherOwnerUserId);
+                        newMemberItem.setMemberUsername(otherMemberName);
+                        newMemberItem.setMemberRole(GroupMemberRoleEnum.MEMBER);
+                        newMemberItem.setMemberStatus(GroupMemberStatusEnum.INVITING);
+                        newMemberItem.setJoinTime(Calendar.getInstance().toInstant());
+                        newMemberItem.setActionNote("Được thêm bởi " + viewModel.getOwnerUsername());
+                        inputMemberLists.add(newMemberItem);
+                    }
+                }
+            }
 
             //Danh sách thành viên
             dbSourceInfo.setMemberLists(inputMemberLists);
@@ -181,7 +199,7 @@ public class ChatGroupsService {
         {
             boolean isExists = false;
             List<extGroupMemberEntity> memberLists = dbSourceInfo.getMemberLists();
-            if(viewModel.getOwnerUsername() != dbSourceInfo.getCreatedBy()) {
+            if(viewModel.getOwnerUsername() != dbSourceInfo.getOwnerUsername()) {
                 for (extGroupMemberEntity currentMbr : memberLists) {
                     if (currentMbr.getMemberUsername().equals(viewModel.getOwnerUsername())) {
                         isExists = true;
@@ -252,7 +270,7 @@ public class ChatGroupsService {
         ChatGroupsEntity dbSourceInfo = chatGroupsRepository.findOne(viewModel.getGroupId());
         if(dbSourceInfo != null && dbSourceInfo.getGroupId() != null)
         {
-            if(dbSourceInfo.getCreatedBy().equals(viewModel.getOwnerUsername())) {
+            if(dbSourceInfo.getOwnerUsername().equals(viewModel.getOwnerUsername())) {
                 //Loại bỏ group cho toàn bộ danh sách thành viên của group
                 List<extGroupMemberEntity> removeMemberLists = dbSourceInfo.getMemberLists();
                 for (extGroupMemberEntity removeMember : removeMemberLists) {
@@ -314,7 +332,7 @@ public class ChatGroupsService {
                             memberItem.setMemberRole(GroupMemberRoleEnum.MEMBER);
                             memberItem.setMemberStatus(GroupMemberStatusEnum.INVITING);
                             memberItem.setJoinTime(Calendar.getInstance().toInstant());
-                            memberItem.setActionNote("Được thêm bởi " + viewModel.getActionUsername());
+                            memberItem.setActionNote("Được thêm bởi " + viewModel.getUserLogin());
                             memberLists.add(memberItem);
 
                             //Cập nhật bản ghi cho người gửi yêu cầu
@@ -361,12 +379,12 @@ public class ChatGroupsService {
             memberLists = dbSourceInfo.getMemberLists();
 
             //Kiểm tra xem người thực hiện có quyền xóa không?
-            if (viewModel.getActionUsername().equals(dbSourceInfo.getCreatedBy())) {
+            if (viewModel.getUserLogin().equals(dbSourceInfo.getOwnerUsername())) {
                 allowRemove = true;
             }
             else {
                 for (extGroupMemberEntity exists : memberLists) {
-                    if (exists.getMemberUsername().equals(viewModel.getActionUsername()) && exists.getMemberRole() == GroupMemberRoleEnum.MANAGER) {
+                    if (exists.getMemberUsername().equals(viewModel.getUserLogin()) && exists.getMemberRole() == GroupMemberRoleEnum.MANAGER) {
                         allowRemove = true;
                         break;
                     }
@@ -380,7 +398,7 @@ public class ChatGroupsService {
                     Long memberId = 0L;
                     boolean isExists = false;
                     for (extGroupMemberEntity currentMbr : memberLists) {
-                        if (!currentMbr.getMemberUsername().equals(viewModel.getActionUsername()) && currentMbr.getMemberUsername().equals(removeMember.getMemberUsername())) {
+                        if (!currentMbr.getMemberUsername().equals(viewModel.getUserLogin()) && currentMbr.getMemberUsername().equals(removeMember.getMemberUsername())) {
                             memberId = currentMbr.getMemberId();
                             memberLists.remove(currentMbr);
                             isExists = true;
